@@ -11,6 +11,7 @@ export const createAccount = async (email, password, name) => {  //!This for cre
 
 export const login = async (email, password) => {                //!This for keeping user persist across refresh
     try {
+        // await account.deleteSession('current')
         return await account.createEmailPasswordSession(email, password)
     } catch (e) {
         console.log("Login failed", e);
