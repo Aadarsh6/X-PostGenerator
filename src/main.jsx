@@ -5,15 +5,14 @@ import App from './App.jsx'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { SignupPage } from './Pages/SignupPage.jsx'
 import { SigninPage } from './Pages/SignInPage.jsx'
-import { Dashboard } from './Pages/Dashboard.jsx'
-// import { LoginForm } from './AuthUI/LoginForm.jsx'
+import { DashboardPage } from './Pages/DashboardPage.jsx'
 
 
 const router = createBrowserRouter([
   {path: "/", element: <App/>},
   {path: "/signup", element: <SignupPage/>},
   {path: "/login", element: <SigninPage/>},
-  {path: "/dashboard", element: <Dashboard/>},
+  {path: "/dashboard", element: <DashboardPage/>},
 ])
 
 createRoot(document.getElementById('root')).render(

@@ -3,9 +3,7 @@ import { account, ID } from "./appwrite";
 export const createAccount = async (name, email, password) => {  //!This for creating account
     try {
        const newAccount =  await account.create(ID.unique(), email, password, name)
-       if(newAccount){
-        console.log("New Account created Successfully");   
-       }
+       console.log("New Account created Successfully");   
        return newAccount
        
         
@@ -17,22 +15,19 @@ export const createAccount = async (name, email, password) => {  //!This for cre
 }                                                         
 
 export const login = async (email, password) => {                //!This for keeping user persist across refresh
-
-    try {
-        const presentUser = await account.get()
-        if(presentUser){
-            await account.deleteSession('current')
-        }
-    }catch(e){
-        console.log("No user present", e)
+try {
+    const presentUser = await account.get();
+    if (presentUser) {
+      await account.deleteSession("current");
     }
+  } catch (e) {
+    console.log("No active session to delete", e?.message || e);
+  }
    
     
     try {
         const accountLogin = await account.createEmailPasswordSession(email, password)
-        if(accountLogin){
-            console.log("Login Successful")
-        }   
+        console.log("Login Successful")
         return accountLogin
     } catch (e) {
         console.log("Login failed", e);
@@ -63,7 +58,7 @@ export const logout = async () => {
    }
     try {
         const logoutUser = await account.deleteSession("current")  //! Appwrite interprets 'current' as a special keyword that means: “Delete the current    session, regardless of the actual session ID.”
-        console.log("user loggedout")
+        console.log("user log out")
         return logoutUser
     } catch (error) {
         console.log("Logout failed", error.message);
