@@ -54,9 +54,8 @@ return (
 <Card className="w-full max-w-md p-8 rounded-xl shadow-2xl bg-[#1a1a1a] backdrop-blur-lg border border-[#27272a]">
   <CardHeader className="text-center space-y-2">
     <CardTitle className="text-3xl font-extrabold text-gray-200">Welcome Back</CardTitle>
-    <CardDescription className="text-sm text-gray-400">
-      Access your account by entering your email and password.
-    </CardDescription>
+    <div className="text-white">Xcraft</div>
+
   </CardHeader>
   <CardContent>
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -155,10 +154,6 @@ return (
 }
 
 export default LoginForm;
-
-
-
-
 
 // import { cn } from "@/lib/utils"
 // import { Button } from "@/components/ui/button"

@@ -1,38 +1,25 @@
-
-
-// import { Menu } from 'lucide-react'
-// import { useState } from 'react'
-
-// export const Dashboard = () => {
-
-//     const [collapsed, setCollapsed] = useState(false)
-
-//   return (
-      
-//     <div className={`absolute inset-0 text-white p-4 h-screen bg-[#171717] rounded-xl border-r-1 border-[#222323] ${collapsed ? "w-64" : "w-16"} transition-all duration-500 ease-in-out`}>
-
-//         <div className={`flex ${collapsed ? "ml-0" : "ml-auto"} mb-6 pr-2 focus:outline-none `}>
-//             <button onClick={()=>setCollapsed(!collapsed)}
-//                 className="p-2 rounded hover:bg-[#252525] ">
-//         <Menu size={24}/>
-//         </button>
-//         {!collapsed && (
-//           <div className="mt-4 px-4">
-            
-//             {/* Add more sidebar items here */}
-//           </div>
-//         )}
-
-//         </div>
-//         </div>
-//   )
-// }
-
 import { Menu, Home, Settings, User, LogOut } from 'lucide-react'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { logout } from '../../AppWrite/appwriteFunction'
 
 export const Dashboard = () => {
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(true)
+
+     const navigate = useNavigate()
+          const handleLogout = async() =>{
+              try {
+                  const removeSession = await logout()
+                  if(removeSession){
+                      navigate("/login")
+                  }
+                  return removeSession
+              } catch (error) {
+                  console.log("Cant logout", error)
+              }
+          }
+
+
 
   const menuItems = [
     { icon: Home, label: 'Dashboard', id: 'dashboard' },
@@ -42,7 +29,7 @@ export const Dashboard = () => {
 
   return (
     <div
-      className={`fixed left-0 top-0 h-screen bg-[#171717] border-r border-[#222323] transition-all duration-500 ease-in-out z-50
+      className={`fixed left-0 top-0 h-screen bg-[#171717] border-r border-[#222323] transition-all duration-400 ease-in-out z-50
         flex flex-col
         ${collapsed ? "w-16" : "w-64"}
       `}
@@ -82,9 +69,11 @@ export const Dashboard = () => {
               type="button"
             >
               <Icon size={20} className="flex-shrink-0" />
-              {!collapsed && (
-                <span className="text-sm font-medium select-none">{item.label}</span>
-              )}
+              <span
+  className={`text-sm font-medium select-none overflow-hidden transition-all duration-300 ease-in-out
+    ${collapsed ? "opacity-0 w-0 scale-95" : "opacity-100 w-auto ml-1 scale-100"}`}>
+  {item.label}
+</span>
 
               {/* Tooltip for collapsed */}
               {collapsed && (
@@ -107,22 +96,23 @@ export const Dashboard = () => {
           type="button"
           aria-label="Logout"
           data-tooltip={collapsed ? "Logout" : ""}
+          onClick={handleLogout}
         >
             
-          <LogOut size={20} className="flex-shrink-0" />
-          {!collapsed && (
-            <span className="text-sm font-medium text-white select-none">Logout</span>
-          )}
-
-          {/* Tooltip for collapsed */}
+          <LogOut size={20} className="flex-shrink-0 flex justify-center items-center" 
+          />
           {collapsed && (
-            <span
-              className="absolute left-full ml-2 top-1/2 -translate-y-1/2 rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity duration-200 z-50 select-none"
-              role="tooltip"
-            >
-              Logout
-            </span>
-          )}
+      <span
+        className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-3 py-1 
+        rounded-md bg-[#252525] text-xs text-white whitespace-nowrap
+        transition-all duration-300 ease-in-out transform opacity-0 scale-95
+        group-hover:opacity-100 group-hover:scale-100 shadow-md z-50 select-none"
+        role="tooltip"
+      >
+        Logout
+      </span>
+    )}
+
         </button>
       </div>
     </div>
