@@ -6,20 +6,20 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { SignupPage } from './Pages/SignupPage.jsx'
 import { SigninPage } from './Pages/SignInPage.jsx'
 import { DashboardPage } from './Pages/DashboardPage.jsx'
+import ProtectRoute from './AppWrite/ProtectRoute'
 
 
 const router = createBrowserRouter([
   {path: "/", element: <App/>},
   {path: "/signup", element: <SignupPage/>},
   {path: "/login", element: <SigninPage/>},
-  {path: "/dashboard", element: <DashboardPage/>},
+  {path: "/dashboard", element: <ProtectRoute> <DashboardPage/> </ProtectRoute>
+  }
 ])
 
 createRoot(document.getElementById('root')).render(
 
   <StrictMode>
-    <RouterProvider router={router}>
-    <App />
-    </RouterProvider>
+    <RouterProvider router={router} />
   </StrictMode>,
 )

@@ -70,7 +70,7 @@ function SignUpForm({className, ...props}) {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex flex-col space-y-4">
               <div>
-                <Label htmlFor="name" className="text-base text-[#dbdce0]">
+                <Label htmlFor="name" className="text-base text-[#dbdce0] mb-2">
                   Full Name
                 </Label>
                 <Input
@@ -84,7 +84,7 @@ function SignUpForm({className, ...props}) {
               </div>
 
               <div>
-                <Label htmlFor="email" className="text-base text-[#dbdce0]">
+                <Label htmlFor="email" className="text-base text-[#dbdce0] mb-2">
                   Email
                 </Label>
                 <Input
@@ -98,7 +98,7 @@ function SignUpForm({className, ...props}) {
               </div>
 
               <div>
-                <Label htmlFor="password" className="text-base text-[#dbdce0]">
+                <Label htmlFor="password" className="text-base text-[#dbdce0] mb-2">
                   Password
                 </Label>
                 <Input
