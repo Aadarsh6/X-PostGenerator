@@ -108,22 +108,32 @@ return (
         </AvatarFallback>
         </Avatar>
 
-        {!collapsed && !loading && (
-        <div className="ml-3 overflow-hidden min-w-0 flex-1 justify-between">
-            <div className='flex justify-between items-center'>
-            <div className='text-md font-medium text-[#cccccd] select-none truncate'>
-            {getUser?.name}
-            </div>
-            
-            </div>
-            <div className='flex gap-2 text-xs mt-1 items-center text-gray-400 select-none'>
-                <div className='w-2 h-2 rounded-full bg-green-500'></div>
-            Online
-            </div>
-            
-        
+       {!collapsed && (
+  <div className="ml-3 overflow-hidden min-w-0 flex-1 justify-between">
+    {loading ? (
+      <div className='animate-pulse space-y-2'>
+        <div className='h-4 w-24 bg-[#2f2f2f] rounded-md'></div>
+        <div className='h-3 w-16 bg-[#2f2f2f] rounded-md'></div>
+      </div>
+    ) : (
+      <>
+        <div className='flex justify-between items-center'>
+          <div className='text-md font-medium text-[#cccccd] select-none truncate'>
+            {getUser.name}
+          </div>
         </div>
-        )}
+        <div className='flex gap-2 text-xs mt-1 items-center text-gray-400 select-none'>
+          <div className='w-2 h-2 rounded-full bg-green-500'></div>
+          Online
+        </div>
+      </>
+    )}
+  </div>
+)}
+
+
+
+
         </div>
         {!collapsed && (
             <button className='p-1.5 rounded transition-colors duration-200 ml-2 flex-shrink-0'
@@ -137,6 +147,59 @@ return (
     </div>
 )
 }
+
+
+/*                              DOCS
+
+
+?Consistency & Spacing:
+
+Uniform padding: Used consistent //!px-3 py-3 for navigation items
+Consistent gaps: Standardized gap-3 and margins throughout
+Balanced header: Adjusted header padding to px-4 py-3
+
+?Visual Hierarchy:
+
+Icon sizing: Reduced to size={20} for better proportion and consistency
+Typography: Improved font weights and sizes for better readability
+Color harmony: Used consistent hover color #252525 throughout
+
+?Enhanced UX:
+
+Smoother transitions: Reduced duration to 200ms for snappier feel
+Better focus states: Improved focus ring with blue accent
+Status indicator: Added "Online" status under username
+Gradient avatar fallback: More visually appealing fallback
+Proper truncation: Username truncates properly in narrow spaces
+
+?Tooltip Improvements:
+
+Better positioning: Increased ml-3 for proper spacing
+Enhanced styling: Added border and shadow for better visibility
+Consistent background: Used bg-gray-900 with border
+
+?Footer Enhancements:
+
+Conditional hover: Only applies hover when expanded
+Better user info: Added status indicator and proper layout
+Improved avatar: Better sizing and object-cover for images
+
+?Accessibility:
+
+Better focus indicators: Enhanced focus rings
+Proper ARIA labels: Maintained all accessibility features
+Keyboard navigation: All interactive elements remain keyboard accessible
+
+The design now feels more polished and consistent while maintaining your dark theme aesthetic and all existing functionality.
+*/
+
+
+
+
+
+
+
+
 
 
 /*                              DOCS
