@@ -1,13 +1,29 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar'
-import { Menu, Home, Settings, User, LogOut, Bookmark, LeafyGreen, Rss } from 'lucide-react'
-import { useState } from 'react'
+import { Menu, Home, Settings, User, Bookmark} from 'lucide-react'
+import { useEffect, useState } from 'react'
 import avatar from '/new.png'
 import { LogoutIcon } from './LogoutIcon'
+import { getCurrentAccount } from '@/AppWrite/appwriteFunction'
 
 export const Dashboard = () => {
 const [collapsed, setCollapsed] = useState(false)
+const [getUser, setGetUser] = useState(null)
+const [loading, setLoading] = useState(true)
 
-   
+   useEffect(()=>{
+    const getUser = async() => {
+        try {
+            const getName = await getCurrentAccount()
+               console.log("User data:", getName); 
+            setGetUser(getName)
+        } catch (error) {
+            console.log("Error while fetching name", error)
+        }finally{
+            setLoading(false)
+        }
+    }
+    getUser()
+   },[])
 
 const menuItems = [
     { icon: Home, label: 'Dashboard', id: 'dashboard' },
@@ -88,15 +104,15 @@ return (
         <Avatar className='w-9 h-9 rounded-full flex-shrink-0 transition-all duration-300'>
         <AvatarImage src={avatar} className="object-cover" />
         <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 p-2 flex justify-center items-center rounded-full text-white font-semibold text-sm">
-            U
+            {loading? "" : getUser?.name || "U"}
         </AvatarFallback>
         </Avatar>
 
-        {!collapsed && (
+        {!collapsed && !loading && (
         <div className="ml-3 overflow-hidden min-w-0 flex-1 justify-between">
             <div className='flex justify-between items-center'>
-            <div className='text-sm font-medium text-[#e7e9ea] select-none truncate'>
-            user.name
+            <div className='text-md font-medium text-[#cccccd] select-none truncate'>
+            {getUser?.name}
             </div>
             
             </div>
