@@ -1,5 +1,5 @@
 import React from 'react'
-import { Dashboard } from '../components/BlockComponent/Logout'
+import { Dashboard } from '../components/BlockComponent/Sidebar'
 
 export const DashboardPage = () => {
   return (

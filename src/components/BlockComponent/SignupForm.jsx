@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { createAccount } from "../../AppWrite/appwriteFunction"
+import { createAccount, login } from "../../AppWrite/appwriteFunction"
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Loader2 } from "lucide-react"
@@ -33,13 +33,15 @@ function SignUpForm({className, ...props}) {
         if (!isValidEmail(trimmedEmail)) {
             setError("Please enter a valid email address.");
             setLoading(false);
-                 return;
+                return;
   }
 
         try {
             const newAccount = await createAccount(name, trimmedEmail, password)
             if(newAccount){
                 console.log("Creating account with:", { name, email, password });
+                await login(trimmedEmail, password)
+                setSuccess("🎉 Account Created successfully")
                 navigate("/dashboard")
             }
 

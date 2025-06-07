@@ -3,34 +3,57 @@ import { getCurrentAccount } from './appwriteFunction'
 import { useNavigate } from 'react-router-dom'
 
 const ProtectRoute = ({ children }) => {
-  const navigate = useNavigate()
-  const [isAuth, setIsAuth] = useState(null)
+    const navigate = useNavigate()
+    const [isAuth, setIsAuth] = useState(null)
 
-  useEffect(() => {
+    useEffect(() => {
     const AuthCheck = async () => {
-      const Authentication = await getCurrentAccount()
-      setIsAuth(Authentication)
+        const Authentication = await getCurrentAccount()
+        setIsAuth(Authentication)
     }
     AuthCheck()
-  }, [])
+    }, [])
 
-  if (!isAuth) {
+    if (!isAuth) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen bg-[#121212] text-white text-center px-4">
+        <div className="flex flex-col items-center justify-center h-screen bg-[#121212] text-white text-center px-4">
         <h2 className="text-3xl font-semibold mb-2">Access Denied</h2>
         <p className="mb-4 text-gray-400 text-lg">You are not logged in or your session has expired.</p>
         <button
-          onClick={() => navigate("/login")}
-          className="px-5 py-2.5 bg-[#1a1a1a] hover:scale-105 border border-[#ea580c] hover:bg-[#ea580c] hover:text-gray-300 text-[#ea580c] rounded-lg font-medium transition duration-200 shadow-sm hover:shadow-md"
+            onClick={() => navigate("/login")}
+            className="px-5 py-2.5 bg-[#1a1a1a] hover:scale-105 border border-[#ea580c] hover:bg-[#ea580c] hover:text-gray-300 text-[#ea580c] rounded-lg font-medium transition duration-200 shadow-sm hover:shadow-md"
         >
-          Go to Login
+            Go to Login
         </button>
-       
-      </div>
+        </div>
     )
-  }
+    }
 
-  return children
+    return children
 }
 
 export default ProtectRoute
+
+
+// Dashboard.js
+// import { useEffect } from "react";
+// import { useNavigate } from "react-router-dom";
+// import { useAuth } from "./AuthContext";
+
+// const Dashboard = () => {
+//   const { user, loading } = useAuth();
+//   const navigate = useNavigate();
+
+//   useEffect(() => {
+//     if (!loading && !user) {
+//       navigate("/login");
+//     }
+//   }, [navigate, loading, user]);
+
+//   if (loading) return <div>Loading...</div>;
+//   if (!user) return <p>Not authorized</p>;      
+
+//   return <div>Welcome to your dashboard, {user.name}!</div>;
+// };
+
+// export default Dashboard;
