@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import avatar from '/new.png'
 import { LogoutIcon } from './LogoutIcon'
 import { getCurrentAccount } from '@/AppWrite/appwriteFunction'
+import { Link } from 'react-router-dom'
 
 export const Dashboard = () => {
 const [collapsed, setCollapsed] = useState(false)
@@ -14,7 +15,9 @@ const [loading, setLoading] = useState(true)
     const getUser = async() => {
         try {
             const getName = await getCurrentAccount()
-               console.log("User data:", getName); 
+
+            //? Development console.log("User data:", getName); 
+
             setGetUser(getName)
         } catch (error) {
             console.log("Error while fetching name", error)
@@ -41,12 +44,14 @@ return (
     >
       {/* Header with Menu Toggle */}
     <div
-        className="flex items-center justify-between px-4 py-3 border-b border-[#222323]"
+        className="flex items-center justify-between px-4 py-3 mt-2 border-b border-[#222323]"
         aria-label="Sidebar header"
     >
         {!collapsed && (
         <div className="text-white font-semibold text-lg select-none tracking-wide">
-            XCrafter
+            <Link to="/dashboard">
+                XCrafter
+            </Link>
         </div>
         )}
 
@@ -84,7 +89,7 @@ return (
               {/* Tooltip for collapsed */}
             {collapsed && (
                 <span
-                className="absolute left-full ml-3 top-1/2 -translate-y-1/2 rounded-md bg-gray-900 border border-gray-700 px-2 py-1 text-xs text-white opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity duration-200 z-50 select-none shadow-lg"
+                className="absolute left-full ml-3 top-1/2 -translate-y-1/2 rounded-md bg-[#000000] px-2 py-1 text-xs text-white opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity duration-200 z-50 select-none shadow-lg"
                 role="tooltip"
                 >
                 {item.label}
@@ -94,7 +99,8 @@ return (
         )
         })}
     </nav>
-    {/* Footer with User Profile */}
+
+    {/* Footer with Avatar */}
     <div className='border-t border-[#222323]'/>
     
     <div className={`flex items-center transition-colors duration-200
@@ -108,31 +114,28 @@ return (
         </AvatarFallback>
         </Avatar>
 
-       {!collapsed && (
-  <div className="ml-3 overflow-hidden min-w-0 flex-1 justify-between">
+    {!collapsed && (
+    <div className="ml-3 overflow-hidden min-w-0 flex-1 justify-between">
     {loading ? (
-      <div className='animate-pulse space-y-2'>
+        <div className='animate-pulse space-y-2'>
         <div className='h-4 w-24 bg-[#2f2f2f] rounded-md'></div>
         <div className='h-3 w-16 bg-[#2f2f2f] rounded-md'></div>
-      </div>
+        </div>
     ) : (
-      <>
+        <>
         <div className='flex justify-between items-center'>
-          <div className='text-md font-medium text-[#cccccd] select-none truncate'>
-            {getUser.name}
-          </div>
+            <div className='text-md font-medium text-[#cccccd] select-none truncate'>
+            {getUser?.name || "u"}
+            </div>
         </div>
         <div className='flex gap-2 text-xs mt-1 items-center text-gray-400 select-none'>
-          <div className='w-2 h-2 rounded-full bg-green-500'></div>
-          Online
+            <div className='w-2 h-2 rounded-full bg-green-500'></div>
+            Online
         </div>
-      </>
+        </>
     )}
-  </div>
+    </div>
 )}
-
-
-
 
         </div>
         {!collapsed && (

@@ -1,59 +1,63 @@
 import React, { useEffect, useState } from 'react'
-import { getCurrentAccount } from './appwriteFunction'
 import { useNavigate } from 'react-router-dom'
+import { getCurrentAccount } from './appwriteFunction'
 
-const ProtectRoute = ({ children }) => {
-    const navigate = useNavigate()
+const ProtectRoute = ({children}) => {
+    const [loading, setLoading] = useState(true)
     const [isAuth, setIsAuth] = useState(null)
+    const navigate = useNavigate(true)
 
-    useEffect(() => {
-    const AuthCheck = async () => {
-        const Authentication = await getCurrentAccount()
-        setIsAuth(Authentication)
-    }
-    AuthCheck()
-    }, [])
+    useEffect(()=>{
+        const getUser = async() =>{
+            try {
+                const User = await getCurrentAccount()
+                if(User && User.$id){
+                    setIsAuth(User)
+                }
+                else{
+                    setIsAuth(null)
+                }
+            } catch (error) {
+                console.log("Error while fetching user", error)
+                setIsAuth(null)
+            }finally{
+                setLoading(false)
+            }
+        }
+        getUser()
+    },[])
 
-    if (!isAuth) {
+    useEffect(()=>{
+        if(!loading && isAuth === null){  //! !loading indicates that fetching of above api is completed
+            navigate("/login", {replace: true})
+            // ?User navigation flow:
+
+/* //? Home → About → Dashboard (not authenticated) → Login
+WITHOUT replace: true
+History: [Home, About, Dashboard, Login]
+Back button from Login takes user to Dashboard (BAD!)
+
+WITH replace: true  
+History: [Home, About, Login]
+Back button from Login takes user to About (GOOD!)
+*/
+            }
+    },[navigate, isAuth, loading])
+
+  if(loading){
     return (
-        <div className="flex flex-col items-center justify-center h-screen bg-[#121212] text-white text-center px-4">
-        <h2 className="text-3xl font-semibold mb-2">Access Denied</h2>
-        <p className="mb-4 text-gray-400 text-lg">You are not logged in or your session has expired.</p>
-        <button
-            onClick={() => navigate("/login")}
-            className="px-5 py-2.5 bg-[#1a1a1a] hover:scale-105 border border-[#ea580c] hover:bg-[#ea580c] hover:text-gray-300 text-[#ea580c] rounded-lg font-medium transition duration-200 shadow-sm hover:shadow-md"
-        >
-            Go to Login
-        </button>
-        </div>
+    <div className='w-full min-h-screen bg-[#191a1a] flex justify-center items-center'>
+        <div className='w-16 h-16 rounded-full animate-spin border-b-2 border-[#ea5a0cde]'></div>
+    </div>
     )
-    }
+  }
 
-    return children
+  if(isAuth === null){
+    return null
+  }
+  return children
 }
 
 export default ProtectRoute
 
 
-// Dashboard.js
-// import { useEffect } from "react";
-// import { useNavigate } from "react-router-dom";
-// import { useAuth } from "./AuthContext";
-
-// const Dashboard = () => {
-//   const { user, loading } = useAuth();
-//   const navigate = useNavigate();
-
-//   useEffect(() => {
-//     if (!loading && !user) {
-//       navigate("/login");
-//     }
-//   }, [navigate, loading, user]);
-
-//   if (loading) return <div>Loading...</div>;
-//   if (!user) return <p>Not authorized</p>;      
-
-//   return <div>Welcome to your dashboard, {user.name}!</div>;
-// };
-
-// export default Dashboard;
