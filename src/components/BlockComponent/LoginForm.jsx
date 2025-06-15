@@ -51,7 +51,7 @@ return (
       )}
       {...props}
     >
-<Card className="w-full max-w-md p-8 rounded-xl shadow-2xl bg-[#1a1a1a] backdrop-blur-lg border border-[#27272a]">
+<Card className="w-full max-w-md p-8 rounded-xl shadow-2xl  bg-[#1a1a1a] backdrop-blur-lg border border-[#27272a]">
   <CardHeader className="text-center space-y-2">
     <CardTitle className="text-3xl font-extrabold text-gray-200">Welcome Back</CardTitle>
     <div className="text-white">Xcraft</div>

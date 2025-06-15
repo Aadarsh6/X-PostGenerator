@@ -8,7 +8,7 @@ import { SigninPage } from './Pages/SignInPage.jsx'
 import { DashboardPage } from './Pages/DashboardPage.jsx'
 import ProtectRoute from './AppWrite/ProtectRoute'
 import { AuthProvider } from './AppWrite/AuthContext'
-
+import { AvatarProvider } from './components/BlockComponent/Context/avatarContext'
 
 const router = createBrowserRouter([
   {path: "/", element: <App/>},
@@ -22,7 +22,9 @@ createRoot(document.getElementById('root')).render(
 
   <StrictMode>
     <AuthProvider>
+      <AvatarProvider>
     <RouterProvider router={router} />
+      </AvatarProvider>
     </AuthProvider>
   </StrictMode>,
 )

@@ -1,0 +1,437 @@
+import React, { useState, useEffect } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
+import { Label } from '@radix-ui/react-label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
+import { Button } from '../ui/button'
+import { Copy, Edit3, Heart, Loader2, MessageCircle, RefreshCw, Repeat2, Share } from 'lucide-react'
+import { Textarea } from '../ui/textarea'
+import { Alert, AlertDescription } from '../ui/alert'
+
+// Custom hook for typewriter effect
+const useTypewriter = (text, speed = 50, startTyping = false) => {
+    const [displayedText, setDisplayedText] = useState('')
+    const [isTyping, setIsTyping] = useState(false)
+    const [isComplete, setIsComplete] = useState(false)
+
+    useEffect(() => {
+        if (!startTyping || !text) {
+            setDisplayedText('')
+            setIsComplete(false)
+            setIsTyping(false)
+            return
+        }
+
+        setIsTyping(true)
+        setIsComplete(false)
+        setDisplayedText('')
+
+        let index = 0
+        const timer = setInterval(() => {
+            if (index < text.length) {
+                setDisplayedText(text.slice(0, index + 1))
+                index++
+            } else {
+                setIsTyping(false)
+                setIsComplete(true)
+                clearInterval(timer)
+            }
+        }, speed)
+
+        return () => clearInterval(timer)
+    }, [text, speed, startTyping])
+
+    return { displayedText, isTyping, isComplete }
+}
+
+// Thinking dots component
+const ThinkingDots = () => {
+    const [dots, setDots] = useState('')
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setDots(prev => {
+                if (prev.length >= 3) return ''
+                return prev + '.'
+            })
+        }, 500)
+
+        return () => clearInterval(interval)
+    }, [])
+
+    return (
+        <div className="flex items-center gap-2 text-gray-400">
+            <div className="w-2 h-2 bg-[#ea580c] rounded-full animate-pulse"></div>
+            <span>Thinking{dots}</span>
+        </div>
+    )
+}
+
+// Blinking cursor component
+const BlinkingCursor = () => (
+    <span className="animate-pulse text-[#ea580c] font-bold">|</span>
+)
+
+export const Xpost = () => {
+    const [prompt, setPrompt] = useState('')
+    const [postType, setPostType] = useState('single')
+    const [tone, setTone] = useState('professional')
+    const [generationState, setGenerationState] = useState('idle') // idle, thinking, streaming, complete
+    const [currentPostIndex, setCurrentPostIndex] = useState(0)
+    const [rawPosts, setRawPosts] = useState([])
+    const [error, setError] = useState('')
+
+    const Tone = [
+        {value: 'professional', label: 'Professional'},
+        {value: 'humorous', label: 'Humorous'},
+        {value: 'educational', label: 'Educational'},
+        {value: 'controversial', label: 'Controversial'},
+        {value: 'casual', label: 'Casual'},
+        {value: 'inspirational', label: 'Inspirational'},
+    ]
+
+    const Type = [
+        { value: 'single', label: 'Single Post' },
+        { value: 'thread', label: 'Thread (2-5 posts)' },
+        { value: 'long-thread', label: 'Long Thread (6-10 posts)'}
+    ]
+
+    // Get current post for typewriter effect
+    const currentPost = rawPosts[currentPostIndex]
+    const { displayedText, isTyping, isComplete } = useTypewriter(
+        currentPost?.content || '', 
+        75, 
+        generationState === 'streaming' && currentPost
+    )
+
+    const generateXpost = async() => {
+        setGenerationState('thinking')
+        setError('')
+        setCurrentPostIndex(0)
+        setRawPosts([])
+
+        try {
+            // Simulate thinking time
+            await new Promise(resolve => setTimeout(resolve, 2000))
+            
+            // Generate mock posts
+            const mockPosts = postType === 'single' 
+            ? [
+                {
+                  id: 1,
+                  content: `Just discovered an amazing insight about ${prompt}! 🚀\n\nThe key is understanding that innovation doesn't happen in isolation - it's about connecting dots that others haven't seen yet.\n\nWhat's your take on this? Have you noticed similar patterns in your field?\n\n#Innovation #${prompt.replace(/\s+/g, '')} #TechTrends`,
+                  characterCount: 287
+                }
+              ]
+            : [
+                {
+                  id: 1,
+                  content: `Let's dive deep into ${prompt} - a thread 🧵\n\n1/ The landscape is changing faster than ever, and here's what you need to know about the current state of affairs...`,
+                  characterCount: 162
+                },
+                {
+                  id: 2,
+                  content: `2/ The first principle to understand is that ${prompt} isn't just a trend - it's a fundamental shift in how we approach complex problems in our modern world.`,
+                  characterCount: 154
+                },
+                {
+                  id: 3,
+                  content: `3/ Here are the key factors driving this transformation:\n\n• Rapid technology advancement\n• Evolving user expectations\n• Shifting market dynamics\n• New regulatory frameworks\n• Cultural changes`,
+                  characterCount: 201
+                },
+                {
+                id: 4,
+                content: `4/ What does this mean for you personally?\n\nStart by focusing on the fundamentals, then adapt to your specific context. The future belongs to those who take action today.\n\nWhat's your next move? 🎯`,
+                characterCount: 205
+                }
+            ];
+
+            setRawPosts(mockPosts)
+            setGenerationState('streaming')
+            
+        } catch (error) {
+            setError("Failed to generate posts: " + error.message)
+            setGenerationState('idle')
+        }
+    }
+
+    // Handle moving to next post when current one is complete
+    useEffect(() => {
+        if (isComplete && currentPostIndex < rawPosts.length - 1) {
+            const timer = setTimeout(() => {
+                setCurrentPostIndex(prev => prev + 1)
+            }, 1000) // Wait 1 second before starting next post
+            return () => clearTimeout(timer)
+        } else if (isComplete && currentPostIndex === rawPosts.length - 1) {
+            // All posts complete
+            setGenerationState('complete')
+        }
+    }, [isComplete, currentPostIndex, rawPosts.length])
+
+    const copyToClipboard = (content) => {
+        navigator.clipboard.writeText(content)
+    }
+
+    const resetGeneration = () => {
+        setGenerationState('idle')
+        setCurrentPostIndex(0)
+        setRawPosts([])
+        setError('')
+    }
+
+    return (
+        <div className='min-h-screen bg-[#171717] p-6'>
+            <div className='max-w-4xl mx-auto space-y-6'>
+                {/* Header */}
+                <div className='text-center mb-8'>
+                    <h1 className='text-3xl font-bold text-white mb-2'>X Post Generator</h1>
+                    <p className='text-gray-400'>Create engaging X posts with AI assistance</p>
+                </div>
+
+                {/* Generator Card */}
+                <Card className="bg-[#171717] border border-[#222323] shadow-lg">
+                    <CardHeader className="border-b border-[#222323]">
+                        <CardTitle className="flex items-center gap-3 text-white text-xl">
+                            <div className='h-8 w-8 bg-[#ea580c] rounded-lg flex items-center justify-center text-white font-bold text-lg'>
+                                X
+                            </div>
+                            Generate X Post
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6 p-6">
+                        
+                        {/* Topic Input */}
+                        <div className="space-y-3">
+                            <Label htmlFor="topic" className="text-white text-sm font-medium">
+                                What topic do you want to post about?
+                            </Label>
+                            <Textarea
+                                id="topic"
+                                placeholder="e.g., AI in healthcare, startup funding tips, remote work productivity..."
+                                value={prompt}
+                                onChange={(e) => setPrompt(e.target.value)}
+                                disabled={generationState !== 'idle'}
+                                className="min-h-[120px] resize-none bg-[#252525] border-[#222323] text-white placeholder-gray-400 focus:border-[#ea580c] focus:ring-[#ea580c] rounded-lg disabled:opacity-50"
+                            />
+                        </div>
+
+                        {/* Settings Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Post Type */}
+                            <div className="space-y-3">
+                                <Label className="text-white text-sm font-medium">Post Type</Label>
+                                <Select value={postType} onValueChange={setPostType} disabled={generationState !== 'idle'}>
+                                    <SelectTrigger className="bg-[#252525] border-[#222323] text-white hover:bg-[#2a2a2a] focus:border-[#ea580c] focus:ring-[#ea580c] rounded-lg disabled:opacity-50">
+                                        <SelectValue placeholder="Select Post Type" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-[#252525] border-[#222323] text-white">
+                                        {Type.map((type) => (
+                                            <SelectItem 
+                                                key={type.value} 
+                                                value={type.value}
+                                                className="hover:bg-[#ea580c] focus:bg-[#ea580c] cursor-pointer"
+                                            >
+                                                {type.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            {/* Tone */}
+                            <div className="space-y-3">
+                                <Label className="text-white text-sm font-medium">Tone</Label>
+                                <Select value={tone} onValueChange={setTone} disabled={generationState !== 'idle'}>
+                                    <SelectTrigger className="bg-[#252525] border-[#222323] text-white hover:bg-[#2a2a2a] focus:border-[#ea580c] focus:ring-[#ea580c] rounded-lg disabled:opacity-50">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-[#252525] border-[#222323] text-white">
+                                        {Tone.map((toneOption) => (
+                                            <SelectItem 
+                                                key={toneOption.value} 
+                                                value={toneOption.value}
+                                                className="hover:bg-[#ea580c] focus:bg-[#ea580c] cursor-pointer"
+                                            >
+                                                {toneOption.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        {/* Error Alert */}
+                        {error && (
+                            <Alert className="bg-red-900/20 border-red-800 text-red-400">
+                                <AlertDescription>{error}</AlertDescription>
+                            </Alert>
+                        )}
+
+                        {/* Generate Button */}
+                        <div className="flex gap-3">
+                            <Button
+                                onClick={generateXpost}
+                                disabled={!prompt.trim() || generationState !== 'idle'}
+                                className={`flex-1 py-3 text-white font-medium rounded-lg transition-all duration-200 ${
+                                    !prompt.trim() || generationState !== 'idle'
+                                        ? "bg-gray-600 cursor-not-allowed" 
+                                        : "bg-[#ea580c] hover:bg-[#dc2626] active:bg-[#b91c1c]"
+                                }`}
+                                size='lg'
+                            >
+                                {generationState === 'thinking' ? (
+                                    <>
+                                        <Loader2 className='animate-spin mr-2 h-4 w-4' />
+                                        Generating...
+                                    </>
+                                ) : (
+                                    <>
+                                        <RefreshCw className='mr-2 h-4 w-4' />
+                                        Generate Post
+                                    </>
+                                )}
+                            </Button>
+                            
+                            {generationState !== 'idle' && (
+                                <Button
+                                    onClick={resetGeneration}
+                                    variant="outline"
+                                    className="bg-[#252525] border-[#222323] text-gray-300 hover:bg-[#ea580c] hover:text-white hover:border-[#ea580c]"
+                                >
+                                    Reset
+                                </Button>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Generation Output */}
+                {generationState !== 'idle' && (
+                    <Card className="bg-[#171717] border border-[#222323] shadow-lg">
+                        <CardHeader className="border-b border-[#222323]">
+                            <CardTitle className="text-white text-lg">
+                                {generationState === 'thinking' && 'Generating Your Posts...'}
+                                {generationState === 'streaming' && `Post ${currentPostIndex + 1} of ${rawPosts.length}`}
+                                {generationState === 'complete' && 'Generated Posts'}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-6">
+                            
+                            {/* Thinking State */}
+                            {generationState === 'thinking' && (
+                                <div className="flex items-center justify-center py-12">
+                                    <ThinkingDots />
+                                </div>
+                            )}
+
+                            {/* Streaming State */}
+                            {generationState === 'streaming' && (
+                                <div className="space-y-4">
+                                    {/* Previous completed posts */}
+                                    {rawPosts.slice(0, currentPostIndex).map((post, index) => (
+                                        <div key={post.id} className="bg-[#252525] rounded-lg p-4 border border-[#222323]">
+                                            <div className="flex justify-between items-center mb-3">
+                                                <span className="text-sm text-gray-400 font-medium">
+                                                    {postType === 'single' ? 'Post' : `Thread ${index + 1}`}
+                                                </span>
+                                                <span className="text-xs px-2 py-1 rounded-full bg-green-900/20 text-green-400">
+                                                    {post.characterCount}/280
+                                                </span>
+                                            </div>
+                                            <p className="text-white whitespace-pre-wrap leading-relaxed">
+                                                {post.content}
+                                            </p>
+                                        </div>
+                                    ))}
+
+                                    {/* Currently streaming post */}
+                                    <div className="bg-[#252525] rounded-lg p-4 border border-[#222323] border-[#ea580c]/50">
+                                        <div className="flex justify-between items-center mb-3">
+                                            <span className="text-sm text-[#ea580c] font-medium">
+                                                {postType === 'single' ? 'Post' : `Thread ${currentPostIndex + 1}`} (Writing...)
+                                            </span>
+                                        </div>
+                                        <p className="text-white whitespace-pre-wrap leading-relaxed">
+                                            {displayedText}
+                                            {isTyping && <BlinkingCursor />}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Complete State */}
+                            {generationState === 'complete' && (
+                                <div className="space-y-4">
+                                    {rawPosts.map((post, index) => (
+                                        <div key={post.id} className="bg-[#252525] rounded-lg p-4 border border-[#222323]">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <span className="text-sm text-gray-400 font-medium">
+                                                    {postType === 'single' ? 'Post' : `Thread ${index + 1}`}
+                                                </span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`text-xs px-2 py-1 rounded-full ${
+                                                        post.characterCount > 280 
+                                                            ? 'bg-red-900/20 text-red-400' 
+                                                            : 'bg-green-900/20 text-green-400'
+                                                    }`}>
+                                                        {post.characterCount}/280
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            
+                                            <p className="text-white whitespace-pre-wrap leading-relaxed mb-4">
+                                                {post.content}
+                                            </p>
+                                            
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-4 text-gray-400">
+                                                    <button className="flex items-center gap-1 hover:text-white transition-colors">
+                                                        <MessageCircle size={16} />
+                                                        <span className="text-sm">Reply</span>
+                                                    </button>
+                                                    <button className="flex items-center gap-1 hover:text-white transition-colors">
+                                                        <Repeat2 size={16} />
+                                                        <span className="text-sm">Repost</span>
+                                                    </button>
+                                                    <button className="flex items-center gap-1 hover:text-white transition-colors">
+                                                        <Heart size={16} />
+                                                        <span className="text-sm">Like</span>
+                                                    </button>
+                                                    <button className="flex items-center gap-1 hover:text-white transition-colors">
+                                                        <Share size={16} />
+                                                        <span className="text-sm">Share</span>
+                                                    </button>
+                                                </div>
+                                                
+                                                <div className="flex items-center gap-2">
+                                                    <Button
+                                                        onClick={() => copyToClipboard(post.content)}
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="bg-[#252525] border-[#222323] text-gray-300 hover:bg-[#ea580c] hover:text-white hover:border-[#ea580c] transition-all duration-200"
+                                                    >
+                                                        <Copy size={14} className="mr-1" />
+                                                        Copy
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="bg-[#252525] border-[#222323] text-gray-300 hover:bg-[#ea580c] hover:text-white hover:border-[#ea580c] transition-all duration-200"
+                                                    >
+                                                        <Edit3 size={14} className="mr-1" />
+                                                        Edit
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                )}
+            </div>
+        </div>
+    )
+}
+
+export default Xpost

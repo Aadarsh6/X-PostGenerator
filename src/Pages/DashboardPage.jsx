@@ -1,11 +1,14 @@
 import React from 'react'
-import { Dashboard } from '../components/BlockComponent/Sidebar'
+import { Sidebar } from '../components/BlockComponent/Sidebar'
+import { Xpost } from '../components/BlockComponent/Xpost'
 
 export const DashboardPage = () => {
   return (
     <div className='w-full h-screen bg-[#0a0a0a]'>
-        <Dashboard/>
-
+        <Sidebar/>
+        <div className='ml-50'>
+        <Xpost/>
+        </div>
     </div>
   )
 }
