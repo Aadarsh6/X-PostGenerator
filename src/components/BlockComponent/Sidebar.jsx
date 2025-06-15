@@ -19,7 +19,7 @@ const menuItems = [
 
 return (
     <div
-    className={`fixed left-0 top-0 h-screen bg-[#171717] border-r border-[#222323] transition-all duration-300 ease-in-out z-50
+    className={`fixed left-0 top-0 h-full bg-[#171717] border-r border-[#222323] transition-all duration-300 ease-in-out z-50
         flex flex-col
         ${collapsed ? "w-16" : "w-64"}
     `}
