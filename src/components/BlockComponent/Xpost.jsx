@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select' // Changed import path
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Button } from '../ui/button'
 import { Textarea } from '../ui/textarea'
 import { useAvatar } from './Context/avatarContext'
@@ -14,7 +14,6 @@ export const Xpost = () => {
     const [regenerating, setRegenerating] = useState(false)
     const [generatedPost, setGeneratedPost] = useState([])
     const [error, setError] = useState('')
-    const [showFloatingButton, setShowFloatingButton] = useState(false)
     const [copiedId, setCopiedId] = useState(null)
     
     const textareaRef = useRef(null)
@@ -28,7 +27,7 @@ export const Xpost = () => {
         {value: 'controversial', label: 'Controversial'},
         {value: 'casual', label: 'Casual'},
         {value: 'inspirational', label: 'Inspirational'},
-        ]
+    ]
 
     const Type = [
         { value: 'single', label: 'Single Post' },
@@ -91,22 +90,6 @@ export const Xpost = () => {
         }
     }
 
-    // Scroll detection for floating button
-    useEffect(() => {
-        const handleScroll = () => {
-            if (resultsRef.current && generatedPost.length > 0) {
-                const rect = resultsRef.current.getBoundingClientRect()
-                const isResultVisible = rect.top < window.innerHeight && rect.bottom > 100
-                setShowFloatingButton(!isResultVisible && window.innerWidth < 1024)
-            }
-        }
-        
-        window.addEventListener("scroll", handleScroll)
-        handleScroll() // Initial check
-        
-        return () => window.removeEventListener("scroll", handleScroll)
-    }, [generatedPost])
-
     const copyToClipboard = async (text, postId) => {
         try {
             await navigator.clipboard.writeText(text)
@@ -115,13 +98,6 @@ export const Xpost = () => {
         } catch (err) {
             console.error('Failed to copy text: ', err)
         }
-    }
-
-    const scrollToResults = () => {
-        resultsRef.current?.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-        })
     }
 
     const handleNewPost = () => {
@@ -134,16 +110,15 @@ export const Xpost = () => {
     }
 
     return (
-         <div className="min-h-screen bg-[#0a0a0a]">
-            <div className="max-w-7xl mx-auto p-4">
-                {/* Main Content Container */}
-                <div className="flex flex-col lg:flex-row gap-6 w-full mt-10 justify-center items-start">
-                    
-                    {/* Left Panel - Form */}
-                    <div className={`w-full mx-auto lg:mx-0 ${generatedPost.length > 0 ? 'lg:w-1/2' : 'lg:w-1/2 max-w-2xl'}`}>
+        <div className="min-h-full bg-[#0a0a0a] flex justify-center">
+            <div className="w-full max-w-4xl px-4 py-8">
+                
+                {/* Input Form Section - Always Centered */}
+                <div className="flex justify-center mb-8">
+                    <div className="w-full max-w-2xl">
                         <Card className="w-full border-2 bg-[#171717] border-[#222323] shadow-2xl">
                             <CardHeader className="pb-3">
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-center">
                                     <div className="flex items-end space-x-2">
                                         <div className="text-orange-500">
                                             <h1 className="text-3xl font-bold">Xc</h1>
@@ -159,7 +134,7 @@ export const Xpost = () => {
 
                             <CardContent className="pt-6">
                                 {/* User Profile Section */}
-                                <div className="flex items-center space-x-3 mb-6">
+                                <div className="flex items-center justify-center space-x-3 mb-6">
                                     <div className="w-10 h-10 flex-shrink-0">
                                         <img
                                             src={avatar}
@@ -175,7 +150,6 @@ export const Xpost = () => {
                                 {/* Error Display */}
                                 {error && (
                                     <div className="mb-4 p-3 bg-red-900/20 border border-red-500/50 rounded-lg flex items-center gap-2">
-                                        <AlertCircle className="h-4 w-4 text-red-400" />
                                         <span className="text-red-400 text-sm">{error}</span>
                                     </div>
                                 )}
@@ -269,107 +243,91 @@ export const Xpost = () => {
                             </CardContent>
                         </Card>
                     </div>
-
-                    {/* Right Panel - Results */}
-                    <div className="w-full lg:w-1/2">
-                        {generatedPost.length > 0 && (
-                            <div ref={resultsRef} className="space-y-6">
-                                {/* Results Header */}
-                                <div className="flex items-center justify-between">
-                                    <h2 className="text-2xl font-bold text-[#e6e8ec]">
-                                        Generated {postType === 'single' ? 'Post' : 'Thread'}
-                                    </h2>
-                                    <Button
-                                        onClick={() => generateXpost(true)}
-                                        disabled={regenerating}
-                                        variant="outline"
-                                        className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-200"
-                                    >
-                                        {regenerating ? (
-                                            <Loader2 className="animate-spin h-4 w-4 mr-2" />
-                                        ) : (
-                                            <RefreshCw className="h-4 w-4 mr-2" />
-                                        )}
-                                        {regenerating ? 'Regenerating...' : 'Regenerate'}
-                                    </Button>
-                                </div>
-
-                                {/* Generated Posts */}
-                                <div className="space-y-4">
-                                    {generatedPost.map((post, index) => (
-                                        <Card
-                                            key={post.id}
-                                            className="border-2 bg-[#171717] border-[#222323] shadow-lg hover:border-orange-500/30 transition-all duration-200"
-                                        >
-                                            <CardContent className="p-6">
-                                                <div className="flex justify-between items-start mb-4">
-                                                    <span className="text-sm text-orange-400 font-medium bg-orange-500/10 px-3 py-1 rounded-full">
-                                                        {postType === "single" ? "Post" : `Post ${index + 1}`}
-                                                    </span>
-                                                    <span className={`text-sm font-medium ${
-                                                        post.characterCount > 280 ? 'text-red-400' : 'text-gray-400'
-                                                    }`}>
-                                                        {post.characterCount}/280
-                                                    </span>
-                                                </div>
-
-                                                <div className="text-[#e6e8ec] whitespace-pre-wrap text-lg leading-relaxed mb-6 p-4 bg-[#222323] rounded-lg border border-[#333333]">
-                                                    {post.content}
-                                                </div>
-
-                                                <div className="flex gap-3">
-                                                    <Button
-                                                        size="sm"
-                                                        variant="secondary"
-                                                        onClick={() => copyToClipboard(post.content, post.id)}
-                                                        className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333] transition-all duration-200"
-                                                    >
-                                                        <Copy className="h-4 w-4 mr-2" />
-                                                        {copiedId === post.id ? 'Copied!' : 'Copy'}
-                                                    </Button>
-                                                    <Button
-                                                        size="sm"
-                                                        variant="secondary"
-                                                        className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333] transition-all duration-200"
-                                                    >
-                                                        <Edit className="h-4 w-4 mr-2" />
-                                                        Edit
-                                                    </Button>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    ))}
-                                </div>
-
-                                {/* Create Another Post */}
-                                <Card className="border-2 border-dashed border-orange-500/50 bg-transparent hover:border-orange-500 hover:bg-orange-500/5 transition-all duration-200">
-                                    <CardContent className="p-6 text-center">
-                                        <p className="text-gray-400 mb-4 text-lg">Want to create another post?</p>
-                                        <Button 
-                                            onClick={handleNewPost}
-                                            variant="outline"
-                                            className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-200"
-                                        >
-                                            Create New Post
-                                        </Button>
-                                    </CardContent>
-                                </Card>
-                            </div>
-                        )}
-                    </div>
                 </div>
 
-                {/* Mobile Floating Button */}
-                {showFloatingButton && (
-                    <div className="fixed bottom-6 right-6 z-50 lg:hidden">
-                        <Button
-                            onClick={scrollToResults}
-                            className="bg-orange-500 hover:bg-orange-600 text-white shadow-2xl rounded-full animate-bounce h-14 px-6"
-                            size="lg"
-                        >
-                            <ArrowDown className="h-5 w-5 mr-2" />
-                            View Results ({generatedPost.length})
-                        </Button>
+                {/* Results Section - Appears Below Input */}
+                {generatedPost.length > 0 && (
+                    <div ref={resultsRef} className="w-full max-w-3xl mx-auto space-y-6">
+                        {/* Results Header */}
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-2xl font-bold text-[#e6e8ec]">
+                                Generated {postType === 'single' ? 'Post' : 'Thread'}
+                            </h2>
+                            <Button
+                                onClick={() => generateXpost(true)}
+                                disabled={regenerating}
+                                variant="outline"
+                                className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-200"
+                            >
+                                {regenerating ? (
+                                    <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                                ) : (
+                                    <RefreshCw className="h-4 w-4 mr-2" />
+                                )}
+                                {regenerating ? 'Regenerating...' : 'Regenerate'}
+                            </Button>
+                        </div>
+
+                        {/* Generated Posts */}
+                        <div className="space-y-4">
+                            {generatedPost.map((post, index) => (
+                                <Card
+                                    key={post.id}
+                                    className="border-2 bg-[#171717] border-[#222323] shadow-lg hover:border-orange-500/30 transition-all duration-200"
+                                >
+                                    <CardContent className="p-6">
+                                        <div className="flex justify-between items-start mb-4">
+                                            <span className="text-sm text-orange-400 font-medium bg-orange-500/10 px-3 py-1 rounded-full">
+                                                {postType === "single" ? "Post" : `Post ${index + 1}`}
+                                            </span>
+                                            <span className={`text-sm font-medium ${
+                                                post.characterCount > 280 ? 'text-red-400' : 'text-gray-400'
+                                            }`}>
+                                                {post.characterCount}/280
+                                            </span>
+                                        </div>
+
+                                        <div className="text-[#e6e8ec] whitespace-pre-wrap text-lg leading-relaxed mb-6 p-4 bg-[#222323] rounded-lg border border-[#333333]">
+                                            {post.content}
+                                        </div>
+
+                                        <div className="flex gap-3">
+                                            <Button
+                                                size="sm"
+                                                variant="secondary"
+                                                onClick={() => copyToClipboard(post.content, post.id)}
+                                                className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333] transition-all duration-200"
+                                            >
+                                                <Copy className="h-4 w-4 mr-2" />
+                                                {copiedId === post.id ? 'Copied!' : 'Copy'}
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="secondary"
+                                                className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333] transition-all duration-200"
+                                            >
+                                                <Edit className="h-4 w-4 mr-2" />
+                                                Edit
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+
+                        {/* Create Another Post */}
+                        <Card className="border-2 border-dashed border-orange-500/50 bg-transparent hover:border-orange-500 hover:bg-orange-500/5 transition-all duration-200">
+                            <CardContent className="p-6 text-center">
+                                <p className="text-gray-400 mb-4 text-lg">Want to create another post?</p>
+                                <Button 
+                                    onClick={handleNewPost}
+                                    variant="outline"
+                                    className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-200"
+                                >
+                                    Create New Post
+                                </Button>
+                            </CardContent>
+                        </Card>
                     </div>
                 )}
             </div>

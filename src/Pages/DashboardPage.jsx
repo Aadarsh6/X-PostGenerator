@@ -4,12 +4,10 @@ import { Xpost } from '../components/BlockComponent/Xpost'
 
 export const DashboardPage = () => {
   return (
-    <div className='w-full min-h-screen bg-[#0a0a0a]'>
+    <div className='w-full min-h-full bg-[#0a0a0a]'>
         <Sidebar/>
-        <div className='pl-64 min-h-screen flex justify-center'>
-            <div className='w-full'>
-                <Xpost/>
-            </div>
+        <div className='lg:pl-64 min-h-screen'>
+            <Xpost/>
         </div>
     </div>
   )
