@@ -4,9 +4,9 @@ import { Xpost } from '../components/BlockComponent/Xpost'
 
 export const DashboardPage = () => {
   return (
-    <div className='w-full min-h-full bg-[#0a0a0a]'>
+    <div className='w-full h-screen bg-[#0a0a0a] overflow-hidden'>
         <Sidebar/>
-        <div className='lg:pl-64 min-h-screen'>
+        <div className='lg:pl-64 h-full w-full overflow-y-auto'>
             <Xpost/>
         </div>
     </div>
