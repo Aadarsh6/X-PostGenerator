@@ -7,7 +7,7 @@ import { useAvatar } from './Context/avatarContext'
 import { ArrowDown, Copy, Edit, Loader2, RefreshCw, X, AlertCircle } from 'lucide-react'
 
 // API configuration for Vite
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://x-postgenerator-backend-production.up.railway.app/';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://x-postgenerator-backend-production.up.railway.app';
 
 
 // API service functions
