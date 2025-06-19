@@ -1,6 +1,5 @@
 import { Menu, Home, Settings, User, Bookmark } from 'lucide-react'
 import { useState, useEffect } from 'react'
-// import { LogoutIcon } from './LogoutIcon'
 import { Link } from 'react-router-dom'
 import { UserAvatar } from './UserAvatar'
 
@@ -12,7 +11,7 @@ export const Sidebar = () => {
     const handleResize = () => {
       const mobile = window.innerWidth < 1024
       setIsMobile(mobile)
-      setCollapsed(mobile) // collapsed = true on mobile, false on desktop
+      setCollapsed(mobile) // always collapsed on mobile
     }
 
     handleResize()
@@ -30,26 +29,35 @@ export const Sidebar = () => {
   return (
     <div
       className={`fixed left-0 top-0 h-full bg-[#171717] border-r border-[#222323] transition-all duration-300 ease-in-out z-50
-        flex flex-col
-        ${collapsed ? 'w-16' : 'w-64'}
+        flex flex-col ${collapsed ? 'w-16' : 'w-64'}
       `}
     >
-      {/* Header */}
+      {/* Header when not collasped*/}
       <div className="flex items-center justify-between px-4 py-3 mt-2 border-b border-[#222323]">
         {!collapsed && (
           <div className="text-white font-semibold text-lg select-none tracking-wide">
             <Link to="/dashboard">XCrafter</Link>
           </div>
         )}
+{/* Collasped logo */}
+      <div className='flex justify-center items-center'>
+        {collapsed && (
+          <div className="text-[#e6e8df] font-semibold">
+            <Link to="/dashboard">Xc</Link>
+          </div>
+        )}
+        </div>
 
-        {/* Toggle only on mobile */}
-        {isMobile && (
+
+
+        {/* Only show toggle on desktop */}
+        {!isMobile && (
           <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="p-2 rounded-lg hover:bg-[#ea580c] focus:outline-none text-white transition-colors duration-200 lg:hidden"
+            // onClick={() => setCollapsed(!collapsed)}
+            className="p-2 rounded-lg hover:bg-[#ea580c] focus:outline-none text-white transition-colors duration-200"
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
-            <Menu size={20} />
+            {/* <Menu size={20} /> */}
           </button>
         )}
       </div>

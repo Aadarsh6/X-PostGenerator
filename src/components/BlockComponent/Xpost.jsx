@@ -367,7 +367,7 @@ export const Xpost = () => {
                                 onClick={() => generateXpost(true)}
                                 disabled={regenerating || backendStatus?.status !== 'OK'}
                                 variant="outline"
-                                className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-200"
+                                className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-300"
                             >
                                 {regenerating ? (
                                     <Loader2 className="animate-spin h-4 w-4 mr-2" />
