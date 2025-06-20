@@ -4,11 +4,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Button } from '../ui/button'
 import { Textarea } from '../ui/textarea'
 import { useAvatar } from './Context/avatarContext'
-import { ArrowDown, Copy, Edit, Loader2, RefreshCw, X, AlertCircle } from 'lucide-react'
+import { ArrowDown, Copy, Edit, Loader2, RefreshCw, X, AlertCircle, Check } from 'lucide-react'
 
 // API configuration for Vite
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://x-postgenerator-backend-production.up.railway.app'.replace(/\/$/, '');
-
 
 // API service functions
 const apiService = {
@@ -64,7 +63,10 @@ export const Xpost = () => {
     const [error, setError] = useState('')
     const [copiedId, setCopiedId] = useState(null)
     const [backendStatus, setBackendStatus] = useState(null)
-    
+
+    const [editingPostId, setEditingPostId] = useState(null)
+    const [editingContent, setEditingContent] = useState('')
+
     const textareaRef = useRef(null)
     const resultsRef = useRef(null)
     const { avatar } = useAvatar()
@@ -167,11 +169,44 @@ export const Xpost = () => {
         }, 100)
     }
 
-    const handleEditPost = (postId, currentContent) => {
-        // You can implement inline editing or open a modal
-        console.log('Edit post:', postId, currentContent)
-        // For now, just copy to clipboard for editing
-        copyToClipboard(currentContent, postId);
+    // Edit button functionality
+    const handleEdit = (postId, currentContent) => {
+        setEditingPostId(postId)
+        setEditingContent(currentContent)
+    }
+
+    const saveEditPost = (postId) => {
+        const trimmedContent = editingContent.trim()
+        if (!trimmedContent) {
+            setError('Post content cannot be empty')
+            return
+        }
+
+        setGeneratedPost(prev => prev.map(post => post.id === postId ? {
+            ...post,
+            content: editingContent.trim(),
+            characterCount: editingContent.trim().length,
+            withinLimit: editingContent.trim().length <= 280
+        } : post))
+        
+        setEditingPostId(null)
+        setEditingContent('')
+        setError('')
+    }
+
+    const cancelEdit = () => {
+        setEditingPostId(null)
+        setEditingContent('')
+    }
+
+    const handleKeyEdit = (e, postId) => {
+        if(e.key === "Enter" && e.ctrlKey){
+            e.preventDefault()
+            saveEditPost(postId)
+        } else if(e.key === "Escape"){
+            e.preventDefault()
+            cancelEdit()
+        }
     }
 
     const testConnection = async () => {
@@ -392,40 +427,76 @@ export const Xpost = () => {
                                             </span>
                                             <div className="flex items-center gap-2">
                                                 <span className={`text-sm font-medium ${
-                                                    post.characterCount > 280 ? 'text-red-400' : 'text-gray-400'
+                                                    (editingPostId === post.id ? editingContent.length : post.characterCount) > 280 ? 'text-red-400' : 'text-gray-400'
                                                 }`}>
-                                                    {post.characterCount}/280
+                                                   {editingPostId === post.id ? editingContent.length : post.characterCount}/280
                                                 </span>
-                                                {post.withinLimit === false && (
+                                                {((editingPostId === post.id && editingContent.length > 280) || 
+                                                  (editingPostId !== post.id && post.withinLimit === false)) && (
                                                     <AlertCircle className="h-4 w-4 text-red-400" />
                                                 )}
                                             </div>
                                         </div>
 
-                                        <div className="text-[#e6e8ec] whitespace-pre-wrap text-lg leading-relaxed mb-6 p-4 bg-[#222323] rounded-lg border border-[#333333]">
-                                            {post.content}
-                                        </div>
+                                        {/* Post Content - Show either editing textarea or display content */}
+                                        {editingPostId === post.id ? (
+                                            <div className="mb-6">
+                                                <Textarea
+                                                    value={editingContent}
+                                                    onChange={(e) => setEditingContent(e.target.value)}
+                                                    onKeyDown={(e) => handleKeyEdit(e, post.id)}
+                                                    className="w-full min-h-[100px] bg-[#222323] text-[#e6e8ec] border border-[#333333] rounded-lg resize-none focus:ring-2 focus:ring-orange-500/50 text-lg leading-relaxed p-4"
+                                                    placeholder="Edit your post content..."
+                                                />
+                                                <div className="flex gap-2 mt-3">
+                                                    <Button
+                                                        size="sm"
+                                                        onClick={() => saveEditPost(post.id)}
+                                                        className="bg-[#ff6900] hover:bg-[#ff8400] text-white"
+                                                    >
+                                                        <Check className="h-4 w-4 " />
+                                                        Save (Ctrl+Enter)
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="secondary"
+                                                        onClick={cancelEdit}
+                                                        className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333]"
+                                                    >
+                                                        <X className="h-4 w-4" />
+                                                        Cancel (Esc)
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="text-[#e6e8ec] whitespace-pre-wrap text-lg leading-relaxed mb-6 p-4 bg-[#222323] rounded-lg border border-[#333333]">
+                                                {post.content}
+                                            </div>
+                                        )}
 
-                                        <div className="flex gap-3">
-                                            <Button
-                                                size="sm"
-                                                variant="secondary"
-                                                onClick={() => copyToClipboard(post.content, post.id)}
-                                                className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333] transition-all duration-200"
-                                            >
-                                                <Copy className="h-4 w-4 mr-2" />
-                                                {copiedId === post.id ? 'Copied!' : 'Copy'}
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="secondary"
-                                                onClick={() => handleEditPost(post.id, post.content)}
-                                                className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333] transition-all duration-200"
-                                            >
-                                                <Edit className="h-4 w-4 mr-2" />
-                                                Edit
-                                            </Button>
-                                        </div>
+                                        {/* Action Buttons - Only show when not editing */}
+                                        {editingPostId !== post.id && (
+                                            <div className="flex gap-3">
+                                                <Button
+                                                    size="sm"
+                                                    variant="secondary"
+                                                    onClick={() => copyToClipboard(post.content, post.id)}
+                                                    className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333] transition-all duration-200"
+                                                >
+                                                    <Copy className="h-4 w-4 mr-2" />
+                                                    {copiedId === post.id ? 'Copied!' : 'Copy'}
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="secondary"
+                                                    onClick={() => handleEdit(post.id, post.content)}
+                                                    className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333] transition-all duration-200"
+                                                >
+                                                    <Edit className="h-4 w-4 mr-2" />
+                                                    Edit
+                                                </Button>
+                                            </div>
+                                        )}
                                     </CardContent>
                                 </Card>
                             ))}
