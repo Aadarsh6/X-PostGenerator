@@ -1,5 +1,9 @@
-import { account, ID } from "./appwrite";
+import conf from "@/conf/conf";
+import { account, ID, databases } from "./appwrite";
+import { Query } from "appwrite";
 
+
+//To create New account
 export const createAccount = async (name, email, password) => {  //!This for creating account
     try {
        const newAccount =  await account.create(ID.unique(), email, password, name)
@@ -14,6 +18,7 @@ export const createAccount = async (name, email, password) => {  //!This for cre
     }
 }                                                         
 
+//To login user with their credentials
 export const login = async (email, password) => {                //!This for keeping user persist across refresh
 try {
     const presentUser = await account.get();
@@ -36,6 +41,8 @@ try {
     }
 }
 
+
+//To get the user info like name(to display to frontend), id(for other functions to use)
 export const getCurrentAccount = async () => {
     try {
         const getLoggedInUSer =  await account.get()
@@ -49,6 +56,7 @@ export const getCurrentAccount = async () => {
     }
 }
 
+//To logout the user
 export const logout = async () => {
    try {
     await account.get()
@@ -68,3 +76,54 @@ export const logout = async () => {
     }                                     
 
 } 
+
+//To save the post we like {createDocument}
+export const savePost = async(content) => {
+    try {
+        const user = await account.get(); //make sure user is logged in
+        const userId = user.$id;
+        const userPost = await databases.createDocument(
+            conf.appwriteDatabaseID,
+            conf.appwriteCollectionID,
+            ID.unique(),
+            {
+                userId,
+                content,
+                createdAt: new Date().toString()
+            }
+        );
+        alert("Post Saved")
+        return userPost
+    } catch (e) {
+        console.log("Can't save post", e)
+        alert("Something went wrong")
+    }
+}
+
+
+//To see what we saved {listdocument}
+
+export const fetchSavedPost = async() => {
+    try {
+        const user = await account.get();
+        const userID = user.$id;
+        
+        const yourPost = await databases.listDocuments(
+            conf.appwriteDatabaseID,
+            conf.appwriteCollectionID,
+            [Query.equal("userId", userID)] /*//!This will return
+
+            [
+  { id: "doc1", content: "Hello world" },
+  { id: "doc3", content: "Appwrite is awesome!" }
+]
+            */
+        );
+        return yourPost.documents // List of saved post
+    } catch (e) {
+        console.log("Could not save the post", e)
+        return []  /*//!Returning an empty array means:
+//!“No data, but still safe to render.” */
+        
+    }
+}

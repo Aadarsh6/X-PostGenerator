@@ -1,4 +1,4 @@
-import { Client, Account, ID } from "appwrite";
+import { Client, Account, ID, Databases } from "appwrite";
 import conf from "../conf/conf";
 
 export const client = new Client()
@@ -8,6 +8,7 @@ client
 .setProject(conf.appwriteProjectID)
 
 const account = new Account(client)
+const databases = new Databases(client)
 
 
-export { account, ID }   
+export { account, ID, databases }   

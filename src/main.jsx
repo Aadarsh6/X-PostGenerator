@@ -9,11 +9,13 @@ import { DashboardPage } from './Pages/DashboardPage.jsx'
 import ProtectRoute from './AppWrite/ProtectRoute'
 import { AuthProvider } from './AppWrite/AuthContext'
 import { AvatarProvider } from './components/BlockComponent/Context/avatarContext'
+import SavePostPage from './Pages/SavePostPage'
 
 const router = createBrowserRouter([
   {path: "/", element: <App/>},
   {path: "/signup", element: <SignupPage/>},
   {path: "/login", element: <SigninPage/>},
+  {path: "/save", element: <SavePostPage/>},
   {path: "/dashboard", element: <ProtectRoute> <DashboardPage/> </ProtectRoute>
   }
 ])

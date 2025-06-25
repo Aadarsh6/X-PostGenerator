@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Button } from '../ui/button'
 import { Textarea } from '../ui/textarea'
 import { useAvatar } from './Context/avatarContext'
-import { ArrowDown, Copy, Edit, Loader2, RefreshCw, X, AlertCircle, Check } from 'lucide-react'
+import { ArrowDown, Copy, Edit, Loader2, RefreshCw, X, AlertCircle, Check, Save } from 'lucide-react'
 
 // API configuration for Vite
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://x-postgenerator-backend-production.up.railway.app'.replace(/\/$/, '');
@@ -366,7 +366,7 @@ export const Xpost = () => {
 
                                 {/* Submit Button */}
                                 <Button
-                                    onClick={() => generateXpost(false)}
+                                    onClick={() => generateXpost(true)}
                                     disabled={!prompt.trim() || loading || backendStatus?.status !== 'OK'}
                                     className={`w-full h-12 text-lg font-semibold transition-all duration-200 ${
                                         !prompt.trim() || loading || backendStatus?.status !== 'OK'
@@ -495,6 +495,17 @@ export const Xpost = () => {
                                                     <Edit className="h-4 w-4 mr-2" />
                                                     Edit
                                                 </Button>
+
+                                                <Button
+                                                    size="sm"
+                                                    variant="secondary"
+                                                   onClick={() => savePost(post.content)}
+                                                    className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333] transition-all duration-200"
+                                                >
+                                                    <Save className="h-4 w-4 mr-2" />
+                                                    Save
+                                                </Button>
+
                                             </div>
                                         )}
                                     </CardContent>

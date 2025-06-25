@@ -1,6 +1,6 @@
 import { Menu, Home, Settings, User, Bookmark } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import { UserAvatar } from './UserAvatar'
 
 export const Sidebar = () => {
@@ -20,10 +20,10 @@ export const Sidebar = () => {
   }, [])
 
   const menuItems = [
-    { icon: Home, label: 'Dashboard', id: 'dashboard' },
-    { icon: User, label: 'Profile', id: 'profile' },
-    { icon: Bookmark, label: 'Saved', id: 'saved' },
-    { icon: Settings, label: 'Settings', id: 'settings' },
+    { icon: Home, label: 'Dashboard', id: 'dashboard', to: "/dashboard"},
+    { icon: User, label: 'Profile', id: 'profile', to: "/"},
+    { icon: Bookmark, label: 'Saved', id: 'saved', to: "/save"},
+    { icon: Settings, label: 'Settings', id: 'settings', to: "/"},
   ]
 
   return (
@@ -66,7 +66,7 @@ export const Sidebar = () => {
       <nav className="flex-1 px-3 py-4 space-y-1">
         {menuItems.map((item) => {
           const Icon = item.icon
-          return (
+          const content  = (
             <button
               key={item.id}
               className={`relative group w-full flex items-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#ea580c]/50 text-gray-300 hover:text-white hover:bg-[#ea580c] rounded-lg
@@ -89,6 +89,24 @@ export const Sidebar = () => {
               )}
             </button>
           )
+
+          return item.to ? (
+            <NavLink key={item.id}
+            to={item.to}
+            className={({ isActive }) => `
+  relative group w-full flex items-center transition-all duration-200 focus:outline-none
+  text-gray-300 hover:text-white hover:bg-[#ea580c] rounded-lg
+  ${collapsed ? 'justify-center' : 'justify-start'}
+  ${isActive ? 'ring-2 ring-[#ea580c]/50 shadow-2xl' : ''}
+`}
+
+            >{content}</NavLink>
+          ):(
+            <div key={item.id}>
+                {content}
+            </div>
+          )
+
         })}
       </nav>
 
