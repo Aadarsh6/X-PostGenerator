@@ -243,14 +243,14 @@ export const Xpost = () => {
       console.log('All post saved');
     }
 
-    const handleSelectedSave = async() => {
-      for(const post of generatedPost.filter(p => selectedPost.includes(p.id))){
-        await savePost(post.content)
-      }
-      alert("Selected posts saved!");
-      console.log('Selected posts saved!');
-      setSelectedPost([]);
-    }
+    // const handleSelectedSave = async() => {
+    //   for(const post of generatedPost.filter(p => selectedPost.includes(p.id))){
+    //     await savePost(post.content)
+    //   }
+    //   alert("Selected posts saved!");
+    //   console.log('Selected posts saved!');
+    //   setSelectedPost([]);
+    // }
 
 
     return (
@@ -449,18 +449,18 @@ export const Xpost = () => {
                                 <div>
                                   <Button
                                   onClick={handleSaveAll}
-                                  className="bg-orange-600 hover:bg-orange-700 text-white"
-                                  >Save All
+                                  className="bg-orange-600 hover:bg-orange-700 text-[#e6e8e5] font-semibold"
+                                  >Save Thread
                                   </Button>
 
-                                  <Button
+                                  {/* <Button
                                   onClick={handleSelectedSave}
                                   disabled={selectedPost.length === 0}
                                     className={`${
                                                   selectedPost.length === 0 ? 'bg-gray-500 cursor-not-allowed' : 'bg-orange-600 hover:bg-orange-700'} text-white`}
                                   >
                                     Save Selected
-                                  </Button>
+                                  </Button> */}
                                 </div>
 
 
@@ -479,12 +479,7 @@ export const Xpost = () => {
                                                 {postType === "single" ? "Post" : `Post ${index + 1}`}
                                             </span>
 
-                                          <input type="checkbox" 
-                                          checked={selectedPost.includes(post.id)}
-                                          onChange={()=> toggleSelectedPost(post.id)}
-                                          className="accent-orange-500 scale-125 cursor-pointer"
-                                          />
-
+                                         
 
 
 
@@ -559,19 +554,28 @@ export const Xpost = () => {
                                                     Edit
                                                 </Button>
 
-                                                <Button
-                                                    size="sm"
-                                                    variant="secondary"
-                                                   onClick={async() => {
-                                                    await savePost(post.content);
-                                                    setSavedId(post.id)
-                                                   }}
-                                                   disabled={savedId === post.id}
-                                                    className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333] transition-all duration-200"
-                                                >
-                                                    <Save className="h-4 w-4 mr-2" />
-                                                    {savedId === post.id ? "Saved" : "Save"}
-                                                </Button>
+                                               <div className="relative group inline-block">
+  <Button
+    size="sm"
+    variant="secondary"
+    onClick={async () => {
+      await savePost(post.content);
+      setSavedId(post.id);
+    }}
+    disabled={savedId === post.id}
+    className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333] transition-all duration-200"
+    aria-label="Save this post"
+  >
+    <Save className="h-4 w-4 mr-2" />
+    {savedId === post.id ? "Saved" : "Save"}
+  </Button>
+
+  {/* Custom Tooltip */}
+  <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 whitespace-nowrap">
+    Save this post
+  </div>
+</div>
+
 
                                             </div>
                                         )}
