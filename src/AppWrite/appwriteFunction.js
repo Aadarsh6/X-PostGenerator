@@ -89,10 +89,11 @@ export const savePost = async(content) => {
             {
                 userId,
                 content,
-                createdAt: new Date().toString()
+                createdAt: new Date().toISOString()
             }
         );
         alert("Post Saved")
+        console.log("Post saved successfully")
         return userPost
     } catch (e) {
         console.log("Can't save post", e)

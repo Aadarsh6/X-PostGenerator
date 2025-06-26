@@ -5,6 +5,7 @@ import { Button } from '../ui/button'
 import { Textarea } from '../ui/textarea'
 import { useAvatar } from './Context/avatarContext'
 import { ArrowDown, Copy, Edit, Loader2, RefreshCw, X, AlertCircle, Check, Save } from 'lucide-react'
+import { savePost } from '@/AppWrite/appwriteFunction'
 
 // API configuration for Vite
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://x-postgenerator-backend-production.up.railway.app'.replace(/\/$/, '');
@@ -63,7 +64,7 @@ export const Xpost = () => {
     const [error, setError] = useState('')
     const [copiedId, setCopiedId] = useState(null)
     const [backendStatus, setBackendStatus] = useState(null)
-
+    const [savedId, setSavedId] = useState(null);
     const [editingPostId, setEditingPostId] = useState(null)
     const [editingContent, setEditingContent] = useState('')
 
@@ -499,11 +500,15 @@ export const Xpost = () => {
                                                 <Button
                                                     size="sm"
                                                     variant="secondary"
-                                                   onClick={() => savePost(post.content)}
+                                                   onClick={async() => {
+                                                    await savePost(post.content);
+                                                    setSavedId(post.id)
+                                                   }}
+                                                   disabled={savedId === post.id}
                                                     className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333] transition-all duration-200"
                                                 >
                                                     <Save className="h-4 w-4 mr-2" />
-                                                    Save
+                                                    {savedId === post.id ? "Saved" : "Save"}
                                                 </Button>
 
                                             </div>
