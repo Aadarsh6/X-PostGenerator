@@ -67,6 +67,7 @@ export const Xpost = () => {
     const [savedId, setSavedId] = useState(null);
     const [editingPostId, setEditingPostId] = useState(null)
     const [editingContent, setEditingContent] = useState('')
+    const [selectedPost, setSelectedPost] = useState([])
 
     const textareaRef = useRef(null)
     const resultsRef = useRef(null)
@@ -224,6 +225,33 @@ export const Xpost = () => {
             setError(`Connection test failed: ${error.message}`);
         }
     };
+
+    //Select post to save
+
+    const toggleSelectedPost = (id) => {
+      setSelectedPost(prev => prev.includes(id)? prev.filter(pid => pid !== id):[...prev, id]
+    );
+    };
+
+    //save all post
+
+    const handleSaveAll = async() => {
+      for(const post of generatedPost){
+        await savePost(post.content)
+      }
+      alert("All post saved")
+      console.log('All post saved');
+    }
+
+    const handleSelectedSave = async() => {
+      for(const post of generatedPost.filter(p => selectedPost.includes(p.id))){
+        await savePost(post.content)
+      }
+      alert("Selected posts saved!");
+      console.log('Selected posts saved!');
+      setSelectedPost([]);
+    }
+
 
     return (
         <div className="h-full w-full bg-[#0a0a0a] flex justify-center">
@@ -391,6 +419,10 @@ export const Xpost = () => {
                     </div>
                 </div>
 
+
+{/** ========================================Generated post from prompt=============================== */}
+
+
                 {/* Results Section - Appears Below Input */}
                 {generatedPost.length > 0 && (
                     <div ref={resultsRef} className="w-full max-w-3xl mx-auto space-y-6">
@@ -414,6 +446,26 @@ export const Xpost = () => {
                             </Button>
                         </div>
 
+                                <div>
+                                  <Button
+                                  onClick={handleSaveAll}
+                                  className="bg-orange-600 hover:bg-orange-700 text-white"
+                                  >Save All
+                                  </Button>
+
+                                  <Button
+                                  onClick={handleSelectedSave}
+                                  disabled={selectedPost.length === 0}
+                                    className={`${
+                                                  selectedPost.length === 0 ? 'bg-gray-500 cursor-not-allowed' : 'bg-orange-600 hover:bg-orange-700'} text-white`}
+                                  >
+                                    Save Selected
+                                  </Button>
+                                </div>
+
+
+
+
                         {/* Generated Posts */}
                         <div className="space-y-4">
                             {generatedPost.map((post, index) => (
@@ -426,6 +478,16 @@ export const Xpost = () => {
                                             <span className="text-sm text-orange-400 font-medium bg-orange-500/10 px-3 py-1 rounded-full">
                                                 {postType === "single" ? "Post" : `Post ${index + 1}`}
                                             </span>
+
+                                          <input type="checkbox" 
+                                          checked={selectedPost.includes(post.id)}
+                                          onChange={()=> toggleSelectedPost(post.id)}
+                                          className="accent-orange-500 scale-125 cursor-pointer"
+                                          />
+
+
+
+
                                             <div className="flex items-center gap-2">
                                                 <span className={`text-sm font-medium ${
                                                     (editingPostId === post.id ? editingContent.length : post.characterCount) > 280 ? 'text-red-400' : 'text-gray-400'
