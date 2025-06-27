@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card'
+import { Card, CardContent, CardHeader} from '../ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Button } from '../ui/button'
 import { Textarea } from '../ui/textarea'
 import { useAvatar } from './Context/avatarContext'
-import { ArrowDown, Copy, Edit, Loader2, RefreshCw, X, AlertCircle, Check, Save } from 'lucide-react'
+import { Copy, Edit, Loader2, RefreshCw, X, AlertCircle, Check, Save } from 'lucide-react'
 import { savePost } from '@/AppWrite/appwriteFunction'
 
 // API configuration for Vite
@@ -67,7 +67,7 @@ export const Xpost = () => {
     const [savedId, setSavedId] = useState(null);
     const [editingPostId, setEditingPostId] = useState(null)
     const [editingContent, setEditingContent] = useState('')
-    const [selectedPost, setSelectedPost] = useState([])
+    // const [selectedPost, setSelectedPost] = useState([])
 
     const textareaRef = useRef(null)
     const resultsRef = useRef(null)
@@ -100,9 +100,8 @@ export const Xpost = () => {
     const generateXpost = async(isRegenerate = false) => {
         if (isRegenerate) {
             setRegenerating(true)
-        } else {
             setLoading(true)
-        }
+        } 
         
         setError('')
         
@@ -228,10 +227,7 @@ export const Xpost = () => {
 
     //Select post to save
 
-    const toggleSelectedPost = (id) => {
-      setSelectedPost(prev => prev.includes(id)? prev.filter(pid => pid !== id):[...prev, id]
-    );
-    };
+
 
     //save all post
 

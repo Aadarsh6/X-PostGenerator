@@ -78,10 +78,13 @@ export const logout = async () => {
 } 
 
 //To save the post we like {createDocument}
-export const savePost = async(content) => {
+export const savePost = async(content, threadID = null) => {
     try {
         const user = await account.get(); //make sure user is logged in
         const userId = user.$id;
+
+        if(!threadID) threadID = ID.unique()   // If no threadID is provided, generate a new one (for a new thread)
+
         const userPost = await databases.createDocument(
             conf.appwriteDatabaseID,
             conf.appwriteCollectionID,
@@ -89,10 +92,11 @@ export const savePost = async(content) => {
             {
                 userId,
                 content,
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                threadID
             }
         );
-        alert("Post Saved")
+        // alert("Post Saved")
         console.log("Post saved successfully")
         return userPost
     } catch (e) {
@@ -120,7 +124,29 @@ export const fetchSavedPost = async() => {
 ]
             */
         );
-        return yourPost.documents // List of saved post
+        const threadMap = new Map()
+        for(const post of yourPost.documents){
+            const threadID =post.threadID;
+            if(!threadID) continue
+            if(!threadMap.has(post.threadID)){
+                threadMap.set(post.threadID, [])
+            }
+            
+            if(!threadMap.has(threadID)){
+                threadMap.set(threadID, [])
+            }
+            threadMap.get(post.threadID).push(post)
+        }
+
+        const threads = Array.from(threadMap.entries().map(([threadID, posts])=>({
+            threadID,
+            posts,
+            createdAt: posts[0].createdAt
+        })));
+        return threads;
+
+
+        // return yourPost.documents // List of saved post
     } catch (e) {
         console.log("Could not save the post", e)
         return []  /*//!Returning an empty array means:
