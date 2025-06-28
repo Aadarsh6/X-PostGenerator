@@ -155,3 +155,13 @@ export const fetchSavedPost = async() => {
         
     }
 }
+
+//To delete from database
+
+export const deleteFromDatabase = async(documentId) => {
+    const deleteDB = await databases.deleteDocument(
+        conf.appwriteDatabaseID,
+        conf.appwriteCollectionID,
+        documentId
+    )
+} 
