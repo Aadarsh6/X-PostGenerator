@@ -125,8 +125,8 @@ export const fetchSavedPost = async() => {
             */
         );
         const threadMap = new Map()
-        for(const post of yourPost.documents){
-            const threadID =post.threadID;
+        for(const post of yourPost.documents){ //!post is just a variable name you chose
+            const threadID =post.threadID;  
             if(!threadID) continue
             if(!threadMap.has(post.threadID)){
                 threadMap.set(post.threadID, [])
@@ -143,6 +143,7 @@ export const fetchSavedPost = async() => {
             posts,
             createdAt: posts[0].createdAt
         })));
+        threads.sort((a, b)=>(new Date(b.createdAt) - new Date(a.createdAt) ));
         return threads;
 
 

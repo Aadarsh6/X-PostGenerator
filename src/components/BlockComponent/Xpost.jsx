@@ -6,6 +6,7 @@ import { Textarea } from '../ui/textarea'
 import { useAvatar } from './Context/avatarContext'
 import { Copy, Edit, Loader2, RefreshCw, X, AlertCircle, Check, Save } from 'lucide-react'
 import { savePost } from '@/AppWrite/appwriteFunction'
+import { ID } from 'appwrite'
 
 // API configuration for Vite
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://x-postgenerator-backend-production.up.railway.app'.replace(/\/$/, '');
@@ -232,8 +233,9 @@ export const Xpost = () => {
     //save all post
 
     const handleSaveAll = async() => {
+        const threadID = ID.unique();
       for(const post of generatedPost){
-        await savePost(post.content)
+        await savePost(post.content, threadID)
       }
       alert("All post saved")
       console.log('All post saved');
