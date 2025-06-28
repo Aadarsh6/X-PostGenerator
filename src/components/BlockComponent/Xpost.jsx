@@ -1,34 +1,59 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { Card, CardContent, CardHeader} from '../ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { Button } from '../ui/button'
-import { Textarea } from '../ui/textarea'
-import { useAvatar } from './Context/avatarContext'
-import { Copy, Edit, Loader2, RefreshCw, X, AlertCircle, Check, Save } from 'lucide-react'
-import { savePost } from '@/AppWrite/appwriteFunction'
-import { ID } from 'appwrite'
+import React, { useEffect, useRef, useState } from "react";
+import { Card, CardContent, CardHeader } from "../ui/card";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "../ui/select";
+import { Button } from "../ui/button";
+import { Textarea } from "../ui/textarea";
+import { useAvatar } from "./Context/avatarContext";
+import {
+    Copy,
+    Edit,
+    Loader2,
+    RefreshCw,
+    X,
+    AlertCircle,
+    Check,
+    Save,
+} from "lucide-react";
+import { savePost } from "@/AppWrite/appwriteFunction";
+import { ID } from "appwrite";
+import { toast, Toaster } from "sonner";
 
 // API configuration for Vite
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://x-postgenerator-backend-production.up.railway.app'.replace(/\/$/, '');
+const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL ||
+    "https://x-postgenerator-backend-production.up.railway.app".replace(
+        /\/$/,
+        ""
+    );
 
 // API service functions
 const apiService = {
     async generatePost(data) {
-        console.log('Sending request to backend:', data);
-        
+        console.log("Sending request to backend:", data);
+
         const response = await fetch(`${API_BASE_URL}/api/generate-post`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(data),
         });
 
         const responseData = await response.json();
-        console.log('Backend response:', responseData);
+        console.log("Backend response:", responseData);
 
         if (!response.ok) {
-            throw new Error(responseData.error || responseData.details || `HTTP error! status: ${response.status}`);
+            throw new Error(
+                responseData.error ||
+                responseData.details ||
+                `HTTP error! status: ${response.status}`
+            );
         }
 
         return responseData;
@@ -39,7 +64,7 @@ const apiService = {
             const response = await fetch(`${API_BASE_URL}/api/test-key`);
             return await response.json();
         } catch (error) {
-            console.error('API key test failed:', error);
+            console.error("API key test failed:", error);
             return { success: false, error: error.message };
         }
     },
@@ -49,45 +74,45 @@ const apiService = {
             const response = await fetch(`${API_BASE_URL}/api/health`);
             return await response.json();
         } catch (error) {
-            console.error('Backend health check failed:', error);
-            return { status: 'ERROR', error: error.message };
+            console.error("Backend health check failed:", error);
+            return { status: "ERROR", error: error.message };
         }
-    }
-}
+    },
+};
 
 export const Xpost = () => {
-    const [prompt, setPrompt] = useState('')
-    const [postType, setPostType] = useState('single')
-    const [tone, setTone] = useState('professional')
-    const [loading, setLoading] = useState(false)
-    const [regenerating, setRegenerating] = useState(false)
-    const [generatedPost, setGeneratedPost] = useState([])
-    const [error, setError] = useState('')
-    const [copiedId, setCopiedId] = useState(null)
-    const [backendStatus, setBackendStatus] = useState(null)
+    const [prompt, setPrompt] = useState("");
+    const [postType, setPostType] = useState("single");
+    const [tone, setTone] = useState("professional");
+    const [loading, setLoading] = useState(false);
+    const [regenerating, setRegenerating] = useState(false);
+    const [generatedPost, setGeneratedPost] = useState([]);
+    const [error, setError] = useState("");
+    const [copiedId, setCopiedId] = useState(null);
+    const [backendStatus, setBackendStatus] = useState(null);
     const [savedId, setSavedId] = useState(null);
-    const [editingPostId, setEditingPostId] = useState(null)
-    const [editingContent, setEditingContent] = useState('')
+    const [editingPostId, setEditingPostId] = useState(null);
+    const [editingContent, setEditingContent] = useState("");
     // const [selectedPost, setSelectedPost] = useState([])
 
-    const textareaRef = useRef(null)
-    const resultsRef = useRef(null)
-    const { avatar } = useAvatar()
+    const textareaRef = useRef(null);
+    const resultsRef = useRef(null);
+    const { avatar } = useAvatar();
 
     const Tone = [
-        {value: 'professional', label: 'Professional'},
-        {value: 'humorous', label: 'Humorous'},
-        {value: 'educational', label: 'Educational'},
-        {value: 'controversial', label: 'Controversial'},
-        {value: 'casual', label: 'Casual'},
-        {value: 'inspirational', label: 'Inspirational'},
-    ]
+        { value: "professional", label: "Professional" },
+        { value: "humorous", label: "Humorous" },
+        { value: "educational", label: "Educational" },
+        { value: "controversial", label: "Controversial" },
+        { value: "casual", label: "Casual" },
+        { value: "inspirational", label: "Inspirational" },
+    ];
 
     const Type = [
-        { value: 'single', label: 'Single Post' },
-        { value: 'thread', label: 'Thread (2-5 posts)' },
-        { value: 'long-thread', label: 'Long Thread (6-10 posts)'}
-    ]
+        { value: "single", label: "Single Post" },
+        { value: "thread", label: "Thread (2-5 posts)" },
+        { value: "long-thread", label: "Long Thread (6-10 posts)" },
+    ];
 
     // Check backend health on component mount
     useEffect(() => {
@@ -98,27 +123,27 @@ export const Xpost = () => {
         checkBackend();
     }, []);
 
-    const generateXpost = async(isRegenerate = false) => {
+    const generateXpost = async (isRegenerate = false) => {
         if (isRegenerate) {
-            setRegenerating(true)
-            setLoading(true)
-        } 
-        
-        setError('')
-        
+            setRegenerating(true);
+            setLoading(true);
+        }
+
+        setError("");
+
         try {
             // Prepare the request data - matching your backend's expected parameters
             const requestData = {
                 prompt: prompt.trim(),
                 tone: tone,
-                PostType: postType  // Note: Your backend expects 'PostType' not 'type'
-            }
+                PostType: postType, // Note: Your backend expects 'PostType' not 'type'
+            };
 
-            console.log('Generating posts with data:', requestData);
+            console.log("Generating posts with data:", requestData);
 
             // Call your backend API
-            const response = await apiService.generatePost(requestData)
-            
+            const response = await apiService.generatePost(requestData);
+
             // Handle the response based on your backend's response format
             if (response.success && response.posts) {
                 // Transform the posts to match your frontend format
@@ -126,98 +151,106 @@ export const Xpost = () => {
                     id: Date.now() + index,
                     content: post.content,
                     characterCount: post.characterCount,
-                    withinLimit: post.withinLimit
+                    withinLimit: post.withinLimit,
                 }));
-                
+
                 setGeneratedPost(transformedPosts);
-                
+
                 // Scroll to results after generation
                 setTimeout(() => {
                     resultsRef.current?.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    })
-                }, 100)
+                        behavior: "smooth",
+                        block: "start",
+                    });
+                }, 100);
             } else {
-                throw new Error(response.error || 'Failed to generate post')
+                throw new Error(response.error || "Failed to generate post");
             }
-            
         } catch (error) {
-            console.error('API Error:', error);
-            setError(error.message || "Failed to generate post. Please check your connection and try again.");
+            console.error("API Error:", error);
+            setError(
+                error.message ||
+                "Failed to generate post. Please check your connection and try again."
+            );
         } finally {
-            setLoading(false)
-            setRegenerating(false)
+            setLoading(false);
+            setRegenerating(false);
         }
-    }
+    };
 
     const copyToClipboard = async (text, postId) => {
         try {
-            await navigator.clipboard.writeText(text)
-            setCopiedId(postId)
-            setTimeout(() => setCopiedId(null), 2000)
+            await navigator.clipboard.writeText(text);
+            setCopiedId(postId);
+            setTimeout(() => setCopiedId(null), 2000);
         } catch (err) {
-            console.error('Failed to copy text: ', err)
-            setError('Failed to copy text to clipboard')
+            console.error("Failed to copy text: ", err);
+            setError("Failed to copy text to clipboard");
         }
-    }
+    };
 
     const handleNewPost = () => {
-        setPrompt('')
-        setGeneratedPost([])
-        setError('')
+        setPrompt("");
+        setGeneratedPost([]);
+        setError("");
         setTimeout(() => {
-            textareaRef.current?.focus()
-        }, 100)
-    }
+            textareaRef.current?.focus();
+        }, 100);
+    };
 
     // Edit button functionality
     const handleEdit = (postId, currentContent) => {
-        setEditingPostId(postId)
-        setEditingContent(currentContent)
-    }
+        setEditingPostId(postId);
+        setEditingContent(currentContent);
+    };
 
     const saveEditPost = (postId) => {
-        const trimmedContent = editingContent.trim()
+        const trimmedContent = editingContent.trim();
         if (!trimmedContent) {
-            setError('Post content cannot be empty')
-            return
+            setError("Post content cannot be empty");
+            return;
         }
 
-        setGeneratedPost(prev => prev.map(post => post.id === postId ? {
-            ...post,
-            content: editingContent.trim(),
-            characterCount: editingContent.trim().length,
-            withinLimit: editingContent.trim().length <= 280
-        } : post))
-        
-        setEditingPostId(null)
-        setEditingContent('')
-        setError('')
-    }
+        setGeneratedPost((prev) =>
+            prev.map((post) =>
+                post.id === postId
+                    ? {
+                        ...post,
+                        content: editingContent.trim(),
+                        characterCount: editingContent.trim().length,
+                        withinLimit: editingContent.trim().length <= 280,
+                    }
+                    : post
+            )
+        );
+
+        setEditingPostId(null);
+        setEditingContent("");
+        setError("");
+    };
 
     const cancelEdit = () => {
-        setEditingPostId(null)
-        setEditingContent('')
-    }
+        setEditingPostId(null);
+        setEditingContent("");
+    };
 
     const handleKeyEdit = (e, postId) => {
-        if(e.key === "Enter" && e.ctrlKey){
-            e.preventDefault()
-            saveEditPost(postId)
-        } else if(e.key === "Escape"){
-            e.preventDefault()
-            cancelEdit()
+        if (e.key === "Enter" && e.ctrlKey) {
+            e.preventDefault();
+            saveEditPost(postId);
+        } else if (e.key === "Escape") {
+            e.preventDefault();
+            cancelEdit();
         }
-    }
+    };
 
     const testConnection = async () => {
-        setError('');
+        setError("");
         try {
             const result = await apiService.testApiKey();
             if (result.success) {
-                setError(''); // Clear any previous errors
-                alert('✅ Backend connection successful!');
+                setError(""); // Clear any previous errors
+                alert("✅ Backend connection successful!");
             } else {
                 setError(`Connection test failed: ${result.error}`);
             }
@@ -228,52 +261,44 @@ export const Xpost = () => {
 
     //Select post to save
 
-
-
     //save all post
 
-    const handleSaveAll = async() => {
+    const handleSaveAll = async () => {
         const threadID = ID.unique();
-      for(const post of generatedPost){
-        await savePost(post.content, threadID)
-      }
-      alert("All post saved")
-      console.log('All post saved');
-    }
-
-    // const handleSelectedSave = async() => {
-    //   for(const post of generatedPost.filter(p => selectedPost.includes(p.id))){
-    //     await savePost(post.content)
-    //   }
-    //   alert("Selected posts saved!");
-    //   console.log('Selected posts saved!');
-    //   setSelectedPost([]);
-    // }
-
+        for (const post of generatedPost) {
+            await savePost(post.content, threadID);
+        }
+        // alert("All post saved");
+        toast.success("All post has been saved")
+        console.log("All post saved");
+    };
 
     return (
         <div className="h-full w-full bg-[#0a0a0a] flex justify-center">
+
             <div className="w-full max-w-4xl px-4 py-8">
-                
                 {/* Backend Status Indicator */}
                 {backendStatus && (
                     <div className="flex justify-center mb-4">
-                        <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm ${
-                            backendStatus.status === 'OK' 
-                                ? 'bg-green-900/20 border border-green-500/50 text-green-400'
-                                : 'bg-red-900/20 border border-red-500/50 text-red-400'
-                        }`}>
-                            <div className={`w-2 h-2 rounded-full ${
-                                backendStatus.status === 'OK' ? 'bg-green-400' : 'bg-red-400'
-                            }`} />
-                            Backend: {backendStatus.status === 'OK' ? 'Connected' : 'Disconnected'}
+                        <div
+                            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm ${backendStatus.status === "OK"
+                                    ? "bg-green-900/20 border border-green-500/50 text-green-400"
+                                    : "bg-red-900/20 border border-red-500/50 text-red-400"
+                                }`}
+                        >
+                            <div
+                                className={`w-2 h-2 rounded-full ${backendStatus.status === "OK" ? "bg-green-400" : "bg-red-400"
+                                    }`}
+                            />
+                            Backend:{" "}
+                            {backendStatus.status === "OK" ? "Connected" : "Disconnected"}
                             {backendStatus.hasApiKey === false && (
                                 <span className="ml-2 text-yellow-400">(API Key Missing)</span>
                             )}
                         </div>
                     </div>
                 )}
-                
+
                 {/* Input Form Section - Always Centered */}
                 <div className="flex justify-center mb-8">
                     <div className="w-full max-w-2xl">
@@ -394,19 +419,20 @@ export const Xpost = () => {
                                 {/* Submit Button */}
                                 <Button
                                     onClick={() => generateXpost(true)}
-                                    disabled={!prompt.trim() || loading || backendStatus?.status !== 'OK'}
-                                    className={`w-full h-12 text-lg font-semibold transition-all duration-200 ${
-                                        !prompt.trim() || loading || backendStatus?.status !== 'OK'
-                                            ? "bg-gray-600 cursor-not-allowed" 
+                                    disabled={
+                                        !prompt.trim() || loading || backendStatus?.status !== "OK"
+                                    }
+                                    className={`w-full h-12 text-lg font-semibold transition-all duration-200 ${!prompt.trim() || loading || backendStatus?.status !== "OK"
+                                            ? "bg-gray-600 cursor-not-allowed"
                                             : "bg-orange-600 hover:bg-orange-700 active:bg-orange-800"
-                                    }`}
+                                        }`}
                                 >
                                     {loading ? (
                                         <>
                                             <Loader2 className="animate-spin mr-2 h-5 w-5" />
                                             Generating...
                                         </>
-                                    ) : backendStatus?.status !== 'OK' ? (
+                                    ) : backendStatus?.status !== "OK" ? (
                                         "Backend Unavailable"
                                     ) : (
                                         "Generate Post"
@@ -417,9 +443,7 @@ export const Xpost = () => {
                     </div>
                 </div>
 
-
-{/** ========================================Generated post from prompt=============================== */}
-
+                {/** ========================================Generated post from prompt=============================== */}
 
                 {/* Results Section - Appears Below Input */}
                 {generatedPost.length > 0 && (
@@ -427,11 +451,11 @@ export const Xpost = () => {
                         {/* Results Header */}
                         <div className="flex items-center justify-between">
                             <h2 className="text-2xl font-bold text-[#e6e8ec]">
-                                Generated {postType === 'single' ? 'Post' : 'Thread'}
+                                Generated {postType === "single" ? "Post" : "Thread"}
                             </h2>
                             <Button
                                 onClick={() => generateXpost(true)}
-                                disabled={regenerating || backendStatus?.status !== 'OK'}
+                                disabled={regenerating || backendStatus?.status !== "OK"}
                                 variant="outline"
                                 className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-300"
                             >
@@ -440,29 +464,19 @@ export const Xpost = () => {
                                 ) : (
                                     <RefreshCw className="h-4 w-4 mr-2" />
                                 )}
-                                {regenerating ? 'Regenerating...' : 'Regenerate'}
+                                {regenerating ? "Regenerating..." : "Regenerate"}
                             </Button>
                         </div>
 
-                                <div>
-                                  <Button
-                                  onClick={handleSaveAll}
-                                  className="bg-orange-600 hover:bg-orange-700 text-[#e6e8e5] font-semibold"
-                                  >Save Thread
-                                  </Button>
-
-                                  {/* <Button
-                                  onClick={handleSelectedSave}
-                                  disabled={selectedPost.length === 0}
-                                    className={`${
-                                                  selectedPost.length === 0 ? 'bg-gray-500 cursor-not-allowed' : 'bg-orange-600 hover:bg-orange-700'} text-white`}
-                                  >
-                                    Save Selected
-                                  </Button> */}
-                                </div>
-
-
-
+                        <div>
+                            <Toaster/>
+                            <Button
+                                onClick={handleSaveAll}
+                                className="bg-orange-600 hover:bg-orange-700 text-[#e6e8e5] font-semibold"
+                            >
+                                Save Thread
+                            </Button>
+                        </div>
 
                         {/* Generated Posts */}
                         <div className="space-y-4">
@@ -477,20 +491,26 @@ export const Xpost = () => {
                                                 {postType === "single" ? "Post" : `Post ${index + 1}`}
                                             </span>
 
-                                         
-
-
-
                                             <div className="flex items-center gap-2">
-                                                <span className={`text-sm font-medium ${
-                                                    (editingPostId === post.id ? editingContent.length : post.characterCount) > 280 ? 'text-red-400' : 'text-gray-400'
-                                                }`}>
-                                                   {editingPostId === post.id ? editingContent.length : post.characterCount}/280
+                                                <span
+                                                    className={`text-sm font-medium ${(editingPostId === post.id
+                                                            ? editingContent.length
+                                                            : post.characterCount) > 280
+                                                            ? "text-red-400"
+                                                            : "text-gray-400"
+                                                        }`}
+                                                >
+                                                    {editingPostId === post.id
+                                                        ? editingContent.length
+                                                        : post.characterCount}
+                                                    /280
                                                 </span>
-                                                {((editingPostId === post.id && editingContent.length > 280) || 
-                                                  (editingPostId !== post.id && post.withinLimit === false)) && (
-                                                    <AlertCircle className="h-4 w-4 text-red-400" />
-                                                )}
+                                                {((editingPostId === post.id &&
+                                                    editingContent.length > 280) ||
+                                                    (editingPostId !== post.id &&
+                                                        post.withinLimit === false)) && (
+                                                        <AlertCircle className="h-4 w-4 text-red-400" />
+                                                    )}
                                             </div>
                                         </div>
 
@@ -540,7 +560,7 @@ export const Xpost = () => {
                                                     className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333] transition-all duration-200"
                                                 >
                                                     <Copy className="h-4 w-4 mr-2" />
-                                                    {copiedId === post.id ? 'Copied!' : 'Copy'}
+                                                    {copiedId === post.id ? "Copied!" : "Copy"}
                                                 </Button>
                                                 <Button
                                                     size="sm"
@@ -552,29 +572,27 @@ export const Xpost = () => {
                                                     Edit
                                                 </Button>
 
-                                               <div className="relative group inline-block">
-  <Button
-    size="sm"
-    variant="secondary"
-    onClick={async () => {
-      await savePost(post.content);
-      setSavedId(post.id);
-    }}
-    disabled={savedId === post.id}
-    className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333] transition-all duration-200"
-    aria-label="Save this post"
-  >
-    <Save className="h-4 w-4 mr-2" />
-    {savedId === post.id ? "Saved" : "Save"}
-  </Button>
+                                                <div className="relative group inline-block">
+                                                    <Button
+                                                        size="sm"
+                                                        variant="secondary"
+                                                        onClick={async () => {
+                                                            await savePost(post.content);
+                                                            setSavedId(post.id);
+                                                        }}
+                                                        disabled={savedId === post.id}
+                                                        className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333] transition-all duration-200"
+                                                        aria-label="Save this post"
+                                                    >
+                                                        <Save className="h-4 w-4 mr-2" />
+                                                        {savedId === post.id ? "Saved" : "Save"}
+                                                    </Button>
 
-  {/* Custom Tooltip */}
-  <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 whitespace-nowrap">
-    Save this post
-  </div>
-</div>
-
-
+                                                    {/* Custom Tooltip */}
+                                                    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 whitespace-nowrap">
+                                                        Save this post
+                                                    </div>
+                                                </div>
                                             </div>
                                         )}
                                     </CardContent>
@@ -585,8 +603,10 @@ export const Xpost = () => {
                         {/* Create Another Post */}
                         <Card className="border-2 border-dashed border-orange-500/50 bg-transparent hover:border-orange-500 hover:bg-orange-500/5 transition-all duration-200">
                             <CardContent className="p-6 text-center">
-                                <p className="text-gray-400 mb-4 text-lg">Want to create another post?</p>
-                                <Button 
+                                <p className="text-gray-400 mb-4 text-lg">
+                                    Want to create another post?
+                                </p>
+                                <Button
                                     onClick={handleNewPost}
                                     variant="outline"
                                     className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-200"
@@ -599,7 +619,7 @@ export const Xpost = () => {
                 )}
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default Xpost
+export default Xpost;
