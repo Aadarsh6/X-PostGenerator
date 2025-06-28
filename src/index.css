@@ -8,6 +8,19 @@ html, body {
   overscroll-behavior: none;
 }
 
+@keyframes bounce-slow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+}
+.animate-bounce-slow {
+  animation: bounce-slow 1.5s infinite;
+}
+
+
 /* Hide scrollbars on all elements with this class */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;

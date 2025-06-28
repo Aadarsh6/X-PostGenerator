@@ -3,7 +3,7 @@
 import { fetchSavedPost } from "@/AppWrite/appwriteFunction";
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Bookmark, MessageSquare, CalendarDays, AlertTriangle, X } from 'lucide-react';
+import { Bookmark, MessageSquare, CalendarDays, AlertTriangle, X, MoveDownIcon } from 'lucide-react';
 
 // =================================================================================
 // 1. UI Components
@@ -56,10 +56,18 @@ const ThreadModal = ({ thread, onClose }) => {
               </div>
             </div>
           ))}
+          
         </div>
 
         {/* Modal Footer */}
-        <footer className="p-4 text-center text-xs text-neutral-600 border-t border-neutral-800 flex-shrink-0">
+        <footer className="p-4 text-center text-xs text-neutral-400 border-t border-neutral-800 flex-shrink-0">
+  {thread.posts.length > 1 && (
+  <span className="flex justify-center items-center gap-1 mb-2 text-neutral-500 text-sm">
+    Scroll to view more
+    <MoveDownIcon className="font-bold animate-bounce-slow" size={10} />
+  </span>
+)}
+
           Saved on {new Date(thread.posts[0].createdAt).toLocaleDateString()}
         </footer>
       </div>
