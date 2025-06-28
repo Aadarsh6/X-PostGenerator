@@ -8,6 +8,17 @@ html, body {
   overscroll-behavior: none;
 }
 
+/* Hide scrollbars on all elements with this class */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+
+
 /* In your global CSS file (e.g., index.css or App.css) */
 @tailwind base;
 @tailwind components;

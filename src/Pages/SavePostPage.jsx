@@ -46,7 +46,7 @@ const ThreadModal = ({ thread, onClose }) => {
         </header>
 
         {/* Scrollable Post Content */}
-        <div className="p-6 space-y-5 overflow-y-auto">
+        <div className="p-6 space-y-5 overflow-y-auto scrollbar-hide">
           {thread.posts.map((post, index) => (
             <div key={index} className="bg-[#111] p-4 rounded-lg border border-neutral-800 text-neutral-300 leading-relaxed animate-fade-in-up" style={{animationDelay: `${index * 50}ms`}}>
               <p>{post.content}</p>
