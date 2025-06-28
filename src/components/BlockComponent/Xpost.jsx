@@ -269,7 +269,10 @@ export const Xpost = () => {
             await savePost(post.content, threadID);
         }
         // alert("All post saved");
-        toast.success("All post has been saved")
+      toast.success("All posts saved!", {
+  description: "You can find them in your dashboard.",
+});
+
         console.log("All post saved");
     };
 
@@ -277,12 +280,12 @@ export const Xpost = () => {
         <div className="h-full w-full bg-[#0a0a0a] flex justify-center">
 
             <div className="w-full max-w-4xl px-4 py-8">
-                {/* Backend Status Indicator */}
+             {/* Backend Status Indicator */}
                 {backendStatus && (
                     <div className="flex justify-center mb-4">
                         <div
                             className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm ${backendStatus.status === "OK"
-                                    ? "bg-green-900/20 border border-green-500/50 text-green-400"
+                                    ? "bg-green-900/20 border border-green-500 text-green-400"
                                     : "bg-red-900/20 border border-red-500/50 text-red-400"
                                 }`}
                         >
@@ -469,7 +472,31 @@ export const Xpost = () => {
                         </div>
 
                         <div>
-                            <Toaster/>
+<Toaster
+  position="top-right"
+  richColors
+  theme="dark"
+  toastOptions={{
+    classNames: {
+      toaster: "toaster group",
+      toast:
+        "bg-[#171717]/95 backdrop-blur-sm text-zinc-50 border border-zinc-800 shadow-lg rounded-xl",
+      title: "text-zinc-50 text-[15px] font-medium",
+      description: "text-zinc-400 text-sm",
+      actionButton:
+        "bg-zinc-800 text-zinc-300 hover:bg-zinc-700",
+      cancelButton:
+        "bg-zinc-800 text-zinc-300 hover:bg-zinc-700",
+      // Colored accent borders for different notification types
+      success: "!border-green-500/40",
+      error: "!border-red-500/40",
+      info: "!border-blue-500/40",
+      warning: "!border-yellow-500/40",
+    },
+    duration: 3500,
+  }}
+/>
+
                             <Button
                                 onClick={handleSaveAll}
                                 className="bg-orange-600 hover:bg-orange-700 text-[#e6e8e5] font-semibold"
