@@ -3,7 +3,7 @@
 import { deleteFromDatabase, fetchSavedPost } from "@/AppWrite/appwriteFunction";
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Bookmark, MessageSquare, CalendarDays, AlertTriangle, X, MoveDownIcon, Trash2 } from 'lucide-react';
+import { Bookmark, MessageSquare, CalendarDays, AlertTriangle, X, MoveDownIcon, Trash2, Newspaper } from 'lucide-react';
 
 /**
  * A sleek modal to display the full content of a saved thread.
@@ -74,7 +74,7 @@ const ThreadModal = ({ thread, onClose }) => {
  * Displays a single saved thread as a clickable card.
  * Now acts as a teaser that opens the ThreadModal on click.
  */
-const ThreadCard = ({ thread, onClick, onDelete }) => {
+const ThreadCard = ({ thread, onClick, onDelete, isDeleting }) => {
   const firstPost = thread.posts[0];
   const postSnippet = firstPost.content.substring(0, 100) + (firstPost.content.length > 100 ? '...' : '');
   
@@ -83,7 +83,7 @@ const ThreadCard = ({ thread, onClick, onDelete }) => {
 
   return (
     <div
-      onClick={onClick}
+      onClick={isDeleting ? undefined : onClick}
       className="group bg-[#171717] rounded-xl p-6 border border-neutral-800 
                 cursor-pointer transition-all duration-300 
                 hover:border-[#ff6900]/60 hover:shadow-xl hover:-translate-y-1"
@@ -102,11 +102,18 @@ const ThreadCard = ({ thread, onClick, onDelete }) => {
           <button
             onClick={(e) => {
               e.stopPropagation();
+              if(!isDeleting){
               onDelete(thread.threadID);
+              }
             }}
+            disabled={isDeleting}
             className="p-2 rounded-full hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500 transition"
           >
+            {isDeleting ? (
+              <div className="w-5 h-5 border-2 border-neutral-400 border-t-transparent rounded-full animate-spin" />
+            ):(  
             <Trash2 className="w-5 h-5 text-[#ffffff] hover:text-red-800 transition"/>
+            )}
           </button>
         </div>
 
@@ -234,21 +241,45 @@ const SavePostPage = () => {
   }, [getSavedPost]);
 
   const handleDelete = async (threadID) => {
+    const threadToDelete = savedPost.find(t=> t.threadID === threadID)
     try {
         setDeletingThreads(prev => new Set([...prev, threadID]));
         
-      const threadToDelete = savedPost.find(t=> t.threadID === threadID)
-      if(!threadToDelete) return;
+      if(!threadToDelete) {
+        setDeletingThreads(prev=> {
+          const newSet = new Set(prev);
+          newSet.delete(threadID)
+          return newSet
+        });
+        return
+      };
+      await new Promise(resolve => setTimeout(resolve, 200))
+
+      setSavedPost(prevPost => prevPost.filter(thread => thread.threadID !== threadID))
+
       for(const post of threadToDelete.posts){
         await deleteFromDatabase(post.$id);
       }
-      // await getSavedPost()
-      // Refresh the saved posts after deletion
-      // const updatedThreads = await fetchSavedPost();
-      // setSavedPost(updatedThreads);
+      
     } catch (error) {
       console.error('Error deleting post:', error);
-      setError('Failed to delete post. Please try again.');
+      
+      setSavedPost(prevPosts => {
+        const exist = prevPosts.some(t => t.threadID)
+        if(!exist && threadToDelete){
+          return [...prevPosts , threadToDelete].sort((a,b)=> new Date(b.posts[0].createdAt)-new Date(a.posts[0].createdAt)
+        );
+      }
+      return prevPosts
+      })
+       setError('Failed to delete post. Please try again.');
+       setTimeout(()=> setError(''), 3000)
+    }finally{
+      setDeletingThreads(prev=> {
+        const newSet = new Set(prev)
+        newSet.delete(threadID)
+        return newSet
+      })
     }
   };
 
@@ -282,6 +313,7 @@ const SavePostPage = () => {
                 thread={thread} 
                 onClick={() => handleOpenModal(thread)} 
                 onDelete={handleDelete}
+                isDeleting={deletingThreads.has(thread.threadID)}
               />
             ))}
           </div>
