@@ -158,10 +158,16 @@ export const fetchSavedPost = async() => {
 
 //To delete from database
 
-export const deleteFromDatabase = async(documentId) => {
-    const deleteDB = await databases.deleteDocument(
-        conf.appwriteDatabaseID,
-        conf.appwriteCollectionID,
-        documentId
-    )
+export const deleteFromDatabase = async(threadID) => {
+    try {
+        const deleteDB = await databases.deleteDocument(
+            conf.appwriteDatabaseID,
+            conf.appwriteCollectionID,
+            threadID
+        )
+        return deleteDB
+    } catch (e) {
+        console.log("Cant delete the post", e)
+        throw e;
+    }
 } 

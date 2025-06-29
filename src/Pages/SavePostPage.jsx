@@ -1,13 +1,9 @@
 // src/pages/SavePostPage.jsx
 
-import { fetchSavedPost } from "@/AppWrite/appwriteFunction";
+import { deleteFromDatabase, fetchSavedPost } from "@/AppWrite/appwriteFunction";
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Bookmark, MessageSquare, CalendarDays, AlertTriangle, X, MoveDownIcon } from 'lucide-react';
-
-// =================================================================================
-// 1. UI Components
-// =================================================================================
+import { Bookmark, MessageSquare, CalendarDays, AlertTriangle, X, MoveDownIcon, Trash2 } from 'lucide-react';
 
 /**
  * A sleek modal to display the full content of a saved thread.
@@ -61,13 +57,12 @@ const ThreadModal = ({ thread, onClose }) => {
 
         {/* Modal Footer */}
         <footer className="p-4 text-center text-xs text-neutral-400 border-t border-neutral-800 flex-shrink-0">
-  {thread.posts.length > 1 && (
-  <span className="flex justify-center items-center gap-1 mb-2 text-neutral-500 text-sm">
-    Scroll to view more
-    <MoveDownIcon className="font-bold animate-bounce-slow" size={10} />
-  </span>
-)}
-
+          {thread.posts.length > 1 && (
+            <span className="flex justify-center items-center gap-1 mb-2 text-neutral-500 text-sm">
+              Scroll to view more
+              <MoveDownIcon className="font-bold animate-bounce-slow" size={10} />
+            </span>
+          )}
           Saved on {new Date(thread.posts[0].createdAt).toLocaleDateString()}
         </footer>
       </div>
@@ -75,30 +70,44 @@ const ThreadModal = ({ thread, onClose }) => {
   );
 };
 
-
 /**
  * Displays a single saved thread as a clickable card.
  * Now acts as a teaser that opens the ThreadModal on click.
  */
-const ThreadCard = ({ thread, onClick }) => {
+const ThreadCard = ({ thread, onClick, onDelete }) => {
   const firstPost = thread.posts[0];
   const postSnippet = firstPost.content.substring(0, 100) + (firstPost.content.length > 100 ? '...' : '');
+  
+  // Calculate thread count string
+  const threadCount = `${thread.posts.length} post${thread.posts.length > 1 ? "s" : ""} in this thread`;
 
   return (
     <div
       onClick={onClick}
       className="group bg-[#171717] rounded-xl p-6 border border-neutral-800 
-                 cursor-pointer transition-all duration-300 
-                 hover:border-[#ff6900]/60 hover:shadow-xl hover:-translate-y-1"
+                cursor-pointer transition-all duration-300 
+                hover:border-[#ff6900]/60 hover:shadow-xl hover:-translate-y-1"
     >
       <div className="flex flex-col h-full">
-        <div className="flex items-start gap-4 mb-4">
-          <div className="bg-[#ff6900]/10 p-2 rounded-lg">
-             <MessageSquare className="w-6 h-6 text-[#ff6900]" />
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <div className="flex items-center gap-4">
+            <div className="bg-[#ff6900]/10 p-2 rounded-lg">
+              <MessageSquare className="w-4 h-4 text-[#ff6900]" />
+            </div>
+            
+            <p className="text-sm text-neutral-400 font-medium">
+              {threadCount}
+            </p>
           </div>
-          <p className="text-sm text-neutral-400 font-medium">
-            {thread.posts.length} post{thread.posts.length > 1 ? "s" : ""} in this thread
-          </p>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(thread.threadID);
+            }}
+            className="p-2 rounded-full hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500 transition"
+          >
+            <Trash2 className="w-5 h-5 text-[#ffffff] hover:text-red-800 transition"/>
+          </button>
         </div>
 
         <p className="text-neutral-300 mb-6 flex-grow">
@@ -106,8 +115,10 @@ const ThreadCard = ({ thread, onClick }) => {
         </p>
         
         <div className="text-xs text-neutral-500 mt-auto pt-4 border-t border-neutral-800/70 flex items-center justify-between">
-           <span>Saved: {new Date(firstPost.createdAt).toLocaleDateString()}</span>
-           <span className="text-[#ff6900]/80 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">{thread.posts.length > 1 ? "View thread" : "view post"} &rarr;</span>
+          <span>Saved: {new Date(firstPost.createdAt).toLocaleDateString()}</span>
+          <span className="text-[#ff6900]/80 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+            {thread.posts.length > 1 ? "View thread" : "view post"} &rarr;
+          </span>
         </div>
       </div>
     </div>
@@ -122,8 +133,8 @@ const SkeletonLoader = () => {
     <div className="bg-[#171717] rounded-xl p-6 border border-neutral-800">
       <div className="animate-pulse flex flex-col h-full">
         <div className="flex items-start gap-4 mb-4">
-            <div className="h-10 w-10 bg-neutral-700 rounded-lg"></div>
-            <div className="h-6 bg-neutral-700 rounded w-1/3 mt-2"></div>
+          <div className="h-10 w-10 bg-neutral-700 rounded-lg"></div>
+          <div className="h-6 bg-neutral-700 rounded w-1/3 mt-2"></div>
         </div>
         <div className="h-4 bg-neutral-700 rounded w-full mb-2"></div>
         <div className="h-4 bg-neutral-700 rounded w-5/6 mb-6"></div>
@@ -138,8 +149,8 @@ const SkeletonLoader = () => {
     <div className="bg-[#0a0a0a] min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="mb-12 animate-pulse text-center md:text-left">
-            <div className="h-12 bg-neutral-800 rounded w-1/3 mx-auto md:mx-0 mb-4"></div>
-            <div className="h-6 bg-neutral-800 rounded w-1/2 mx-auto md:mx-0"></div>
+          <div className="h-12 bg-neutral-800 rounded w-1/3 mx-auto md:mx-0 mb-4"></div>
+          <div className="h-6 bg-neutral-800 rounded w-1/2 mx-auto md:mx-0"></div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {Array.from({ length: 6 }).map((_, index) => <SkeletonCard key={index} />)}
@@ -151,7 +162,6 @@ const SkeletonLoader = () => {
 
 /**
  * Guides the user with a clear CTA when no posts are saved.
- * (Largely unchanged, as it was already well-designed)
  */
 const EmptyState = () => (
   <div className="bg-[#0a0a0a] min-h-screen flex flex-col justify-center items-center text-center p-4">
@@ -162,7 +172,7 @@ const EmptyState = () => (
         It looks like your saved list is empty. Start exploring and save the posts you love!
       </p>
       <Link
-        to="/explore" // <-- CHANGE THIS to your main content feed route
+        to="/explore"
         className="bg-[#ff6900] text-white font-bold py-3 px-8 rounded-lg 
                    transition-transform duration-300 hover:scale-105 shadow-lg hover:shadow-[#ff6900]/30"
       >
@@ -174,7 +184,6 @@ const EmptyState = () => (
 
 /**
  * Provides a user-friendly error message with a retry option.
- * (Largely unchanged)
  */
 const ErrorState = ({ message, onRetry }) => (
   <div className="bg-[#0a0a0a] min-h-screen flex flex-col justify-center items-center text-center p-4">
@@ -201,7 +210,8 @@ const SavePostPage = () => {
   const [savedPost, setSavedPost] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+  const [deletingThreads, setDeletingThreads] = useState(new Set());
+
   // State to manage the currently selected thread for the modal
   const [selectedThread, setSelectedThread] = useState(null);
 
@@ -222,7 +232,26 @@ const SavePostPage = () => {
   useEffect(() => {
     getSavedPost();
   }, [getSavedPost]);
-  
+
+  const handleDelete = async (threadID) => {
+    try {
+        setDeletingThreads(prev => new Set([...prev, threadID]));
+        
+      const threadToDelete = savedPost.find(t=> t.threadID === threadID)
+      if(!threadToDelete) return;
+      for(const post of threadToDelete.posts){
+        await deleteFromDatabase(post.$id);
+      }
+      // await getSavedPost()
+      // Refresh the saved posts after deletion
+      // const updatedThreads = await fetchSavedPost();
+      // setSavedPost(updatedThreads);
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      setError('Failed to delete post. Please try again.');
+    }
+  };
+
   // --- Handlers for Modal ---
   const handleOpenModal = (thread) => setSelectedThread(thread);
   const handleCloseModal = () => setSelectedThread(null);
@@ -252,6 +281,7 @@ const SavePostPage = () => {
                 key={thread.threadID} 
                 thread={thread} 
                 onClick={() => handleOpenModal(thread)} 
+                onDelete={handleDelete}
               />
             ))}
           </div>
