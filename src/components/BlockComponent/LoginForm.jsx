@@ -1,156 +1,176 @@
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+  import { cn } from "@/lib/utils";
+  import { Button } from "@/components/ui/button";
+  import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+  } from "@/components/ui/card";
+  import { Input } from "@/components/ui/input";
+  import { Label } from "@/components/ui/label";
 
-import { useState } from "react"
-import { login } from "../../AppWrite/appwriteFunction"
-import { Link } from "react-router-dom"
-import { Loader2 } from "lucide-react"
-import { useNavigate } from "react-router-dom"
+  import { useState, useRef, useEffect } from "react"; // <-- Import useRef and useEffect
+  import { login } from "../../AppWrite/appwriteFunction";
+  import { Link, useNavigate } from "react-router-dom";
+  import { Loader2 } from "lucide-react";
 
-function LoginForm({className, ...props}) {
-  const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  function LoginForm({ className, ...props }) {
+    const navigate = useNavigate();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async(e) => {
-    e.preventDefault()
-    setLoading(true)
-    try {
-      const loginUser = await login(email, password);
-      if(loginUser){
-        setError('')
-        navigate("/dashboard")
+    
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      setLoading(true);
+      setError('');
+      try {
+        const loginUser = await login(email, password);
+        if (loginUser) {
+          navigate("/dashboard");
+        }
+      } catch (err) {
+        console.log("Login failed", err);
+        const appwriteMessage = err?.response?.message || err?.message || "Invalid credentials";
+        setError(appwriteMessage);
+      } finally {
+        setLoading(false);
       }
-      return loginUser
-    } catch (err) {
-  console.log("Login failed", err);
-  console.log("Error details:", JSON.stringify(err, null, 2));
-  const appwriteMessage = err?.response?.message || err?.message || "Invalid credentials";
-  setError(appwriteMessage);
-}finally{
-  setLoading(false)
-}
+    };
+
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Dark Base Background */}
+        <div className="absolute inset-0 bg-[#0d0d0d] z-0" />
+
+        {/* Dotted Background */}
+        <div className="absolute inset-0 bg-[radial-gradient(white_1px,transparent_1px)] [background-size:16px_16px] opacity-20 z-0" />
+
+        {/* ✨ UPDATED: Login Card with new styles */}
+        <Card
+          className={cn(
+            "w-full max-w-md relative z-10 bg-neutral-900/60 backdrop-blur-xl border border-neutral-800 shadow-2xl shadow-orange-500/10 overflow-hidden group", // <-- Updated classes
+            className
+          )}
+          {...props}
+        >
+       
+
+          <div className="relative z-10"> {/* Content wrapper */}
+            <CardHeader className="text-center space-y-2 pb-6">
+              <CardTitle className="text-3xl font-extrabold text-gray-200">
+                Welcome Back
+              </CardTitle>
+              <CardDescription className="text-lg font-semibold text-[#f97316]">
+                Xcraft
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Form fields remain the same */}
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-base text-gray-200">
+                    Email
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="bg-neutral-800/80 text-white border border-neutral-700 placeholder:text-gray-500 focus:ring-2 focus:ring-[#f97316] focus:border-[#f97316] transition-all"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-base text-gray-200">
+                    Password
+                  </Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Enter Your Password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="bg-neutral-800/80 text-white border border-neutral-700 placeholder:text-gray-500 focus:ring-2 focus:ring-[#f97316] focus:border-[#f97316] transition-all"
+                  />
+                  <div className="flex justify-end">
+                    <Link
+                      to="/reset-password"
+                      className="text-sm text-[#fb923c] hover:text-[#fdba74] underline-offset-4 hover:underline transition-colors"
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
+                </div>
+
+                {error && (
+                  <div className="p-3 bg-red-900/20 border border-red-500/30 text-red-400 rounded-lg text-sm animate-in fade-in slide-in-from-top">
+                    <div className="flex items-center">
+                      <span className="inline-block w-2 h-2 bg-red-500 rounded-full mr-2 flex-shrink-0" />
+                      <span>{error}</span>
+                    </div>
+                  </div>
+                )}
+
+                <Button
+                  type="submit"
+                  className="w-full bg-[#f97316] hover:bg-[#ea580c] text-white font-bold shadow-lg shadow-orange-500/20 transition-all disabled:opacity-50"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Logging in...
+                    </>
+                  ) : (
+                    "Login"
+                  )}
+                </Button>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-neutral-700" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-neutral-900/60 px-2 text-gray-400 backdrop-blur-sm">
+                      Or continue with
+                    </span>
+                  </div>
+                </div>
+                
+                {/* ... rest of the form ... */}
+                <Button
+                  variant="outline"
+                  className="w-full border-neutral-700 text-gray-300 bg-transparent hover:bg-neutral-800 hover:text-white transition-all"
+                  type="button"
+                >
+                  Login with Google
+                </Button>
+
+                <div className="text-center text-sm text-gray-400">
+                  Don&apos;t have an account?{" "}
+                  <Link
+                    to="/signup"
+                    className="text-[#f97316] hover:text-[#fdba74] underline-offset-4 hover:underline transition-colors"
+                  >
+                    Sign up
+                  </Link>
+                </div>
+
+              </form>
+            </CardContent>
+          </div>
+        </Card>
+      </div>
+    );
   }
 
-return (
-    <div
-      className={cn(
-        "flex items-center justify-center min-h-screen bg-[#191a1a] p-4",
-        className
-      )}
-      {...props}
-    >
-<Card className="w-full max-w-md p-8 rounded-xl shadow-2xl  bg-[#1a1a1a] backdrop-blur-lg border border-[#27272a]">
-  <CardHeader className="text-center space-y-2">
-    <CardTitle className="text-3xl font-extrabold text-gray-200">Welcome Back</CardTitle>
-    <div className="text-white">Xcraft</div>
-
-  </CardHeader>
-  <CardContent>
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="flex flex-col space-y-4">
-        <div className="grid gap-2">
-          <Label htmlFor="email" className="text-base text-gray-200">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="you@example.com"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="bg-[#292524] text-white border border-[#44403c] placeholder:text-gray-500 focus:ring-2 focus:ring-[#f97316] focus:border-[#f97316] transition-all"
-          />
-        </div>
-
-        <div >
-          <Input
-            id="password"
-            type="password"
-            placeholder="Enter Your Password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="bg-[#292524] text-white border border-[#44403c] placeholder:text-gray-500 focus:ring-2 focus:ring-[#f97316] focus:border-[#f97316] transition-all"
-          />
-          <div className="flex">
-            
-            <Link
-              to="/reset-password"
-              className="ml-auto text-sm text-[#fb923c] hover:text-[#fdba74] underline-offset-4 hover:underline mt-1"
-            >
-              Forgot password?
-            </Link>
-          </div>
-        </div>
-
-        {error && (
-          <div className="p-3 bg-red-200 text-red-800 rounded-lg text-sm animate-in fade-in slide-in-from-top shadow">
-            <span className="inline-block w-2 h-2 bg-red-600 rounded-full mr-2"></span>
-            {error}
-          </div>
-        )}
-        
-
-        <Button
-          type="submit"
-          className="w-full flex items-center justify-center bg-[#f97316] hover:bg-[#ea580c] text-white shadow-lg transition-all"
-          disabled={loading}
-        >
-          {loading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Logging in...
-            </>
-          ) : (
-            "Login"
-          )}
-        </Button>
-
-       <div className="relative text-center text-sm text-muted-foreground my-6 flex items-center">
-  <div className="flex-grow border-t border-border"></div>
-  <span className="mx-3 bg-[#1a1a1a] text-white px-2 relative z-10">
-    Or Continue with
-  </span>
-  <div className="flex-grow border-t border-border"></div>
-</div>
-
-
-
-        <Button
-          variant="outline"
-          className="w-full border-[#f97316] text-[#f97316] bg-[#1a1a1a] transition-all"
-          type="button"
-        >
-          Login with Google
-        </Button>
-      </div>
-
-      <div className="mt-4 text-center text-sm text-gray-400">
-        Don&apos;t have an account?{" "}
-        <Link
-          to="/signup"
-          className="underline text-[#f97316] hover:text-[#fdba74]"
-        >
-          Sign up
-        </Link>
-      </div>
-    </form>
-  </CardContent>
-</Card>
-
-    </div>
-  );
-}
-
-export default LoginForm;
+  export default LoginForm;

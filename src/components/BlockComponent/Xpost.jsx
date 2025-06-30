@@ -264,6 +264,7 @@ export const Xpost = () => {
     //save all post
 
     const handleSaveAll = async () => {
+        setLoading(true)
         const threadID = ID.unique();
         for (const post of generatedPost) {
             await savePost(post.content, threadID);
@@ -274,6 +275,7 @@ export const Xpost = () => {
 });
 
         console.log("All post saved");
+        setLoading(false)
     };
 
     return (
@@ -501,7 +503,14 @@ export const Xpost = () => {
                                 onClick={handleSaveAll}
                                 className="bg-orange-600 hover:bg-orange-700 text-[#e6e8e5] font-semibold"
                             >
-                                Save Thread
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="w-2 h-2 mr-2 animate-spin"/>
+                                        Saving...
+                                    </>
+                                ): ("Save Thread")
+                                }
+                                
                             </Button>
                         </div>
 

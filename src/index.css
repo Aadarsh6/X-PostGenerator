@@ -41,7 +41,6 @@ html, body {
   animation-delay: 4s; /* Stagger it even more */
 }
 
-
 @keyframes bounce-slow {
   0%, 100% {
     transform: translateY(0);
@@ -54,7 +53,6 @@ html, body {
   animation: bounce-slow 1.5s infinite;
 }
 
-
 /* Hide scrollbars on all elements with this class */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
@@ -63,8 +61,6 @@ html, body {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;     /* Firefox */
 }
-
-
 
 /* In your global CSS file (e.g., index.css or App.css) */
 @tailwind base;
@@ -99,8 +95,6 @@ html, body {
     animation: fade-in-up 0.4s ease-out forwards;
   }
 }
-
-
 
 @custom-variant dark (&:is(.dark *));
 
@@ -140,6 +134,27 @@ html, body {
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --animate-shimmer-slide: shimmer-slide var(--speed) ease-in-out infinite alternate;
+  --animate-spin-around: spin-around calc(var(--speed) * 2) infinite linear;
+  @keyframes shimmer-slide {
+  to {
+    transform: translate(calc(100cqw - 100%), 0);
+    }
+  }
+  @keyframes spin-around {
+  0% {
+    transform: translateZ(0) rotate(0);
+    }
+  15%, 35% {
+    transform: translateZ(0) rotate(90deg);
+    }
+  65%, 85% {
+    transform: translateZ(0) rotate(270deg);
+    }
+  100% {
+    transform: translateZ(0) rotate(360deg);
+    }
+  }
 }
 
 :root {

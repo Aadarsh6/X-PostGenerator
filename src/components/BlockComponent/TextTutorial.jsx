@@ -65,7 +65,10 @@ const itemVariants = {
           {steps.map((step, index) => (
             <motion.div
               key={index}
-              className="bg-neutral-900 p-8 rounded-xl border border-neutral-800 flex flex-col items-center text-center"
+              className="group relative bg-gradient-to-br from-neutral-900/80 to-neutral-950/60 
+            border border-neutral-800/50 
+            hover:border-purple-500/40 
+            transition-colors duration-300 rounded-xl p-8 flex flex-col items-center text-center"
               variants={itemVariants}
             >
               <div className="bg-neutral-950 p-4 rounded-full border border-neutral-700">
@@ -80,3 +83,5 @@ const itemVariants = {
     </section>
   )
 }
+
+

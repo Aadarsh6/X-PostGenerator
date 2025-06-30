@@ -23,6 +23,7 @@ export const NavBar = () => {
 import { BackgroundBeams } from "@/components/ui/background-beams";
 import { ArrowRight } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
+import { ShimmerButton } from "../magicui/shimmer-button";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -71,13 +72,13 @@ export function HomePage() {
           Our AI-powered platform analyzes viral trends and helps you craft engaging posts that capture attention. Ditch the writer's block and unlock explosive growth for your profile.
         </motion.p>
         
-        <motion.button
+        <ShimmerButton
           variants={itemVariants}
           className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-100 transform hover:scale-105"
         >
           Get Started Free
           <ArrowRight size={16} />
-        </motion.button>
+        </ShimmerButton>
       </motion.div>
       
       <BackgroundBeams />
