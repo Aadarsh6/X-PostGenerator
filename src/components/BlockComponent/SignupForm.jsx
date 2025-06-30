@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { BorderBeam } from "@/components/magicui/border-beam";
 import { createAccount, login } from "../../AppWrite/appwriteFunction"
 import { useState } from "react"
 import { Link } from "react-router-dom"
@@ -60,10 +61,10 @@ function SignUpForm({ className, ...props }) {
             {/* Dotted Background */}
             <div className="absolute inset-0 bg-[radial-gradient(white_1px,transparent_1px)] [background-size:16px_16px] opacity-20 z-0" />
 
-            {/* Sign Up Card with updated styles */}
+            {/* Sign Up Card with BorderBeam */}
             <Card
                 className={cn(
-                    "w-full max-w-md relative z-10 bg-neutral-900/60 backdrop-blur-xl border border-neutral-800 shadow-2xl shadow-cyan-500/20 overflow-hidden group",
+                    "w-full max-w-md relative z-10 bg-neutral-900/60 backdrop-blur-xl border border-neutral-800 shadow-2xl shadow-orange-500/10 overflow-hidden group",
                     className
                 )}
                 {...props}
@@ -191,6 +192,20 @@ function SignUpForm({ className, ...props }) {
                         </form>
                     </CardContent>
                 </div>
+
+                {/* BorderBeam Effects */}
+                <BorderBeam
+                  duration={8}
+                  size={400}
+                  className="from-transparent via-[#f97316] to-transparent"
+                />
+                <BorderBeam
+                  duration={8}
+                  delay={4}
+                  size={400}
+                  borderWidth={2}
+                  className="from-transparent via-[#ea580c] to-transparent"
+                />
             </Card>
         </div>
     );
