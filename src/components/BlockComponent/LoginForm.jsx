@@ -53,7 +53,7 @@
         {/* ✨ UPDATED: Login Card with new styles */}
         <Card
           className={cn(
-            "w-full max-w-md relative z-10 bg-neutral-900/60 backdrop-blur-xl border border-neutral-800 shadow-2xl shadow-orange-500/10 overflow-hidden group", // <-- Updated classes
+            "w-full max-w-md relative z-10 bg-neutral-900/60 backdrop-blur-xl border border-neutral-800 shadow-2xl shadow-cyan-600/20 overflow-hidden group", // <-- Updated classes
             className
           )}
           {...props}

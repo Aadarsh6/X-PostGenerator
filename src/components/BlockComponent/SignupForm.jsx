@@ -63,7 +63,7 @@ function SignUpForm({ className, ...props }) {
             {/* Sign Up Card with updated styles */}
             <Card
                 className={cn(
-                    "w-full max-w-md relative z-10 bg-neutral-900/60 backdrop-blur-xl border border-neutral-800 shadow-2xl shadow-orange-500/10 overflow-hidden group",
+                    "w-full max-w-md relative z-10 bg-neutral-900/60 backdrop-blur-xl border border-neutral-800 shadow-2xl shadow-cyan-500/20 overflow-hidden group",
                     className
                 )}
                 {...props}
