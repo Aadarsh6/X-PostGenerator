@@ -11,12 +11,14 @@ import { AuthProvider } from './AppWrite/AuthContext'
 import { AvatarProvider } from './components/BlockComponent/Context/avatarContext'
 import SavePostPage from './Pages/SavePostPage'
 import { SavePage } from './Pages/SavePage'
+import { LandingPage } from './Pages/LandingPage'
 
 const router = createBrowserRouter([
-  {path: "/", element: <App/>},
+  {path: "/signIn", element: <App/>},
   {path: "/signup", element: <SignupPage/>},
   {path: "/login", element: <SigninPage/>},
   {path: "/save", element: <SavePage/>},
+  {path: "/", element: <LandingPage/>},
   {path: "/dashboard", element: <ProtectRoute> <DashboardPage/> </ProtectRoute>
   }
 ])

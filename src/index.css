@@ -8,6 +8,40 @@ html, body {
   overscroll-behavior: none;
 }
 
+/* In your global stylesheet (e.g., globals.css) */
+
+/* The main breathing animation */
+@keyframes breathing-glow {
+  0%, 100% {
+    transform: scale(0.95);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.7;
+  }
+}
+
+/* Apply the animation to the circles with different durations and delays */
+.glow-circle-1 {
+  /* Set the transform origin to the center of the circle */
+  transform-origin: 512px 512px; 
+  animation: breathing-glow 12s ease-in-out infinite;
+}
+
+.glow-circle-2 {
+  transform-origin: 200px 300px;
+  animation: breathing-glow 14s ease-in-out infinite;
+  animation-delay: 2s; /* Stagger the animation */
+}
+
+.glow-circle-3 {
+  transform-origin: 800px 700px;
+  animation: breathing-glow 10s ease-in-out infinite;
+  animation-delay: 4s; /* Stagger it even more */
+}
+
+
 @keyframes bounce-slow {
   0%, 100% {
     transform: translateY(0);
