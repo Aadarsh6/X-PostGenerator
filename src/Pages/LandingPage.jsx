@@ -1,4 +1,5 @@
 import { CTASection } from "@/components/BlockComponent/CTA";
+import { Footer } from "@/components/BlockComponent/Footer";
 import { HomePage } from "@/components/BlockComponent/Home";
 import { NavBar } from "@/components/BlockComponent/NavBar";
 import { TextTutorial } from "@/components/BlockComponent/TextTutorial";
@@ -13,6 +14,7 @@ export const LandingPage = () => {
         <TutorialVideo />
         <TextTutorial />
         <CTASection/>
+        <Footer/>
       </main>
       
       <style jsx>{`

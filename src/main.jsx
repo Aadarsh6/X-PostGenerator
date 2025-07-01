@@ -12,6 +12,7 @@ import { AvatarProvider } from './components/BlockComponent/Context/avatarContex
 import SavePostPage from './Pages/SavePostPage'
 import { SavePage } from './Pages/SavePage'
 import { LandingPage } from './Pages/LandingPage'
+import ContactPage from './Pages/Contact'
 
 const router = createBrowserRouter([
   {path: "/signIn", element: <App/>},
@@ -19,6 +20,7 @@ const router = createBrowserRouter([
   {path: "/login", element: <SigninPage/>},
   {path: "/save", element: <SavePage/>},
   {path: "/", element: <LandingPage/>},
+  {path: "/contact", element: <ContactPage/>},
   {path: "/dashboard", element: <ProtectRoute> <DashboardPage/> </ProtectRoute>
   }
 ])
