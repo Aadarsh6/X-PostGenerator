@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 export const ShimmerButton = React.forwardRef((
   {
     shimmerColor = "#ffffff",
-    shimmerSize = "0.05em",
+    shimmerSize = "0.09em",
     shimmerDuration = "3s",
     borderRadius = "100px",
     background = "rgba(0, 0, 0, 1)",

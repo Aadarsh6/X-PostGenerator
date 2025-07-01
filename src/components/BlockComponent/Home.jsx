@@ -22,7 +22,7 @@ export const NavBar = () => {
 // Fixed HomePage component
 import { BackgroundBeams } from "@/components/ui/background-beams";
 import { ArrowRight } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { ShimmerButton } from "../magicui/shimmer-button";
 
 const containerVariants = {
@@ -47,7 +47,6 @@ const itemVariants = {
 };
 
 export function HomePage() {
-  const shouldReduceMotion = useReducedMotion();
   
   return (
     <section className="min-h-screen w-full relative flex flex-col items-center justify-center antialiased px-4">
@@ -71,14 +70,18 @@ export function HomePage() {
         >
           Our AI-powered platform analyzes viral trends and helps you craft engaging posts that capture attention. Ditch the writer's block and unlock explosive growth for your profile.
         </motion.p>
-        
-        <ShimmerButton
-          variants={itemVariants}
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-100 transform hover:scale-105"
-        >
-          Get Started Free
-          <ArrowRight size={16} />
-        </ShimmerButton>
+      <motion.div variants={itemVariants}>
+<ShimmerButton
+  background="linear-gradient(135deg, #f97316, #ea580c)"
+//   shimmerColor="#fffff" // A brighter orange from your palette
+  shimmerDuration="3s"
+  borderRadius="10px"
+  className="inline-flex items-center gap-2 text-white font-bold py-3 px-6 shadow-lg shadow-orange-600/30 hover:shadow-xl hover:shadow-orange-700/40 transition-all duration-200 transform hover:scale-105"
+>
+  Get Started Free
+  <ArrowRight size={16} />
+</ShimmerButton>
+</motion.div>
       </motion.div>
       
       <BackgroundBeams />
