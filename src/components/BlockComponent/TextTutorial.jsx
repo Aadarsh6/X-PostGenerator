@@ -89,7 +89,7 @@ export const TextTutorial = React.memo(() => {
               {activeStep === index && !shouldReduceMotion && (
                 <motion.div 
                   layoutId="highlight-border"
-                  className="absolute -inset-px rounded-xl border-2 border-orange-500"
+                  className="absolute -inset-px rounded-xl border-2 border-orange-500 shadow-xl shadow-orange-900"
                 />
               )}
 
