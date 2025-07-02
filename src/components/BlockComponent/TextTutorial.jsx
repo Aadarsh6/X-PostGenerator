@@ -63,6 +63,21 @@ export const TextTutorial = React.memo(() => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
   };
 
+  const cardVariants = {
+    inactive: {
+      scale: 1,
+      y: 0,
+      opacity: 0.8,
+      transition: { duration: 0.3, ease: 'easeOut' }
+    },
+    active: {
+      scale: shouldReduceMotion ? 1 : 1.02,
+      y: shouldReduceMotion ? 0 : -4,
+      opacity: 1,
+      transition: { duration: 0.3, ease: 'easeOut' }
+    }
+  };
+
   return (
     <section className="bg-[#0a0a0a] py-20 sm:py-32">
       <div className="max-w-7xl mx-auto px-4 text-center">
@@ -72,8 +87,23 @@ export const TextTutorial = React.memo(() => {
         <p className="mt-4 text-lg text-neutral-400 max-w-2xl mx-auto">
           Go from idea to trending post in minutes. Our streamlined process makes content creation effortless.
         </p>
-        
-        <motion.div 
+
+        {/* Step Dots */}
+        <div className="mt-8 flex justify-center gap-2">
+          {steps.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setActiveStep(i)}
+              className={cn(
+                "h-3 w-3 rounded-full transition-colors",
+                activeStep === i ? "bg-orange-500" : "bg-neutral-600 hover:bg-neutral-400"
+              )}
+              aria-label={`Go to step ${i + 1}`}
+            />
+          ))}
+        </div>
+
+        <motion.div
           className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-4"
           variants={containerVariants}
           initial="hidden"
@@ -82,58 +112,137 @@ export const TextTutorial = React.memo(() => {
         >
           {steps.map((step, index) => (
             <motion.div
+              layout
               key={index}
-              className="relative flex flex-col bg-neutral-950/40 border border-neutral-800/60 rounded-xl p-8 text-center min-h-[420px]"
-              variants={itemVariants}
-            >
-              {activeStep === index && !shouldReduceMotion && (
-                <motion.div 
-                  layoutId="highlight-border"
-                  className="absolute -inset-px rounded-xl border-2 border-orange-500 shadow-xl shadow-orange-900"
-                />
+              className={cn(
+                "relative flex flex-col rounded-xl p-8 text-center min-h-[420px] transition-all duration-300",
+                activeStep === index
+                  ? "bg-neutral-950/60 border border-neutral-700/80"
+                  : "bg-neutral-950/40 border border-neutral-800/60"
               )}
+              variants={itemVariants}
+              animate={activeStep === index ? "active" : "inactive"}
+              cardVariants={cardVariants}
+              style={{
+                boxShadow: activeStep === index
+                  ? '0 10px 40px -10px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(249, 115, 22, 0.1)'
+                  : 'none'
+              }}
+            >
+              <AnimatePresence>
+                {activeStep === index && !shouldReduceMotion && (
+                  <motion.div
+                    layoutId="highlight-border"
+                    className="absolute -inset-px rounded-xl border-2 border-orange-500"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{
+                      opacity: 1,
+                      scale: 1,
+                      boxShadow: [
+                        "0 0 0 0 rgba(249, 115, 22, 0.4)",
+                        "0 0 0 8px rgba(249, 115, 22, 0.1)",
+                        "0 0 0 0 rgba(249, 115, 22, 0.4)"
+                      ]
+                    }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{
+                      duration: 0.3,
+                      boxShadow: {
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }
+                    }}
+                  />
+                )}
+              </AnimatePresence>
 
-              {/* --- Top Content Wrapper --- */}
               <div className="flex-grow">
-                <div className={cn("relative z-10 mx-auto w-16 h-16 mb-6 flex items-center justify-center rounded-full bg-neutral-900 border border-neutral-700 transition-colors duration-300",
-                  activeStep === index ? "border-orange-500/30" : ""
-                )}>
-                  {/* --- FIX 1: Subtle icon colors --- */}
-                  <div className={cn("transition-colors duration-300", 
-                    activeStep === index ? "text-orange-400" : "text-neutral-600"
-                  )}>
+                <motion.div
+                  className={cn("relative z-10 mx-auto w-16 h-16 mb-6 flex items-center justify-center rounded-full bg-neutral-900 border border-neutral-700 transition-all duration-300",
+                    activeStep === index ? "border-orange-500/30 bg-neutral-800" : ""
+                  )}
+                  animate={{
+                    scale: activeStep === index && !shouldReduceMotion ? [1, 1.1, 1] : 1
+                  }}
+                  transition={{
+                    duration: 0.6,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <motion.div
+                    className={cn("transition-colors duration-300",
+                      activeStep === index ? "text-orange-400" : "text-neutral-600"
+                    )}
+                    animate={{
+                      rotate: activeStep === index && !shouldReduceMotion ? [0, 5, -5, 0] : 0
+                    }}
+                    transition={{
+                      duration: 0.8,
+                      ease: "easeInOut"
+                    }}
+                  >
                     {step.icon}
-                  </div>
-                </div>
-                <h3 className="text-xl font-bold text-neutral-100">{step.title}</h3>
-                <p className="mt-2 text-neutral-400 text-sm leading-relaxed">{step.description}</p>
+                  </motion.div>
+                </motion.div>
+
+                <motion.h3
+                  className={cn("text-xl font-bold transition-colors duration-300",
+                    activeStep === index ? "text-white" : "text-neutral-100"
+                  )}
+                  animate={{
+                    scale: activeStep === index && !shouldReduceMotion ? [1, 1.02, 1] : 1
+                  }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {step.title}
+                </motion.h3>
+
+                <p className={cn("mt-2 text-sm leading-relaxed transition-colors duration-300",
+                  activeStep === index ? "text-neutral-300" : "text-neutral-400"
+                )}>
+                  {step.description}
+                </p>
               </div>
 
-              {/* --- Bottom Content Wrapper --- */}
-              <div className="mt-6">
-                {/* Static Content for Card 1 */}
+              {/* Bottom Content */}
+              <motion.div
+                className="mt-6"
+                animate={{
+                  y: activeStep === index && !shouldReduceMotion ? [0, -2, 0] : 0
+                }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
                 {index === 0 && (
-                  <div className="text-left p-4 rounded-lg bg-neutral-900 border border-neutral-800/80">
+                  <div className={cn("text-left p-4 rounded-lg border transition-all duration-300",
+                    activeStep === index
+                      ? "bg-neutral-900/80 border-neutral-700/80"
+                      : "bg-neutral-900 border-neutral-800/80"
+                  )}>
                     <p className="text-xs font-semibold text-neutral-500 mb-3">Trending Topics:</p>
                     <div className="flex flex-wrap gap-2">
                       {['#AI', '#SaaS', '#GrowthHacking', '#Tech'].map(tag => (
-                        <span key={tag} className="text-xs text-neutral-400 bg-neutral-800 rounded px-2 py-1">{tag}</span>
+                        <span key={tag} className={cn("text-xs rounded px-2 py-1 transition-colors duration-300",
+                          activeStep === index
+                            ? "text-neutral-300 bg-neutral-700"
+                            : "text-neutral-400 bg-neutral-800"
+                        )}>{tag}</span>
                       ))}
                     </div>
                   </div>
                 )}
-                
-                {/* Dynamic Content for Card 2 */}
+
                 {index === 1 && (
                   <AnimatePresence>
                     {activeStep === 1 && (
                       <motion.div
                         key="typing-area"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.3 }}
                       >
-                        <div className="text-left p-4 rounded-lg bg-neutral-900 border border-neutral-800 text-sm text-neutral-300 min-h-[120px]">
+                        <div className="text-left p-4 rounded-lg bg-neutral-900/80 border border-neutral-700 text-sm text-neutral-300 min-h-[120px]">
                           {typedText}
                           <span className="inline-block w-2 h-4 bg-orange-500 animate-pulse ml-1" />
                         </div>
@@ -142,21 +251,37 @@ export const TextTutorial = React.memo(() => {
                   </AnimatePresence>
                 )}
 
-                {/* Static Content for Card 3 */}
                 {index === 2 && (
-                  <div className="text-left p-4 rounded-lg bg-neutral-900 border border-neutral-800/80 space-y-3">
-                    {/* --- FIX 2: Green growth metrics --- */}
+                  <div className={cn("text-left p-4 rounded-lg border space-y-3 transition-all duration-300",
+                    activeStep === index
+                      ? "bg-neutral-900/80 border-neutral-700/80"
+                      : "bg-neutral-900 border-neutral-800/80"
+                  )}>
                     <div className="flex items-center justify-between gap-4">
                       <span className="text-xs font-medium text-green-400">Engagement</span>
-                      <div className="w-1/2 h-2 bg-neutral-800 rounded-full"><div className="w-3/4 h-full bg-green-600 rounded-full"></div></div>
+                      <div className="w-1/2 h-2 bg-neutral-800 rounded-full">
+                        <motion.div
+                          className="h-full bg-green-600 rounded-full"
+                          initial={{ width: 0 }}
+                          animate={{ width: "75%" }}
+                          transition={{ duration: 1, delay: 0.2 }}
+                        />
+                      </div>
                     </div>
                     <div className="flex items-center justify-between gap-4">
                       <span className="text-xs font-medium text-green-400">Reach</span>
-                      <div className="w-1/2 h-2 bg-neutral-800 rounded-full"><div className="w-1/2 h-full bg-green-500 rounded-full"></div></div>
+                      <div className="w-1/2 h-2 bg-neutral-800 rounded-full">
+                        <motion.div
+                          className="h-full bg-green-500 rounded-full"
+                          initial={{ width: 0 }}
+                          animate={{ width: "50%" }}
+                          transition={{ duration: 1, delay: 0.4 }}
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
-              </div>
+              </motion.div>
             </motion.div>
           ))}
         </motion.div>
