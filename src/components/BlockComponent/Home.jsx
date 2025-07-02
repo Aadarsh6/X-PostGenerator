@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { ShimmerButton } from "../magicui/shimmer-button";
 import React from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 export const HomePage = React.memo(() => {
   const shouldReduceMotion = useReducedMotion();
@@ -52,11 +53,15 @@ export const HomePage = React.memo(() => {
         </motion.p>
 
         <motion.div variants={itemVariants} className="flex justify-center">
+            <Link
+            to="/signup"
+            >
           <ShimmerButton  background="linear-gradient(to right, #f97316, #ea580c)"
     className="shadow-lg shadow-orange-600/30 hover:shadow-xl hover:shadow-orange-700/40 transition-all duration-200">
             Get Started Free
             <ArrowRight size={15} />
           </ShimmerButton>
+          </Link>
         </motion.div>
       </motion.div>
       

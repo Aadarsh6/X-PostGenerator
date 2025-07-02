@@ -1,6 +1,7 @@
 import { ShimmerButton } from '../magicui/shimmer-button';
 import { ArrowRight } from 'lucide-react';
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export const CTASection = React.memo(() => {
   return (
@@ -13,15 +14,19 @@ export const CTASection = React.memo(() => {
           Stop guessing and start growing. Join hundreds of creators who are building their audience faster with Xc Craft.
         </p>
         <div className="mt-10 flex justify-center">
+            <Link
+            to="/signup"
+            >
           <ShimmerButton
             background="#0a0a0a" // Use a dark background consistent with your site
-            className="text-lg shadow-lg shadow-orange-600/20"
+            className="text-lg shadow-lg shadow-orange-500/40"
           >
             <span className="flex items-center gap-2 whitespace-nowrap">
               Start Creating
               <ArrowRight size={18} />
             </span>
           </ShimmerButton>
+          </Link>
         </div>
       </div>
     </section>

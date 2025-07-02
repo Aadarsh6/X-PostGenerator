@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ShimmerButton } from "../magicui/shimmer-button"; // Adjusted path
 import { cn } from "@/lib/utils";
 import { LogIn, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const NavBar = React.memo(() => {
   const [scrolled, setScrolled] = useState(false);
@@ -37,12 +38,18 @@ export const NavBar = React.memo(() => {
 
         {/* Desktop Auth Buttons */}
         <div className="hidden items-center gap-2 md:flex">
+        <Link
+        to="/login"
+        >
           <button className="group flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-white/5 hover:text-white">
             <LogIn className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
             Login
           </button>
-          
+          </Link>
           {/* The new, elegant white button */}
+          <Link
+          to="/signup"
+          >
           <ShimmerButton
             shimmerColor="#ff6500"
             // shimmerSize="0.15rem"
@@ -54,6 +61,7 @@ export const NavBar = React.memo(() => {
               <ArrowRight size={16} />
             </span>
           </ShimmerButton>
+              </Link>
         </div>
         
         {/* Mobile Menu Button: This appears on screens smaller than 'md' */}
