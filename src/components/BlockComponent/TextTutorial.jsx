@@ -63,20 +63,7 @@ export const TextTutorial = React.memo(() => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
   };
 
-  const cardVariants = {
-    inactive: {
-      scale: 1,
-      y: 0,
-      opacity: 0.8,
-      transition: { duration: 0.3, ease: 'easeOut' }
-    },
-    active: {
-      scale: shouldReduceMotion ? 1 : 1.02,
-      y: shouldReduceMotion ? 0 : -4,
-      opacity: 1,
-      transition: { duration: 0.3, ease: 'easeOut' }
-    }
-  };
+
 
   return (
     <section className="bg-[#0a0a0a] py-20 sm:py-32">
@@ -122,7 +109,6 @@ export const TextTutorial = React.memo(() => {
               )}
               variants={itemVariants}
               animate={activeStep === index ? "active" : "inactive"}
-              cardVariants={cardVariants}
               style={{
                 boxShadow: activeStep === index
                   ? '0 10px 40px -10px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(249, 115, 22, 0.1)'
