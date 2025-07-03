@@ -311,7 +311,12 @@ export const Xpost = () => {
           <div className="w-full max-w-2xl">
             <Card className="w-full border-2 bg-gradient-to-b from-[#1f1f1f] via-[#171717] to-[#0f0f0f]
  border-[#222323] shadow-2xl relative overflow-hidden">
-              
+                <BorderBeam
+                    duration={8}
+                    borderWidth={3}
+                    size={500}
+                    className="from-transparent via-[#f97316] to-transparent"
+                />
 
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-center">
