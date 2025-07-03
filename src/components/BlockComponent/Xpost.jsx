@@ -85,7 +85,9 @@ export const Xpost = () => {
   const [prompt, setPrompt] = useState("");
   const [postType, setPostType] = useState("single");
   const [tone, setTone] = useState("professional");
-  const [loading, setLoading] = useState(false);
+const [loading, setLoading] = useState(false); // Keep for auth
+const [generating, setGenerating] = useState(false); // For post generation
+const [savingAll, setSavingAll] = useState(false); // For saving all posts
   const [regenerating, setRegenerating] = useState(false);
   const [generatedPost, setGeneratedPost] = useState([]);
   const [error, setError] = useState("");
@@ -127,7 +129,7 @@ export const Xpost = () => {
   const generateXpost = async (isRegenerate = false) => {
     if (isRegenerate) {
       setRegenerating(true);
-      setLoading(true);
+      setGenerating(true);
     }
 
     setError("");
@@ -174,7 +176,7 @@ export const Xpost = () => {
           "Failed to generate post. Please check your connection and try again."
       );
     } finally {
-      setLoading(false);
+      setGenerating(false);
       setRegenerating(false);
     }
   };
@@ -265,7 +267,7 @@ export const Xpost = () => {
   //save all post
 
   const handleSaveAll = async () => {
-    setLoading(true);
+    setSavingAll(true);
     const threadID = ID.unique();
     for (const post of generatedPost) {
       await savePost(post.content, threadID);
@@ -276,7 +278,7 @@ export const Xpost = () => {
     });
 
     console.log("All post saved");
-    setLoading(false);
+    setSavingAll(false);
   };
 
   return (
@@ -443,7 +445,7 @@ export const Xpost = () => {
                       : "bg-orange-600 hover:bg-orange-700 active:bg-orange-800"
                   }`}
                 >
-                  {loading ? (
+                  {generating ? (
                     <>
                       <Loader2 className="animate-spin mr-2 h-5 w-5" />
                       Generating...
@@ -512,7 +514,7 @@ export const Xpost = () => {
                 onClick={handleSaveAll}
                 className="bg-orange-600 hover:bg-orange-700 text-[#e6e8e5] font-semibold"
               >
-                {loading ? (
+                {savingAll ? (
                   <>
                     <Loader2 className="w-2 h-2 mr-2 animate-spin" />
                     Saving...
