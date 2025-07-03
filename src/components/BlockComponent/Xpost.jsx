@@ -388,12 +388,12 @@ const [savingAll, setSavingAll] = useState(false); // For saving all posts
                       <SelectTrigger className="w-full border-none text-white bg-[#222323] hover:bg-[#2a2a2a] focus:ring-2 focus:ring-orange-500/50 transition-all duration-200">
                         <SelectValue placeholder="Select Post Type" />
                       </SelectTrigger>
-                      <SelectContent className="bg-[#222323] text-white border-2 border-[#333333]">
+                      <SelectContent className="bg-[#222323] text-white font-medium border-2 border-[#333333]">
                         {Type.map((type) => (
                           <SelectItem
                             key={type.value}
                             value={type.value}
-                            className="hover:bg-orange-500/20 focus:bg-orange-500/20"
+                            className="hover:bg-[#ff7d00]/60 focus:bg-[#ea580c]/60"
                           >
                             {type.label}
                           </SelectItem>
@@ -411,12 +411,12 @@ const [savingAll, setSavingAll] = useState(false); // For saving all posts
                       <SelectTrigger className="w-full border-none text-white bg-[#222323] hover:bg-[#2a2a2a] focus:ring-2 focus:ring-orange-500/50 transition-all duration-200">
                         <SelectValue placeholder="Select Tone" />
                       </SelectTrigger>
-                      <SelectContent className="bg-[#222323] text-white border-2 border-[#333333]">
+                      <SelectContent className="bg-[#222323] text-white font-medium hover:text-white border-2 border-[#333333]">
                         {Tone.map((toneOption) => (
                           <SelectItem
                             key={toneOption.value}
                             value={toneOption.value}
-                            className="hover:bg-orange-500/20 focus:bg-orange-500/20"
+                            className="hover:bg-[#ff7d00]/60 focus:bg-[#ea580c]/60 "
                           >
                             {toneOption.label}
                           </SelectItem>
