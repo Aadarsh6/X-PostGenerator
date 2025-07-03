@@ -295,7 +295,7 @@ const SavePostPage = () => {
   // --- Success State ---
   return (
     <>
-      <div className="bg-[#0a0a0a] min-h-screen text-neutral-200 font-sans">
+      <div className="bg-[#0a0a0a] min-h-screen text-neutral-200 font-sans mt-5">
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <header className="text-center md:text-left mb-12">
             <h1 className="text-4xl md:text-5xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-neutral-200 to-neutral-500">

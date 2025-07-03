@@ -3,11 +3,24 @@ import { Xpost } from '../components/BlockComponent/Xpost'
 
 export const DashboardPage = () => {
   return (
-    <div className="flex w-full h-screen bg-[#0a0a0a] overflow-hidden">
+    <div className="min-h-screen bg-[#0a0a0a] flex relative">
+      {/* Sidebar - Fixed on desktop, overlay on mobile */}
       <Sidebar />
-      <div className="flex-1 overflow-y-auto ml-16 lg:ml-64">
-        <Xpost />
-      </div>
+      
+      {/* Main Content Area */}
+      <main className="flex-1 transition-all duration-300 ease-in-out lg:ml-64 relative">
+        {/* Mobile Header Space - Only visible on mobile */}
+        <div className="lg:hidden h-16 w-full bg-[#0a0a0a]/40 border-b border-[#222323] flex items-center px-4 pr-16 sticky top-0 z-30">
+          <div className="text-white font-semibold text-lg">
+            XCrafter
+          </div>
+        </div>
+        
+        {/* Xpost Component Container */}
+        <div className="w-full min-h-[calc(100vh-4rem)] lg:min-h-screen overflow-auto mt-5">
+          <Xpost />
+        </div>
+      </main>
     </div>
-  )
+  ) 
 }
