@@ -61,8 +61,8 @@ export const Sidebar = () => {
   const menuItems = [
     { icon: Home, label: 'Dashboard', id: 'dashboard', to: "/dashboard"},
     { icon: Bookmark, label: 'Saved', id: 'saved', to: "/save"},
-    { icon: User, label: 'Profile', id: 'profile', to: "/"},
-    { icon: Settings, label: 'Settings', id: 'settings', to: "/"},
+    { icon: User, label: 'Profile', id: 'profile', to: "/soon"},
+    { icon: Settings, label: 'Settings', id: 'settings', to: "/soon"},
   ]
 
   return (

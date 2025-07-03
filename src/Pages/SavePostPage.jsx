@@ -179,7 +179,7 @@ const EmptyState = () => (
         It looks like your saved list is empty. Start exploring and save the posts you love!
       </p>
       <Link
-        to="/explore"
+          to="/explore"
         className="bg-[#ff6900] text-white font-bold py-3 px-8 rounded-lg 
                    transition-transform duration-300 hover:scale-105 shadow-lg hover:shadow-[#ff6900]/30"
       >
