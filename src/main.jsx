@@ -4,7 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { SignupPage } from './Pages/SignupPage.jsx'
-import { SigninPage } from './Pages/SignInPage.jsx'
+import { LogInPage } from './Pages/LogInPage.jsx'
 import { DashboardPage } from './Pages/DashboardPage.jsx'
 import ProtectRoute from './AppWrite/ProtectRoute'
 import { AuthProvider } from './AppWrite/AuthContext'
@@ -18,7 +18,7 @@ import { CommingSoon } from './Pages/CommingSoon'
 const router = createBrowserRouter([
   {path: "/signIn", element: <App/>},
   {path: "/signup", element: <SignupPage/>},
-  {path: "/login", element: <SigninPage/>},
+  {path: "/login", element: <LogInPage/>},
   {path: "/save", element: <SavePage/>},
   {path: "/", element: <LandingPage/>},
   {path: "/contact", element: <ContactPage/>},

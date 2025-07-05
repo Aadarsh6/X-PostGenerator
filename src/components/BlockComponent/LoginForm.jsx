@@ -14,9 +14,11 @@ import { Label } from "@/components/ui/label";
 import { BorderBeam } from "@/components/magicui/border-beam";
 
 import { useState } from "react";
-import { login } from "../../AppWrite/appwriteFunction";
+import { login, oAuth } from "../../AppWrite/appwriteFunction";
 import { Link, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/AppWrite/AuthContext";
+
 
 function LoginForm({ className, ...props }) {
   const navigate = useNavigate();
@@ -24,6 +26,8 @@ function LoginForm({ className, ...props }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState(false);
+  const { refreshUser } = useAuth()
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,6 +36,7 @@ function LoginForm({ className, ...props }) {
     try {
       const loginUser = await login(email, password);
       if (loginUser) {
+        refreshUser()
         navigate("/dashboard");
       }
     } catch (err) {
@@ -40,6 +45,29 @@ function LoginForm({ className, ...props }) {
       setError(appwriteMessage);
     } finally {
       setLoading(false);
+    }
+  };
+
+const handleOAuth = async () => {
+    setOauthLoading(true);
+    setError('');
+    try {
+        console.log('Starting OAuth flow...');
+        await oAuth();
+        // OAuth will redirect, so this won't execute
+    } catch (error) {
+        console.error("OAuth failed:", error);
+        
+        // Handle specific OAuth errors
+        if (error.code === 409) {
+            setError("An account with this email already exists. Please use email/password login.");
+        } else if (error.message.includes('unauthorized')) {
+            setError("OAuth not properly configured. Please contact support.");
+        } else {
+            setError("Google login failed. Please try again.");
+        }
+    } finally {
+        setOauthLoading(false);
     }
   };
 
@@ -144,14 +172,22 @@ function LoginForm({ className, ...props }) {
                 </div>
               </div>
               
-              <Button
-                variant="outline"
-                className="w-full border-neutral-700 text-gray-300 bg-transparent hover:bg-neutral-800 hover:text-white transition-all"
-                type="button"
-              >
-                Login with Google
-              </Button>
-
+             <Button
+            variant="outline"
+            className="w-full border-neutral-700 text-gray-300 bg-transparent hover:bg-neutral-800 hover:text-white transition-all"
+            type="button"
+            onClick={handleOAuth}
+            disabled={oauthLoading}
+        >
+            {oauthLoading ? (
+                <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Connecting to Google...
+                </>
+            ) : (
+                "Login with Google"
+            )}
+        </Button>
               <div className="text-center text-sm text-gray-400">
                 Don&apos;t have an account?{" "}
                 <Link

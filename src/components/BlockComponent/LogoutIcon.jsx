@@ -10,7 +10,7 @@ export const LogoutIcon = () => {
             try {
                 const removeSession = await logout()
                 if(removeSession){
-                    navigate("/login")
+                    navigate("/")
                 }
                 return removeSession
             } catch (error) {

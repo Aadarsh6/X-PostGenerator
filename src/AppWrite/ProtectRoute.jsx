@@ -1,63 +1,79 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { getCurrentAccount } from './appwriteFunction'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { handleOauthCallback, handleNewUserWelcome } from './appwriteFunction'
+import { useAuth } from './AuthContext'
 
 const ProtectRoute = ({children}) => {
-    const [loading, setLoading] = useState(true)
-    const [isAuth, setIsAuth] = useState(null)
-    const navigate = useNavigate(true)
+    const [oauthLoading, setOauthLoading] = useState(false)
+    const navigate = useNavigate()
+    const location = useLocation()
+    const { user, loading, refreshUser } = useAuth()
 
-    useEffect(()=>{
-        const getUser = async() =>{
-            try {
-                const User = await getCurrentAccount()
-                if(User && User.$id){
-                    setIsAuth(User)
+    useEffect(() => {
+        const handleOAuth = async() => {
+            // Check if this is an OAuth callback
+            const isOauthCallback = location.pathname === "/dashboard" && 
+                (location.search.includes('code=') || location.search.includes('state='));
+            
+            if (isOauthCallback && !user) {
+                console.log('Handling OAuth callback...');
+                setOauthLoading(true);
+                
+                try {
+                    const oauthUser = await handleOauthCallback();
+                    if (oauthUser && oauthUser.$id) {
+                        console.log('OAuth authentication successful:', oauthUser);
+                        
+                        // Check if this is a new user (registered in last minute)
+                        const isNewUser = oauthUser.registration ? 
+                            (new Date() - new Date(oauthUser.registration)) < 60000 : false;
+                        
+                        if (isNewUser) {
+                            console.log('New user detected - setting up profile...');
+                            await handleNewUserWelcome(oauthUser);
+                        }
+                        
+                        // Refresh the user data in AuthContext
+                        refreshUser();
+                        
+                        // Clean up the URL and navigate
+                        navigate("/dashboard", {replace: true});
+                    } else {
+                        throw new Error('OAuth callback handled but no user returned');
+                    }
+                } catch (oauthError) {
+                    console.error('OAuth callback failed:', oauthError);
+                    navigate("/login", {replace: true});
+                } finally {
+                    setOauthLoading(false);
                 }
-                else{
-                    setIsAuth(null)
-                }
-            } catch (error) {
-                console.log("Error while fetching user", error)
-                setIsAuth(null)
-            }finally{
-                setLoading(false)
             }
         }
-        getUser()
-    },[])
+        
+        handleOAuth();
+    }, [location, navigate, user, refreshUser])
 
-    useEffect(()=>{
-        if(!loading && isAuth === null){  //! !loading indicates that fetching of above api is completed
-            navigate("/login", {replace: true})
-            // ?User navigation flow:
+    // Handle authentication redirect
+    useEffect(() => {
+        if (!loading && !oauthLoading && !user && location.pathname !== "/login") {
+            console.log('No authenticated user, redirecting to login');
+            navigate("/login", {replace: true});
+        }
+    }, [navigate, user, loading, location.pathname, oauthLoading])
 
-/* //? Home → About → Dashboard (not authenticated) → Login
-WITHOUT replace: true
-History: [Home, About, Dashboard, Login]
-Back button from Login takes user to Dashboard (BAD!)
+    // Show loading state
+    if (loading || oauthLoading) {
+        return (
+            <div className='w-full min-h-screen bg-[#191a1a] flex justify-center items-center'>
+                <div className='w-16 h-16 rounded-full animate-spin border-b-2 border-[#ea5a0cde]'></div>
+                <p className='text-white mt-4 text-center'>
+                    {oauthLoading ? 'Completing Google sign-in...' : 'Loading...'}
+                </p>
+            </div>
+        )
+    }
 
-WITH replace: true  
-History: [Home, About, Login]
-Back button from Login takes user to About (GOOD!)
-*/
-            }
-    },[navigate, isAuth, loading])
-
-  if(loading){
-    return (
-    <div className='w-full min-h-screen bg-[#191a1a] flex justify-center items-center'>
-        <div className='w-16 h-16 rounded-full animate-spin border-b-2 border-[#ea5a0cde]'></div>
-    </div>
-    )
-  }
-
-  if(isAuth === null){
-    return null
-  }
-  return children
+    return user ? children : null
 }
 
 export default ProtectRoute
-
-

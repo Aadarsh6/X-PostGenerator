@@ -1,6 +1,25 @@
 import conf from "@/conf/conf";
 import { account, ID, databases } from "./appwrite";
-import { Query } from "appwrite";
+import { OAuthProvider, Query } from "appwrite";
+
+
+class AuthError extends Error {
+    constructor(message, code) {
+        super(message);
+        this.name = 'AuthError';
+        this.code = code;
+    }
+}
+
+class DatabaseError extends Error {
+    constructor(message, code) {
+        super(message);
+        this.name = 'DatabaseError';
+        this.code = code;
+    }
+}
+
+
 
 
 //To create New account
@@ -13,10 +32,104 @@ export const createAccount = async (name, email, password) => {  //!This for cre
         
     } catch (e) {
         console.log("Account Creation Failed", e);
-        throw e;
-        
+        throw new AuthError(`Account creation failed: ${e.message}`, e.code);        
     }
-}                                                         
+}
+
+export const oAuth = async() => {
+    try {
+        // Get current URL to make redirect URLs dynamic
+        const currentUrl = window.location.origin;
+        
+        await account.createOAuth2Session(
+            OAuthProvider.Google,
+            `${currentUrl}/dashboard`, // Success redirect
+            `${currentUrl}/login`      // Failure redirect
+        );
+    } catch (e) {
+        console.log("Can't do oAuth currently", e);
+        throw new AuthError(`OAuth failed: ${e.message}`, e.code);
+    }
+}
+
+
+
+// Handle OAuth callback - works for both new and existing users
+export const handleOauthCallback = async() => {
+    try {
+        // Wait a moment for the session to be fully established
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        const user = await account.get();
+        if (user && user.$id) {
+            console.log("OAuth successful - User authenticated:", {
+                id: user.$id,
+                name: user.name,
+                email: user.email,
+                isNewUser: user.registration ? 
+                    (new Date() - new Date(user.registration)) < 60000 : false // Check if registered in last minute
+            });
+            
+            return user;
+        }
+        throw new Error("OAuth completed but user not authenticated");
+    } catch (e) {
+        console.log("OAuth callback error:", e);
+        if (e instanceof AuthError) throw e;{
+        throw new AuthError(`OAuth callback failed: ${e.message}`, e.code);
+    }
+    }
+}
+export const checkUserExist = async(email) => {
+    try {
+        // This is a workaround since Appwrite doesn't have a direct "check user exists" method
+        // You might want to implement this using your own user tracking system
+        const users = await databases.listDocuments(
+            conf.appwriteDatabaseID,
+            conf.appwriteCollectionID,
+            [Query.equal("userEmail", email)]
+        );
+        return users.documents.length > 0;
+    } catch (e) {
+        console.log("Error checking user existence", e);
+        return false;
+    }
+}
+
+export const handleNewUserWelcome = async (user) => {
+    try {
+        // You can add logic here to:
+        // 1. Save user profile to your database
+        // 2. Send welcome email
+        // 3. Set up user preferences
+        // 4. Create initial user documents
+        
+        console.log(`Welcome new user: ${user.name} (${user.email})`);
+        
+        // Example: Save user info to your database
+        const userProfile = await databases.createDocument(
+            conf.appwriteDatabaseID,
+            conf.appwriteCollectionID,
+            ID.unique(),
+            {
+                userId: user.$id,
+                userName: user.name,
+                userEmail: user.email,
+                createdAt: new Date().toISOString(),
+                loginMethod: 'oauth-google'
+            }
+        );
+        
+        return userProfile;
+    } catch (e) {
+        console.log("Error setting up new user:", e);
+        // Don't throw error - user login should still work
+        return null;
+    }
+}
+
+
+
 
 //To login user with their credentials
 export const login = async (email, password) => {                //!This for keeping user persist across refresh
@@ -36,7 +149,7 @@ try {
         return accountLogin
     } catch (e) {
         console.log("Login failed", e);
-        throw e;  //! Re-throw the error so it can be caught in the UI
+        throw new AuthError(`Login failed: ${e.message}`, e.code);  //! Re-throw the error so it can be caught in the UI
         
     }
 }
@@ -52,7 +165,7 @@ export const getCurrentAccount = async () => {
         return getLoggedInUSer
     } catch (e) {
         console.log("Can't get account", e);
-        throw e
+        throw new AuthError(`Failed to get current account: ${e.message}`, e.code);
     }
 }
 
@@ -71,8 +184,8 @@ export const logout = async () => {
     } catch (error) {
         console.log("Logout failed", error.message);
         // throw error
-         return null;  //!return false or null → Something went wrong logging out
-        
+         return { success: false, message: `Logout failed: ${error.message}`};  //!return false or null → Something went wrong logging out
+            
     }                                     
 
 } 
@@ -102,12 +215,12 @@ export const savePost = async(content, threadID = null) => {
     } catch (e) {
         console.log("Can't save post", e)
         alert("Something went wrong")
+        throw new DatabaseError(`Failed to save post: ${e.message}`, e.code);
     }
 }
 
 
-//To see what we saved {listdocument}
-
+// /To see what we saved - IMPROVED VERSION
 export const fetchSavedPost = async() => {
     try {
         const user = await account.get();
@@ -116,43 +229,36 @@ export const fetchSavedPost = async() => {
         const yourPost = await databases.listDocuments(
             conf.appwriteDatabaseID,
             conf.appwriteCollectionID,
-            [Query.equal("userId", userID)] /*//!This will return
-
-            [
-  { id: "doc1", content: "Hello world" },
-  { id: "doc3", content: "Appwrite is awesome!" }
-]
-            */
+            [Query.equal("userId", userID)]
         );
-        const threadMap = new Map()
-        for(const post of yourPost.documents){ //!post is just a variable name you chose
-            const threadID =post.threadID;  
-            if(!threadID) continue
-            if(!threadMap.has(post.threadID)){
-                threadMap.set(post.threadID, [])
-            }
+        
+        // Group posts by threadID
+        const threadMap = new Map();
+        
+        for (const post of yourPost.documents) {
+            const threadID = post.threadID;
+            if (!threadID) continue;
             
-            if(!threadMap.has(threadID)){
-                threadMap.set(threadID, [])
+            if (!threadMap.has(threadID)) {
+                threadMap.set(threadID, []);
             }
-            threadMap.get(post.threadID).push(post)
+            threadMap.get(threadID).push(post);
         }
 
-        const threads = Array.from(threadMap.entries().map(([threadID, posts])=>({
+        // Convert to array and sort by creation date
+        const threads = Array.from(threadMap.entries()).map(([threadID, posts]) => ({
             threadID,
-            posts,
-            createdAt: posts[0].createdAt
-        })));
-        threads.sort((a, b)=>(new Date(b.createdAt) - new Date(a.createdAt) ));
-        return threads;
-
-
-        // return yourPost.documents // List of saved post
-    } catch (e) {
-        console.log("Could not save the post", e)
-        return []  /*//!Returning an empty array means:
-//!“No data, but still safe to render.” */
+            posts: posts.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)),
+            createdAt: posts[0].createdAt,
+            lastUpdated: posts[posts.length - 1].createdAt
+        }));
         
+        threads.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
+        
+        return threads;
+    } catch (e) {
+        console.log("Could not fetch saved posts", e);
+        return [];
     }
 }
 
@@ -168,6 +274,22 @@ export const deleteFromDatabase = async(threadID) => {
         return deleteDB
     } catch (e) {
         console.log("Cant delete the post", e)
-        throw e;
+        throw new DatabaseError(`Failed to delete document: ${e.message}`, e.code);
     }
 } 
+
+export const handleError = (error, context = 'Operation') => {
+    if (error instanceof AuthError || error instanceof DatabaseError) {
+        return {
+            success: false,
+            message: error.message,
+            code: error.code
+        };
+    }
+    
+    return {
+        success: false,
+        message: `${context} failed: ${error.message}`,
+        code: error.code || 'UNKNOWN_ERROR'
+    };
+};

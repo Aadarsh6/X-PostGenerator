@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { LogIn, ArrowRight, Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // Mock ShimmerButton component since we don't have the actual one
 const ShimmerButton = ({ children, className, shimmerColor, background, ...props }) => (
@@ -128,20 +129,28 @@ export const NavBar = React.memo(() => {
 
           {/* Desktop Auth Buttons */}
           <div className="hidden items-center gap-3 md:flex">
+            <Link
+            to={"/login"}
+            >
             <button className="group flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-gray-300 transition-all duration-200 hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-transparent">
               <LogIn className="h-4 w-4 transition-transform group-hover:scale-110" />
               Login
             </button>
-            
+            </Link>
+
             <ShimmerButton
               shimmerColor="#ff6500"
               background="#000000"
               className="text-sm font-semibold text-white shadow-lg shadow-orange-500/20 hover:shadow-xl hover:shadow-orange-500/30 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-transparent"
             >
+              <Link
+              to={"/signup"}
+              >
               <span className="flex items-center gap-2 whitespace-nowrap">
                 Sign Up Free
                 <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
               </span>
+              </Link>
             </ShimmerButton>
           </div>
 

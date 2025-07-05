@@ -1,7 +1,9 @@
-import { Client, Account, ID, Databases } from "appwrite";
+import { Client, Account, ID, Databases, OAuthProvider } from "appwrite";
 import conf from "../conf/conf";
 
 export const client = new Client()
+
+
 
 client
 .setEndpoint(conf.appwriteUrl)

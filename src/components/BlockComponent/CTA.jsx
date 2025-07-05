@@ -18,9 +18,8 @@ export const CTASection = React.memo(() => {
             to="/signup"
             >
           <ShimmerButton
-            background="#0a0a0a" // Use a dark background consistent with your site
-            className="text-lg shadow-lg shadow-orange-500/40"
-          >
+            background="linear-gradient(to right, #f97316, #ea580c)"
+            className="animate-breathe bg-[#ff6900] text-white font-bold py-3 px-8 rounded-lg hover:scale-110 transition-transform duration-300 shadow-md hover:shadow-lg"          >
             <span className="flex items-center gap-2 whitespace-nowrap">
               Start Creating
               <ArrowRight size={18} />

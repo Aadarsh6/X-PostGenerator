@@ -85,9 +85,8 @@ export const Xpost = () => {
   const [prompt, setPrompt] = useState("");
   const [postType, setPostType] = useState("single");
   const [tone, setTone] = useState("professional");
-const [loading, setLoading] = useState(false); // Keep for auth
-const [generating, setGenerating] = useState(false); // For post generation
-const [savingAll, setSavingAll] = useState(false); // For saving all posts
+  const [generating, setGenerating] = useState(false); // For post generation
+  const [savingAll, setSavingAll] = useState(false); // For saving all posts
   const [regenerating, setRegenerating] = useState(false);
   const [generatedPost, setGeneratedPost] = useState([]);
   const [error, setError] = useState("");
@@ -437,10 +436,10 @@ const [savingAll, setSavingAll] = useState(false); // For saving all posts
                 <Button
                   onClick={() => generateXpost(true)}
                   disabled={
-                    !prompt.trim() || loading || backendStatus?.status !== "OK"
+                    !prompt.trim() || generating || backendStatus?.status !== "OK"
                   }
                   className={`w-full h-12 text-lg font-semibold transition-all duration-200 ${
-                    !prompt.trim() || loading || backendStatus?.status !== "OK"
+                    !prompt.trim() || generating || backendStatus?.status !== "OK"
                       ? "bg-gray-600 cursor-not-allowed"
                       : "bg-orange-600 hover:bg-orange-700 active:bg-orange-800"
                   }`}
