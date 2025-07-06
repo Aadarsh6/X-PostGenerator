@@ -41,6 +41,13 @@ export const oAuth = async() => {
         // Get current URL to make redirect URLs dynamic
         const currentUrl = window.location.origin;
         
+        // Clear any existing sessions first
+        try {
+            await account.deleteSession("current");
+        } catch (e) {
+            console.log("No existing session to clear", e);
+        }
+        
         await account.createOAuth2Session(
             OAuthProvider.Google,
             `${currentUrl}/dashboard`, // Success redirect
@@ -57,29 +64,53 @@ export const oAuth = async() => {
 // Handle OAuth callback - works for both new and existing users
 export const handleOauthCallback = async() => {
     try {
-        // Wait a moment for the session to be fully established
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Wait longer for the session to be fully established
+        await new Promise(resolve => setTimeout(resolve, 2500));
         
-        const user = await account.get();
+        // Try to get the user multiple times with retries
+        let user = null;
+        let retries = 3;
+        
+        while (retries > 0 && !user) {
+            try {
+                user = await account.get();
+                if (user && user.$id) {
+                    break;
+                }
+            } catch (e) {
+                console.log(`Retry ${4 - retries}: Session not ready yet, retrying...`, e);
+                retries--;
+                if (retries > 0) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+        }
+        
         if (user && user.$id) {
             console.log("OAuth successful - User authenticated:", {
                 id: user.$id,
                 name: user.name,
                 email: user.email,
                 isNewUser: user.registration ? 
-                    (new Date() - new Date(user.registration)) < 60000 : false // Check if registered in last minute
+                    (new Date() - new Date(user.registration)) < 60000 : false
             });
             
             return user;
         }
-        throw new Error("OAuth completed but user not authenticated");
+        
+        throw new Error("OAuth completed but user not authenticated after retries");
+        
     } catch (e) {
         console.log("OAuth callback error:", e);
-        if (e instanceof AuthError) throw e;{
+        if (e instanceof AuthError) {
+            throw e;
+        }
         throw new AuthError(`OAuth callback failed: ${e.message}`, e.code);
     }
-    }
 }
+
+
+
 export const checkUserExist = async(email) => {
     try {
         // This is a workaround since Appwrite doesn't have a direct "check user exists" method
@@ -95,6 +126,22 @@ export const checkUserExist = async(email) => {
         return false;
     }
 }
+
+// export const handleoAuthComplete = async()=>{
+//     try {
+//         const user = await handleOauthCallback()
+//         const isNewUser = user.registration ? (new Date() - new Date(user.registration)) < 6000 : false;
+
+//         if(isNewUser){
+//             set
+//         }
+//     } catch (e) {
+//         console.log("OAuth error", e)
+        
+//     }
+// }
+
+
 
 export const handleNewUserWelcome = async (user) => {
     try {

@@ -1,5 +1,3 @@
-// pages/contact.jsx (A new page in your project)
-import React from 'react';
 import { ShimmerButton } from '@/components/magicui/shimmer-button'; // Adjust path as needed
 
 export default function ContactPage() {
