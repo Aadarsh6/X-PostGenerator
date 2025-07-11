@@ -19,11 +19,34 @@ import {
   AlertCircle,
   Check,
   Save,
+  Twitter, 
+  Share
 } from "lucide-react";
 import { savePost } from "@/AppWrite/appwriteFunction";
 import { ID } from "appwrite";
 import { toast, Toaster } from "sonner";
 import { BorderBeam } from "../magicui/border-beam";
+import { copyThreadToClipboard, postThreadToTwitterSequentially } from "@/AppWrite/XpostFunction";
+
+// Twitter posting functions
+export const postToTwitter = (content) => {
+  const tweetText = encodeURIComponent(content);
+  const twitterUrl = `https://x.com/intent/tweet?text=${tweetText}`;
+  window.open(twitterUrl, '_blank', 'width=600,height=400,scrollbars=yes');
+};
+
+export const postThreadToTwitter = (posts) => {
+  // For threads, we'll open multiple tabs with numbered posts
+  posts.forEach((post, index) => {
+    const isFirstPost = index === 0;
+    const threadNumber = posts.length > 1 ? ` ${index + 1}/${posts.length}` : '';
+    const content = isFirstPost ? post.content : `${post.content}${threadNumber}`;
+    
+    setTimeout(() => {
+      postToTwitter(content);
+    }, index * 1000); // Delay each post by 1 second
+  });
+};
 
 // API configuration for Vite
 const API_BASE_URL =
@@ -95,7 +118,10 @@ export const Xpost = () => {
   const [savedId, setSavedId] = useState(null);
   const [editingPostId, setEditingPostId] = useState(null);
   const [editingContent, setEditingContent] = useState("");
-  // const [selectedPost, setSelectedPost] = useState([])
+
+  const [postingToTwitter, setPostingToTwitter] = useState(false);
+  // const [showTwitterModal, setShowTwitterModal] = useState(false);
+
 
   const textareaRef = useRef(null);
   const resultsRef = useRef(null);
@@ -280,6 +306,101 @@ export const Xpost = () => {
     setSavingAll(false);
   };
 
+  const createThreadContent = (posts) => {
+  if (posts.length === 1) {
+    return posts[0].content;
+  }
+
+  // Create a single comprehensive thread with proper formatting
+  const threadPosts = posts.map((post, index) => {
+    const postNumber = `${index + 1}/${posts.length}`;
+    return `${postNumber}\n${post.content}`;
+  }).join('\n\n🧵\n\n');
+
+  // Add thread indicator at the beginning
+  return `🧵 THREAD:\n\n${threadPosts}`;
+};
+
+// Updated handlePostToTwitter function and related code
+// Replace your existing handlePostToTwitter function with this:
+const handlePostToTwitter = async () => {
+  setPostingToTwitter(true);
+  
+  try {
+    if (postType === "single") {
+      // Single post
+      postToTwitter(generatedPost[0].content);
+      toast.success("Opening Twitter!", {
+        description: "Twitter compose window opened for your post."
+      });
+    } else {
+      // For threads, create one comprehensive post
+      const threadContent = createThreadContent(generatedPost);
+      postToTwitter(threadContent);
+      toast.success("Opening Twitter!", {
+        description: "Twitter compose window opened with your complete thread."
+      });
+    }
+  } catch (e) {
+    console.error('Twitter posting error:', e);
+    toast.error("Failed to post to Twitter", {
+      description: "Please try again."
+    });
+  } finally {
+    setPostingToTwitter(false);
+  }
+};
+
+const handleTwitterModalPost = async (option) => {
+  const postsToShare = generatedPost.map(post => ({ content: post.content }));
+  
+  try {
+    if (option === 'sequential') {
+      // Sequential posting with proper thread numbering
+      postThreadToTwitterSequentially(postsToShare);
+      toast.success("Opening Twitter windows!", {
+        description: `${postsToShare.length} Twitter compose windows will open sequentially.`
+      });
+    } else if (option === 'copy') {
+      // Copy to clipboard
+      const copied = await copyThreadToClipboard(postsToShare);
+      if (copied) {
+        toast.success("Thread copied to clipboard!", {
+          description: "You can now paste it into Twitter manually."
+        });
+      } else {
+        toast.error("Failed to copy thread", {
+          description: "Please try again."
+        });
+      }
+    }
+  } catch (e) {
+    console.error('Twitter posting error:', e);
+    toast.error("Failed to post to Twitter", {
+      description: "Please try again."
+    });
+  }
+};
+
+
+
+
+// Also update your individual post Twitter button:
+const handlePostSingleToTwitter = (postContent) => {
+  postToTwitter(postContent);
+  toast.success("Opening Twitter!", {
+    description: "Twitter compose window opened."
+  });
+};
+
+// Add this new function for the improved thread posting options:
+// const showThreadPostingOptions = () => {
+//   // This creates a modal with options for the user
+//   return new Promise((resolve) => {
+//     // Modal implementation as shown above
+//   });
+// };  
+
   return (
     <div className="h-full w-full bg-[#0a0a0a] flex justify-center">
       <div className="w-full max-w-4xl px-4 py-8">
@@ -310,14 +431,13 @@ export const Xpost = () => {
         {/* Input Form Section - Always Centered */}
         <div className="flex justify-center mb-8">
           <div className="w-full max-w-2xl">
-            <Card className="w-full border-2 bg-gradient-to-b from-[#1f1f1f] via-[#171717] to-[#0f0f0f]
- border-[#222323] shadow-2xl relative overflow-hidden">
-                <BorderBeam
-                    duration={8}
-                    borderWidth={3}
-                    size={500}
-                    className="from-transparent via-[#f97316] to-transparent"
-                />
+            <Card className="w-full border-2 bg-gradient-to-b from-[#1f1f1f] via-[#171717] to-[#0f0f0f] border-[#222323] shadow-2xl relative overflow-hidden">
+              <BorderBeam
+                duration={8}
+                borderWidth={3}
+                size={500}
+                className="from-transparent via-[#f97316] to-transparent"
+              />
 
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-center">
@@ -508,20 +628,44 @@ export const Xpost = () => {
                   duration: 3500,
                 }}
               />
+<div className="flex gap-3 flex-wrap">
+  <Button
+    onClick={handleSaveAll}
+    className="bg-orange-600 hover:bg-orange-700 text-[#e6e8e5] font-semibold"
+  >
+    {savingAll ? (
+      <>
+        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+        Saving...
+      </>
+    ) : (
+      <>
+        <Save className="w-4 h-4 mr-2" />
+        Save Thread
+      </>
+    )}
+  </Button>
+  
+  <Button
+    onClick={handlePostToTwitter}
+    disabled={postingToTwitter}
+className="bg-[#2d2d2d] hover:bg-[#3d3d3d] text-white font-semibold"
+  >
+    {postingToTwitter ? (
+      <>
+        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+        Opening...
+      </>
+    ) : (
+      <>
+        <Twitter className="w-4 h-4 mr-2" />
+        Post to X
+      </>
+    )}
+  </Button>
+</div>
 
-              <Button
-                onClick={handleSaveAll}
-                className="bg-orange-600 hover:bg-orange-700 text-[#e6e8e5] font-semibold"
-              >
-                {savingAll ? (
-                  <>
-                    <Loader2 className="w-2 h-2 mr-2 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  "Save Thread"
-                )}
-              </Button>
+
             </div>
 
             {/* Generated Posts */}
@@ -577,8 +721,8 @@ export const Xpost = () => {
                             onClick={() => saveEditPost(post.id)}
                             className="bg-[#ff6900] hover:bg-[#ff8400] text-white"
                           >
-                            <Check className="h-4 w-4 " />
-                            Save (Ctrl+Enter)
+                            <Check className="h-4 w-4 mr-2" />
+                            Save
                           </Button>
                           <Button
                             size="sm"
@@ -586,8 +730,8 @@ export const Xpost = () => {
                             onClick={cancelEdit}
                             className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333]"
                           >
-                            <X className="h-4 w-4" />
-                            Cancel (Esc)
+                            <X className="h-4 w-4 mr-2" />
+                            Cancel
                           </Button>
                         </div>
                       </div>
@@ -599,7 +743,7 @@ export const Xpost = () => {
 
                     {/* Action Buttons - Only show when not editing */}
                     {editingPostId !== post.id && (
-                      <div className="flex gap-3">
+                      <div className="flex gap-3 flex-wrap">
                         <Button
                           size="sm"
                           variant="secondary"
@@ -609,6 +753,7 @@ export const Xpost = () => {
                           <Copy className="h-4 w-4 mr-2" />
                           {copiedId === post.id ? "Copied!" : "Copy"}
                         </Button>
+                        
                         <Button
                           size="sm"
                           variant="secondary"
@@ -619,27 +764,31 @@ export const Xpost = () => {
                           Edit
                         </Button>
 
-                        <div className="relative group inline-block">
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            onClick={async () => {
-                              await savePost(post.content);
-                              setSavedId(post.id);
-                            }}
-                            disabled={savedId === post.id}
-                            className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333] transition-all duration-200"
-                            aria-label="Save this post"
-                          >
-                            <Save className="h-4 w-4 mr-2" />
-                            {savedId === post.id ? "Saved" : "Save"}
-                          </Button>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={async () => {
+                            await savePost(post.content);
+                            setSavedId(post.id);
+                            toast.success("Post saved!", {
+                              description: "You can find it in your dashboard.",
+                            });
+                          }}
+                          disabled={savedId === post.id}
+                          className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333] transition-all duration-200"
+                        >
+                          <Save className="h-4 w-4 mr-2" />
+                          {savedId === post.id ? "Saved" : "Save"}
+                        </Button>
 
-                          {/* Custom Tooltip */}
-                          <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 whitespace-nowrap">
-                            Save this post
-                          </div>
-                        </div>
+                        <Button
+                          size="sm"
+                          onClick={() => handlePostSingleToTwitter(post.content)}
+                          className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333] transition-all duration-200"
+                        >
+                          <Twitter className="h-4 w-4 mr-2" />
+                          Post to X
+                        </Button>
                       </div>
                     )}
                   </CardContent>
@@ -665,8 +814,13 @@ export const Xpost = () => {
           </div>
         )}
       </div>
+      
     </div>
   );
 };
+
+
+
+
 
 export default Xpost;
