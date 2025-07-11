@@ -19,7 +19,7 @@ const WelcomePage = ({ user, onComplete }) => {
               {user?.name?.charAt(0)?.toUpperCase() || 'U'}  
 
               {/* //TODO Add avatar image instead */}
-              
+
             </div>
           </div>
           <div>
@@ -33,37 +33,38 @@ const WelcomePage = ({ user, onComplete }) => {
         </div>
       )
     },
-    {
-      title: "Your Profile is Set",
-      subtitle: "Everything looks great!",
-      icon: User,
-      content: (
-        <div className="space-y-4">
-          <div className="bg-gray-800/80 rounded-lg p-4 space-y-3 border border-gray-600/50 shadow-lg">
-            <div className="flex items-center space-x-3">
-              <User className="w-5 h-5 text-gray-400" />
-              <div>
-                <p className="font-medium text-white">Name</p>
-                <p className="text-gray-300">{user?.name || 'Not provided'}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Mail className="w-5 h-5 text-gray-400" />
-              <div>
-                <p className="font-medium text-white">Email</p>
-                <p className="text-gray-300">{user?.email || 'Not provided'}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-[#f87115]/20 border border-[#f87115]/40 rounded-lg p-4 shadow-lg">
-            <p className="text-[#f87115] text-sm font-medium">
-              <Check className="w-4 h-4 inline mr-2" />
-              Your account is verified and ready to use!
-            </p>
+   {
+  title: `Hello, ${user?.name || 'New User'}! 👋`,
+  subtitle: "Everything looks great!",
+  icon: User,
+  content: (
+    <div className="space-y-4">
+      <div className="bg-gray-800/80 rounded-lg p-4 space-y-3 border border-gray-600/50 shadow-lg">
+        <div className="flex items-center space-x-3">
+          <User className="w-5 h-5 text-gray-400" />
+          <div>
+            <p className="font-medium text-white">Name</p>
+            <p className="text-gray-300">{user?.name || 'Not provided'}</p>
           </div>
         </div>
-      )
-    },
+        <div className="flex items-center space-x-3">
+          <Mail className="w-5 h-5 text-gray-400" />
+          <div>
+            <p className="font-medium text-white">Email</p>
+            <p className="text-gray-300">{user?.email || 'Not provided'}</p>
+          </div>
+        </div>
+      </div>
+      <div className="bg-[#f87115]/20 border border-[#f87115]/40 rounded-lg p-4 shadow-lg">
+        <p className="text-[#f87115] text-sm font-medium">
+          <Check className="w-4 h-4 inline mr-2" />
+          Your account is verified and ready to use!
+        </p>
+      </div>
+    </div>
+  )
+}
+,
     {
       title: "Writing Great Prompts",
       subtitle: "Quick tip for better results",
@@ -138,29 +139,35 @@ const WelcomePage = ({ user, onComplete }) => {
         </div>
       )
     },
-    {
-      title: "You're All Set!",
-      subtitle: "Ready to create amazing content",
-      icon: Check,
-      content: (
-        <div className="text-center space-y-6">
-          <div className="w-20 h-20 bg-gradient-to-br from-[#f87115] to-emerald-500 rounded-full mx-auto flex items-center justify-center shadow-lg">
-            <Check className="w-10 h-10 text-white" />
-          </div>
-          <div>
-            <h3 className="text-xl font-bold text-white mb-2">Welcome aboard!</h3>
-            <p className="text-gray-300 mb-4">
-              Your account is ready and you can start using all features right away.
-            </p>
-            <div className="bg-[#f87115]/20 border border-[#f87115]/40 rounded-lg p-4 shadow-lg">
-              <p className="text-[#f87115] text-sm font-medium">
-                🎉 Pro tip: Start with detailed prompts and use the save button for great responses!
-              </p>
-            </div>
-          </div>
+{
+  title: "You're All Set!",
+  subtitle: "Ready to create amazing content",
+  icon: Check,
+  content: (
+    <div className="text-center space-y-8">
+      {/* Gradient now uses only your brand's CTA color */}
+      <div className="w-24 h-24 bg-gradient-to-br from-[#f87115] to-[#f87115]/70 rounded-full mx-auto flex items-center justify-center shadow-lg shadow-[#f87115]/30">
+        <Check className="w-12 h-12 text-white" />
+      </div>
+      
+      <div className="space-y-4">
+        <h3 className="text-2xl font-bold text-white">Welcome Aboard!</h3>
+        <p className="text-gray-300 max-w-sm mx-auto">
+          Your account is ready. You can now use all features to create amazing content.
+        </p>
+
+        {/* Redesigned Pro Tip box for a cleaner look */}
+        <div className="bg-gray-800/80 p-5 rounded-xl border border-[#f87115]/50 shadow-lg">
+          <p className="text-white text-base font-medium">
+            <span className="text-[#f87115] font-bold">🎉 Pro Tip:</span> Start with a detailed prompt for the best results!
+          </p>
         </div>
-      )
-    }
+      </div>
+    </div>
+  )
+}
+
+
   ];
 
   const nextStep = () => {
@@ -240,7 +247,7 @@ const WelcomePage = ({ user, onComplete }) => {
               ) : (
                 <button
                   onClick={finishWelcome}
-                  className="bg-gradient-to-r from-[#f87115] to-emerald-500 text-white px-8 py-3 rounded-xl font-semibold hover:from-[#f87115]/90 hover:to-emerald-600 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-[#f87115]/50"
+                  className="bg-[#f97316] hover:bg-[#ea580c] text-white px-8 py-3 rounded-xl font-semibold hover:from-[#f87115]/90 hover:to-emerald-600 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-[#f87115]/50"
                 >
                   <span>Get Started</span>
                   <ChevronRight className="w-4 h-4" />
