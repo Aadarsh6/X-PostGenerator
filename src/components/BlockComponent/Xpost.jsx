@@ -83,8 +83,8 @@ const apiService = {
 
 export const Xpost = () => {
   const [prompt, setPrompt] = useState("");
-  const [postType, setPostType] = useState("single");
-  const [tone, setTone] = useState("professional");
+  const [postType, setPostType] = useState("long-thread");
+  const [tone, setTone] = useState("educational");
   const [generating, setGenerating] = useState(false); // For post generation
   const [savingAll, setSavingAll] = useState(false); // For saving all posts
   const [regenerating, setRegenerating] = useState(false);

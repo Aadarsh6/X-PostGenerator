@@ -13,7 +13,9 @@ import SavePostPage from './Pages/SavePostPage'
 import { SavePage } from './Pages/SavePage'
 import { LandingPage } from './Pages/LandingPage'
 import ContactPage from './Pages/Contact'
-import { CommingSoon } from './Pages/CommingSoon'
+import { ComingSoon } from './Pages/ComingSoon'
+import WelcomePage from './Pages/WelcomePage'
+import WelcomeWrapper from './components/WelcomeWrapper'
 
 const router = createBrowserRouter([
   {path: "/signIn", element: <App/>},
@@ -22,17 +24,36 @@ const router = createBrowserRouter([
   {path: "/save", element: <SavePage/>},
   {path: "/", element: <LandingPage/>},
   {path: "/contact", element: <ContactPage/>},
-  {path: "/soon", element: <CommingSoon/>},
-  {path: "/dashboard", element: <ProtectRoute> <DashboardPage/> </ProtectRoute>
+  {path: "/welcome", element: <WelcomePage/>},
+  {path: "/soon", element: <ComingSoon/>},
+  {
+    path: "/dashboard", 
+    element: (
+      <ProtectRoute> 
+        <WelcomeWrapper> 
+          <DashboardPage/> 
+        </WelcomeWrapper> 
+      </ProtectRoute>
+    )
+  },
+  // Add WelcomeWrapper to other protected routes that need it
+  {
+    path: "/save-post", 
+    element: (
+      <ProtectRoute> 
+        <WelcomeWrapper> 
+          <SavePostPage/> 
+        </WelcomeWrapper> 
+      </ProtectRoute>
+    )
   }
 ])
 
 createRoot(document.getElementById('root')).render(
-
   <StrictMode>
     <AuthProvider>
       <AvatarProvider>
-    <RouterProvider router={router} />
+        <RouterProvider router={router} />
       </AvatarProvider>
     </AuthProvider>
   </StrictMode>,

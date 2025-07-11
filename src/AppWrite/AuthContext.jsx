@@ -15,18 +15,16 @@ export const AuthProvider = ({children}) => {
             console.log("User fetched successfully:", userData);
             return userData;
         } catch (error) {
-            // Don't log error for 401 - it's expected when no user is logged in
             if (error.code !== 401) {
                 console.error("Error fetching user:", error);
             }
-            setUser(null); // treat as guest
+            setUser(null);
             return null;
         } finally {
             setLoading(false);
         }
     };
 
-    // Make refreshUser async and return the promise
     const refreshUser = async () => {
         return await fetchUser();
     }
@@ -35,9 +33,14 @@ export const AuthProvider = ({children}) => {
         setUser(null);
     };
 
-    // Add a method to manually set user (useful for OAuth)
     const setCurrentUser = (userData) => {
         setUser(userData);
+    };
+
+    const updateUserProfile = async () => {
+        if (user) {
+            return await fetchUser();
+        }
     };
 
     useEffect(() => {
@@ -51,7 +54,8 @@ export const AuthProvider = ({children}) => {
             refreshUser,
             logoutUser,
             setCurrentUser,
-            fetchUser
+            fetchUser,
+            updateUserProfile
         }}>
             {children}
         </AuthContext.Provider>

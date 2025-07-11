@@ -102,9 +102,9 @@ export const NavBar = React.memo(() => {
           )}
         >
           {/* Logo */}
-          <a 
-            href="#" 
-            className="flex items-center focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg"
+          <Link 
+            to="/" 
+            className="flex items-center"
             aria-label="XcCraft Home"
           >
             <span className="flex items-baseline gap-2 font-semibold text-white">
@@ -125,7 +125,7 @@ export const NavBar = React.memo(() => {
                 Craft
               </span>
             </span>
-          </a>
+          </Link>
 
           {/* Desktop Auth Buttons */}
           <div className="hidden items-center gap-3 md:flex">

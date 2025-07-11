@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 
-export const CommingSoon = () => {
+export const ComingSoon = () => {
   return (
     <div className="w-full h-screen flex items-center justify-center bg-gradient-to-b from-[#1f1f1f] via-[#171717] to-[#0f0f0f] px-4">
       {/* Wrapper */}

@@ -19,17 +19,12 @@ class DatabaseError extends Error {
     }
 }
 
-
-
-
 //To create New account
-export const createAccount = async (name, email, password) => {  //!This for creating account
+export const createAccount = async (name, email, password) => {
     try {
-       const newAccount =  await account.create(ID.unique(), email, password, name)
+       const newAccount = await account.create(ID.unique(), email, password, name)
        console.log("New Account created Successfully");   
        return newAccount
-       
-        
     } catch (e) {
         console.log("Account Creation Failed", e);
         throw new AuthError(`Account creation failed: ${e.message}`, e.code);        
@@ -38,10 +33,8 @@ export const createAccount = async (name, email, password) => {  //!This for cre
 
 export const oAuth = async() => {
     try {
-        // Get current URL to make redirect URLs dynamic
         const currentUrl = window.location.origin;
         
-        // Clear any existing sessions first
         try {
             await account.deleteSession("current");
         } catch (e) {
@@ -50,8 +43,8 @@ export const oAuth = async() => {
         
         await account.createOAuth2Session(
             OAuthProvider.Google,
-            `${currentUrl}/dashboard`, // Success redirect
-            `${currentUrl}/login`      // Failure redirect
+            `${currentUrl}/dashboard`,
+            `${currentUrl}/login`
         );
     } catch (e) {
         console.log("Can't do oAuth currently", e);
@@ -59,15 +52,10 @@ export const oAuth = async() => {
     }
 }
 
-
-
-// Handle OAuth callback - works for both new and existing users
 export const handleOauthCallback = async() => {
     try {
-        // Wait longer for the session to be fully established
         await new Promise(resolve => setTimeout(resolve, 2500));
         
-        // Try to get the user multiple times with retries
         let user = null;
         let retries = 3;
         
@@ -90,11 +78,10 @@ export const handleOauthCallback = async() => {
             console.log("OAuth successful - User authenticated:", {
                 id: user.$id,
                 name: user.name,
-                email: user.email,
-                isNewUser: user.registration ? 
-                    (new Date() - new Date(user.registration)) < 60000 : false
+                email: user.email
             });
             
+            // Don't create profile here - let WelcomeWrapper handle it
             return user;
         }
         
@@ -110,14 +97,12 @@ export const handleOauthCallback = async() => {
 }
 
 
-
+// Enhanced function to check if user exists in your database
 export const checkUserExist = async(email) => {
     try {
-        // This is a workaround since Appwrite doesn't have a direct "check user exists" method
-        // You might want to implement this using your own user tracking system
         const users = await databases.listDocuments(
             conf.appwriteDatabaseID,
-            conf.appwriteCollectionID,
+            conf.appwriteUserCollectionID, // Use new collection
             [Query.equal("userEmail", email)]
         );
         return users.documents.length > 0;
@@ -127,68 +112,149 @@ export const checkUserExist = async(email) => {
     }
 }
 
-// export const handleoAuthComplete = async()=>{
-//     try {
-//         const user = await handleOauthCallback()
-//         const isNewUser = user.registration ? (new Date() - new Date(user.registration)) < 6000 : false;
 
-//         if(isNewUser){
-//             set
-//         }
-//     } catch (e) {
-//         console.log("OAuth error", e)
+// Check if user is truly new (never used your app before)
+export const checkIfNewUser = async(user) => {
+    try {
+        // Check if user exists in your database
+        const existsInDB = await checkUserExist(user.email);
         
-//     }
-// }
+        if (existsInDB) {
+            console.log("User exists in database - not new");
+            return false;
+        }
+        
+        // Additional check: recent registration (within last 10 minutes)
+        const registrationTime = new Date(user.registration);
+        const now = new Date();
+        const timeDiff = now - registrationTime;
+        const tenMinutes = 10 * 60 * 1000; // 10 minutes in milliseconds
+        
+        const isRecentRegistration = timeDiff < tenMinutes;
+        
+        console.log("User new check:", {
+            existsInDB,
+            isRecentRegistration,
+            timeDiff: Math.floor(timeDiff / 1000 / 60) + " minutes"
+        });
+        
+        // User is new if they don't exist in DB and recently registered
+        return !existsInDB && isRecentRegistration;
+        
+    } catch (e) {
+        console.log("Error checking if new user:", e);
+        return false;
+    }
+}
 
-
-
+// Enhanced function to handle new user welcome and setup
 export const handleNewUserWelcome = async (user) => {
     try {
-        // You can add logic here to:
-        // 1. Save user profile to your database
-        // 2. Send welcome email
-        // 3. Set up user preferences
-        // 4. Create initial user documents
+        console.log(`Setting up new user: ${user.name} (${user.email})`);
         
-        console.log(`Welcome new user: ${user.name} (${user.email})`);
+        // Double-check if user already exists before creating
+        const existingUser = await checkUserExist(user.email);
+        if (existingUser) {
+            console.log("User profile already exists, skipping creation");
+            return null;
+        }
         
-        // Example: Save user info to your database
         const userProfile = await databases.createDocument(
             conf.appwriteDatabaseID,
-            conf.appwriteCollectionID,
+            conf.appwriteUserCollectionID,
             ID.unique(),
             {
                 userId: user.$id,
-                userName: user.name,
+                userName: user.name || 'User',
                 userEmail: user.email,
                 createdAt: new Date().toISOString(),
-                loginMethod: 'oauth-google'
+                loginMethod: user.providerAccessToken ? 'oauth-google' : 'email',
+                hasSeenWelcome: false,
+                isNewUser: true
             }
         );
         
+        console.log("New user profile created successfully");
         return userProfile;
+        
     } catch (e) {
+        // Check if error is due to duplicate entry
+        if (e.message && e.message.includes('unique')) {
+            console.log("User profile already exists (duplicate key)");
+            return null;
+        }
         console.log("Error setting up new user:", e);
-        // Don't throw error - user login should still work
         return null;
     }
 }
 
 
+// Check if user has seen welcome screen
+export const hasSeenWelcome = async(userId) => {
+    try {
+        const userProfiles = await databases.listDocuments(
+            conf.appwriteDatabaseID,
+            conf.appwriteUserCollectionID, // Use new collection
+            [Query.equal("userId", userId)]
+        );
+        
+        if (userProfiles.documents.length > 0) {
+            return userProfiles.documents[0].hasSeenWelcome;
+        }
+        
+        return false;
+        
+    } catch (e) {
+        console.log("Error checking welcome status:", e);
+        return false;
+    }
+}
 
+// Mark welcome as completed
+export const markWelcomeCompleted = async(userId) => {
+    try {
+        // Find the user profile
+        const userProfiles = await databases.listDocuments(
+            conf.appwriteDatabaseID,
+            conf.appwriteUserCollectionID,
+            [Query.equal("userId", userId)]
+        );
+        
+        if (userProfiles.documents.length > 0) {
+            const profileId = userProfiles.documents[0].$id;
+            
+            // Update the profile to mark welcome as completed
+            const updatedProfile = await databases.updateDocument(
+                conf.appwriteDatabaseID,
+                conf.appwriteUserCollectionID,
+                profileId,
+                {
+                    hasSeenWelcome: true
+                }
+            );
+            
+            console.log("Welcome marked as completed");
+            return updatedProfile;
+        }
+        
+        return null;
+        
+    } catch (e) {
+        console.log("Error marking welcome as completed:", e);
+        return null;
+    }
+}
 
 //To login user with their credentials
-export const login = async (email, password) => {                //!This for keeping user persist across refresh
-try {
-    const presentUser = await account.get();
-    if (presentUser) {
-      await account.deleteSession("current");
+export const login = async (email, password) => {
+    try {
+        const presentUser = await account.get();
+        if (presentUser) {
+            await account.deleteSession("current");
+        }
+    } catch (e) {
+        console.log("No active session to delete", e?.message || e);
     }
-  } catch (e) {
-    console.log("No active session to delete", e?.message || e);
-  }
-   
     
     try {
         const accountLogin = await account.createEmailPasswordSession(email, password)
@@ -196,16 +262,14 @@ try {
         return accountLogin
     } catch (e) {
         console.log("Login failed", e);
-        throw new AuthError(`Login failed: ${e.message}`, e.code);  //! Re-throw the error so it can be caught in the UI
-        
+        throw new AuthError(`Login failed: ${e.message}`, e.code);
     }
 }
 
-
-//To get the user info like name(to display to frontend), id(for other functions to use)
+//To get the user info
 export const getCurrentAccount = async () => {
     try {
-        const getLoggedInUSer =  await account.get()
+        const getLoggedInUSer = await account.get()
         if(getLoggedInUSer){
             console.log("user detail retrived")
         }
@@ -218,32 +282,29 @@ export const getCurrentAccount = async () => {
 
 //To logout the user
 export const logout = async () => {
-   try {
-    await account.get()
-   } catch (error) {
-    console.log("No active user", error)
-    return true;   //!<--- This stops the function here if no user is logged in
-   }
     try {
-        const logoutUser = await account.deleteSession("current")  //! Appwrite interprets 'current' as a special keyword that means: “Delete the current    session, regardless of the actual session ID.”
+        await account.get()
+    } catch (error) {
+        console.log("No active user", error)
+        return true;
+    }
+    try {
+        const logoutUser = await account.deleteSession("current")
         console.log("user log out")
         return logoutUser
     } catch (error) {
         console.log("Logout failed", error.message);
-        // throw error
-         return { success: false, message: `Logout failed: ${error.message}`};  //!return false or null → Something went wrong logging out
-            
-    }                                     
-
+        return { success: false, message: `Logout failed: ${error.message}`};
+    }
 } 
 
-//To save the post we like {createDocument}
+//To save the post
 export const savePost = async(content, threadID = null) => {
     try {
-        const user = await account.get(); //make sure user is logged in
+        const user = await account.get();
         const userId = user.$id;
 
-        if(!threadID) threadID = ID.unique()   // If no threadID is provided, generate a new one (for a new thread)
+        if(!threadID) threadID = ID.unique()
 
         const userPost = await databases.createDocument(
             conf.appwriteDatabaseID,
@@ -256,7 +317,6 @@ export const savePost = async(content, threadID = null) => {
                 threadID
             }
         );
-        // alert("Post Saved")
         console.log("Post saved successfully")
         return userPost
     } catch (e) {
@@ -266,8 +326,7 @@ export const savePost = async(content, threadID = null) => {
     }
 }
 
-
-// /To see what we saved - IMPROVED VERSION
+//To fetch saved posts
 export const fetchSavedPost = async() => {
     try {
         const user = await account.get();
@@ -276,7 +335,9 @@ export const fetchSavedPost = async() => {
         const yourPost = await databases.listDocuments(
             conf.appwriteDatabaseID,
             conf.appwriteCollectionID,
-            [Query.equal("userId", userID)]
+            [
+                Query.equal("userId", userID),
+            ]
         );
         
         // Group posts by threadID
@@ -310,7 +371,6 @@ export const fetchSavedPost = async() => {
 }
 
 //To delete from database
-
 export const deleteFromDatabase = async(threadID) => {
     try {
         const deleteDB = await databases.deleteDocument(
