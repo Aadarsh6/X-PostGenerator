@@ -101,14 +101,16 @@ const WelcomeWrapper = ({ children }) => {
    
     if (isLoading || authLoading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading...</p>
-                </div>
+             <div className='w-full min-h-screen bg-[#191a1a] flex flex-col justify-center items-center'>
+                 <div className='w-16 h-16 rounded-full animate-spin border-b-2 border-[#ea5a0cde]'></div>
+             <p className='text-white mt-4 text-center'>
+                    Loading...
+                </p>
             </div>
         );
     }
+
+
 
     if (showWelcome && user) {
         return (
