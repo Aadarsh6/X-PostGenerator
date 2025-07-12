@@ -97,20 +97,20 @@ export const handleOauthCallback = async() => {
 }
 
 
-// Enhanced function to check if user exists in your database
-export const checkUserExist = async(email) => {
-    try {
-        const users = await databases.listDocuments(
-            conf.appwriteDatabaseID,
-            conf.appwriteUserCollectionID, // Use new collection
-            [Query.equal("userEmail", email)]
-        );
-        return users.documents.length > 0;
-    } catch (e) {
-        console.log("Error checking user existence", e);
-        return false;
+    // Enhanced function to check if user exists in your database
+    export const checkUserExist = async(email) => {
+        try {
+            const users = await databases.listDocuments(
+                conf.appwriteDatabaseID,
+                conf.appwriteUserCollectionID, // Use new collection
+                [Query.equal("userEmail", email)]
+            );
+            return users.documents.length > 0;
+        } catch (e) {
+            console.log("Error checking user existence", e);
+            return false;
+        }
     }
-}
 
 
 // Check if user is truly new (never used your app before)

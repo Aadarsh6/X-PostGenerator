@@ -55,22 +55,22 @@ const WelcomeWrapper = ({ children }) => {
 
                 setUser(currentUser);
                 
-                // Check if user exists in database
+                // First ensure user profile exists in database
                 const userExistsInDB = await checkUserExist(currentUser.email);
-                
                 if (!userExistsInDB) {
-                    console.log("New user detected - showing welcome screen");
-                    setShowWelcome(true);
+                    // Create user profile if it doesn't exist
                     await handleNewUserWelcome(currentUser);
-                    // Mark user as processed
-                    processedUsersRef.current.add(currentUser.$id);
-                } else {
-                    const seenWelcome = await hasSeenWelcome(currentUser.$id);
-                    if (!seenWelcome) {
-                        console.log("Existing user hasn't seen welcome - showing welcome screen");
-                        setShowWelcome(true);
-                    }
                 }
+                
+                // Check if user has seen welcome screen
+                const seenWelcome = await hasSeenWelcome(currentUser.$id);
+                if (!seenWelcome) {
+                    console.log("User hasn't seen welcome - showing welcome screen");
+                    setShowWelcome(true);
+                }
+                
+                // Mark user as processed
+                processedUsersRef.current.add(currentUser.$id);
             }
         } catch (error) {
             console.error('Error checking user status:', error);
@@ -98,7 +98,6 @@ const WelcomeWrapper = ({ children }) => {
         }
     };
 
-   
     if (isLoading || authLoading) {
         return (
              <div className='w-full min-h-screen bg-[#191a1a] flex flex-col justify-center items-center'>
@@ -109,8 +108,6 @@ const WelcomeWrapper = ({ children }) => {
             </div>
         );
     }
-
-
 
     if (showWelcome && user) {
         return (
