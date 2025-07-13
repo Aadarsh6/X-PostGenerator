@@ -180,11 +180,12 @@ const WelcomePage = ({ user, onComplete }) => {
               {currentStep + 1}/{steps.length}
             </span>
           </div>
-          <div className="w-full bg-gray-800/50 rounded-full h-2 shadow-inner">
-            <div 
-              className="bg-gradient-to-r from-[#f87115] to-[#f87115]/80 h-2 rounded-full transition-all duration-500 ease-out shadow-lg"
-              style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
-            />
+          <div className="w-full rounded-full h-2 shadow-inner">
+        <div 
+  className="bg-gradient-to-r from-[#22c55e] to-[#22c55e]/80  h-1 rounded-full transition-all duration-500 ease-out shadow-lg"
+  style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+/>
+
           </div>
         </div>
 
