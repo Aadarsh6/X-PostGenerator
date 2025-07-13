@@ -8,31 +8,7 @@ const WelcomePage = ({ user, onComplete }) => {
   const [completedSteps, setCompletedSteps] = useState([]);
 
   const steps = [
-    {
-      title: "Welcome to the Community!",
-      subtitle: "Let's get you started on your journey",
-      icon: Sparkles,
-      content: (
-        <div className="text-center space-y-6">
-          <div className="relative">
-            <div className="w-24 h-24 bg-gradient-to-br from-[#f87115] to-[#f87115]/80 rounded-full mx-auto flex items-center justify-center text-white text-3xl font-bold shadow-lg border border-[#f87115]/40">
-              {user?.name?.charAt(0)?.toUpperCase() || 'U'}  
-
-              {/* //TODO Add avatar image instead */}
-
-            </div>
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold text-white mb-2">
-              Hello, {user?.name || 'New User'}! 👋
-            </h2>
-            <p className="text-gray-300">
-              Welcome to your new digital workspace. We're excited to have you here!
-            </p>
-          </div>
-        </div>
-      )
-    },
+    
    {
   title: `Hello, ${user?.name || 'New User'}! 👋`,
   subtitle: "Everything looks great!",
