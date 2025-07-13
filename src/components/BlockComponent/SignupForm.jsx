@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { BorderBeam } from "@/components/magicui/border-beam";
-import { createAccount, login, oAuth } from "../../AppWrite/appwriteFunction"
+import { signUpAndLogin, oAuth } from "../../AppWrite/appwriteFunction"
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Loader2 } from "lucide-react"
@@ -17,7 +17,7 @@ function SignUpForm({ className, ...props }) {
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
     const [success, setSuccess] = useState('')
-      const [oauthLoading, setOauthLoading] = useState(false);
+    const [oauthLoading, setOauthLoading] = useState(false);
     
     const navigate = useNavigate()
 
@@ -38,47 +38,66 @@ function SignUpForm({ className, ...props }) {
         }
 
         try {
-            const newAccount = await createAccount(name, trimmedEmail, password)
-            if(newAccount){
-                console.log("Creating account with:", { name, email, password });
-                await login(trimmedEmail, password)
-                setSuccess("🎉 Account Created successfully")
-                navigate("/dashboard")
+            console.log("Creating account with:", { name, email: trimmedEmail });
+            
+            // Use the new signUpAndLogin function
+            const result = await signUpAndLogin(name, trimmedEmail, password);
+            
+            if (result && result.account) {
+                console.log("Account created and logged in successfully");
+                setSuccess("🎉 Account Created successfully");
+                
+                // Set the new signup flag for WelcomeWrapper
+                sessionStorage.setItem('isNewSignup', 'true');
+                
+                // Navigate to dashboard
+                navigate("/dashboard");
             }
-
-            setSuccess("🎉Account Created Successfully")
         } catch (err) {
-            console.log("Cant Sign Up", err)
-            setError(err.message || "Cant Sign Up")
+            console.log("Can't Sign Up", err);
+            
+            // Handle specific error cases
+            if (err.code === 409) {
+                setError("An account with this email already exists. Please try logging in instead.");
+            } else if (err.message.includes('password')) {
+                setError("Password must be at least 8 characters long.");
+            } else {
+                setError(err.message || "Can't Sign Up. Please try again.");
+            }
         } finally {
             setLoading(false)
         }
     }
 
-
-const handleOAuth = async () => {
-    setOauthLoading(true);
-    setError('');
-    try {
-        console.log('Starting OAuth flow...');
-        await oAuth();
-        // OAuth will redirect, so this won't execute
-    } catch (error) {
-        console.error("OAuth failed:", error);
-        
-        // Handle specific OAuth errors
-        if (error.code === 409) {
-            setError("An account with this email already exists. Please use email/password login.");
-        } else if (error.message.includes('unauthorized')) {
-            setError("OAuth not properly configured. Please contact support.");
-        } else {
-            setError("Google login failed. Please try again.");
+    const handleOAuth = async () => {
+        setOauthLoading(true);
+        setError('');
+        try {
+            console.log('Starting OAuth flow...');
+            
+            // Set the new signup flag for OAuth too
+            sessionStorage.setItem('isNewSignup', 'true');
+            
+            await oAuth();
+            // OAuth will redirect, so this won't execute
+        } catch (error) {
+            console.error("OAuth failed:", error);
+            
+            // Clear the flag if OAuth fails
+            sessionStorage.removeItem('isNewSignup');
+            
+            // Handle specific OAuth errors
+            if (error.code === 409) {
+                setError("An account with this email already exists. Please use email/password login.");
+            } else if (error.message.includes('unauthorized')) {
+                setError("OAuth not properly configured. Please contact support.");
+            } else {
+                setError("Google login failed. Please try again.");
+            }
+        } finally {
+            setOauthLoading(false);
         }
-    } finally {
-        setOauthLoading(false);
-    }
-  };
-
+    };
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
@@ -198,22 +217,23 @@ const handleOAuth = async () => {
                                     </span>
                                 </div>
                             </div>
-     <Button
-            variant="outline"
-            className="w-full border-neutral-700 text-gray-300 bg-transparent hover:bg-neutral-800 hover:text-white transition-all"
-            type="button"
-            onClick={handleOAuth}
-            disabled={oauthLoading}
-        >
-            {oauthLoading ? (
-                <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Connecting to Google...
-                </>
-            ) : (
-                "Signup with Google"
-            )}
-        </Button>
+
+                            <Button
+                                variant="outline"
+                                className="w-full border-neutral-700 text-gray-300 bg-transparent hover:bg-neutral-800 hover:text-white transition-all"
+                                type="button"
+                                onClick={handleOAuth}
+                                disabled={oauthLoading}
+                            >
+                                {oauthLoading ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Connecting to Google...
+                                    </>
+                                ) : (
+                                    "Signup with Google"
+                                )}
+                            </Button>
 
                             <div className="text-center text-sm text-gray-400">
                                 Already have an account?{" "}

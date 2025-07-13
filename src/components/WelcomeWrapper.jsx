@@ -3,10 +3,9 @@ import WelcomePage from '@/Pages/WelcomePage';
 import { 
     getCurrentAccount, 
     handleNewUserWelcome, 
-    checkIfNewUser, 
     hasSeenWelcome, 
     markWelcomeCompleted,
-    checkUserExist
+    getUserProfile
 } from '@/AppWrite/appwriteFunction';
 import { useAuth } from '@/AppWrite/AuthContext';
 
@@ -40,14 +39,15 @@ const WelcomeWrapper = ({ children }) => {
                     currentUser = await getCurrentAccount();
                 } catch (e) {
                     console.log('No authenticated user found', e);
+                    setIsLoading(false);
                     return;
                 }
             }
 
             if (currentUser) {
-                // Check if we've already processed this user
+                // Check if we've already processed this user in this session
                 if (processedUsersRef.current.has(currentUser.$id)) {
-                    console.log('User already processed, skipping...');
+                    console.log('User already processed in this session, skipping...');
                     setUser(currentUser);
                     setIsLoading(false);
                     return;
@@ -55,21 +55,36 @@ const WelcomeWrapper = ({ children }) => {
 
                 setUser(currentUser);
                 
-                // First ensure user profile exists in database
-                const userExistsInDB = await checkUserExist(currentUser.email);
-                if (!userExistsInDB) {
-                    // Create user profile if it doesn't exist
-                    await handleNewUserWelcome(currentUser);
+                // Check if this is a new signup
+                const isNewSignup = sessionStorage.getItem('isNewSignup') === 'true';
+                
+                // Ensure user profile exists in database
+                await handleNewUserWelcome(currentUser, isNewSignup);
+                
+                // Clear the new signup flag
+                if (isNewSignup) {
+                    sessionStorage.removeItem('isNewSignup');
                 }
                 
                 // Check if user has seen welcome screen
                 const seenWelcome = await hasSeenWelcome(currentUser.$id);
-                if (!seenWelcome) {
-                    console.log("User hasn't seen welcome - showing welcome screen");
+                
+                console.log("Welcome status check:", {
+                    userId: currentUser.$id,
+                    hasSeenWelcome: seenWelcome,
+                    isNewSignup,
+                    shouldShowWelcome: !seenWelcome || isNewSignup
+                });
+                
+                if (!seenWelcome || isNewSignup) {
+                    console.log("User needs to see welcome - showing welcome screen");
                     setShowWelcome(true);
+                } else {
+                    console.log("User has already seen welcome - proceeding to main app");
+                    setShowWelcome(false);
                 }
                 
-                // Mark user as processed
+                // Mark user as processed in this session
                 processedUsersRef.current.add(currentUser.$id);
             }
         } catch (error) {
@@ -92,23 +107,26 @@ const WelcomeWrapper = ({ children }) => {
             setShowWelcome(false);
         } catch (error) {
             console.error('Error completing welcome:', error);
+            // Still hide welcome even if there's an error
             setShowWelcome(false);
         } finally {
             setWelcomeLoading(false);
         }
     };
 
+    // Show loading screen while checking user status
     if (isLoading || authLoading) {
         return (
-             <div className='w-full min-h-screen bg-[#191a1a] flex flex-col justify-center items-center'>
-                 <div className='w-16 h-16 rounded-full animate-spin border-b-2 border-[#ea5a0cde]'></div>
-             <p className='text-white mt-4 text-center'>
+            <div className='w-full min-h-screen bg-[#191a1a] flex flex-col justify-center items-center'>
+                <div className='w-16 h-16 rounded-full animate-spin border-b-2 border-[#ea5a0cde]'></div>
+                <p className='text-white mt-4 text-center'>
                     Loading...
                 </p>
             </div>
         );
     }
 
+    // Show welcome page if user hasn't seen it
     if (showWelcome && user) {
         return (
             <WelcomePage 
@@ -119,6 +137,7 @@ const WelcomeWrapper = ({ children }) => {
         );
     }
 
+    // Show main app content
     return children;
 };
 

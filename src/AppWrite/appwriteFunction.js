@@ -2,7 +2,6 @@ import conf from "@/conf/conf";
 import { account, ID, databases } from "./appwrite";
 import { OAuthProvider, Query } from "appwrite";
 
-
 class AuthError extends Error {
     constructor(message, code) {
         super(message);
@@ -28,6 +27,23 @@ export const createAccount = async (name, email, password) => {
     } catch (e) {
         console.log("Account Creation Failed", e);
         throw new AuthError(`Account creation failed: ${e.message}`, e.code);        
+    }
+}
+
+//To create account and login (for signup flow)
+export const signUpAndLogin = async (name, email, password) => {
+    try {
+        // First create the account
+        const newAccount = await createAccount(name, email, password);
+        
+        // Then login with the new credentials
+        const session = await account.createEmailPasswordSession(email, password);
+        console.log("Account created and logged in successfully");
+        
+        return { account: newAccount, session };
+    } catch (e) {
+        console.log("SignUp and Login failed", e);
+        throw new AuthError(`SignUp and Login failed: ${e.message}`, e.code);
     }
 }
 
@@ -81,7 +97,6 @@ export const handleOauthCallback = async() => {
                 email: user.email
             });
             
-            // Don't create profile here - let WelcomeWrapper handle it
             return user;
         }
         
@@ -96,67 +111,49 @@ export const handleOauthCallback = async() => {
     }
 }
 
-
-    // Enhanced function to check if user exists in your database
-    export const checkUserExist = async(email) => {
-        try {
-            const users = await databases.listDocuments(
-                conf.appwriteDatabaseID,
-                conf.appwriteUserCollectionID, // Use new collection
-                [Query.equal("userEmail", email)]
-            );
-            return users.documents.length > 0;
-        } catch (e) {
-            console.log("Error checking user existence", e);
-            return false;
-        }
-    }
-
-
-// Check if user is truly new (never used your app before)
-export const checkIfNewUser = async(user) => {
+// Get user profile from database
+export const getUserProfile = async(userId) => {
     try {
-        // Check if user exists in your database
-        const existsInDB = await checkUserExist(user.email);
-        
-        if (existsInDB) {
-            console.log("User exists in database - not new");
-            return false;
-        }
-        
-        // Additional check: recent registration (within last 10 minutes)
-        const registrationTime = new Date(user.registration);
-        const now = new Date();
-        const timeDiff = now - registrationTime;
-        const tenMinutes = 10 * 60 * 1000; // 10 minutes in milliseconds
-        
-        const isRecentRegistration = timeDiff < tenMinutes;
-        
-        console.log("User new check:", {
-            existsInDB,
-            isRecentRegistration,
-            timeDiff: Math.floor(timeDiff / 1000 / 60) + " minutes"
-        });
-        
-        // User is new if they don't exist in DB and recently registered
-        return !existsInDB && isRecentRegistration;
-        
+        const users = await databases.listDocuments(
+            conf.appwriteDatabaseID,
+            conf.appwriteUserCollectionID,
+            [Query.equal("userId", userId)]
+        );
+        return users.documents.length > 0 ? users.documents[0] : null;
     } catch (e) {
-        console.log("Error checking if new user:", e);
+        console.log("Error getting user profile", e);
+        return null;
+    }
+}
+
+// Check if user exists in your database
+export const checkUserExist = async(email) => {
+    try {
+        const users = await databases.listDocuments(
+            conf.appwriteDatabaseID,
+            conf.appwriteUserCollectionID,
+            [Query.equal("userEmail", email)]
+        );
+        return users.documents.length > 0;
+    } catch (e) {
+        console.log("Error checking user existence", e);
         return false;
     }
 }
 
-// Enhanced function to handle new user welcome and setup
-export const handleNewUserWelcome = async (user) => {
+// Create user profile in database (for new users)
+export const createUserProfile = async (user, isNewSignup = false) => {
     try {
-        console.log(`Setting up new user: ${user.name} (${user.email})`);
+        console.log(`Creating profile for user: ${user.name} (${user.email})`);
         
-        // Double-check if user already exists before creating
-        const existingUser = await checkUserExist(user.email);
-        if (existingUser) {
-            console.log("User profile already exists, skipping creation");
-            return null;
+        // For new signups, always create a fresh profile
+        if (!isNewSignup) {
+            // Double-check if user already exists before creating
+            const existingUser = await checkUserExist(user.email);
+            if (existingUser) {
+                console.log("User profile already exists, returning existing profile");
+                return await getUserProfile(user.$id);
+            }
         }
         
         const userProfile = await databases.createDocument(
@@ -169,7 +166,7 @@ export const handleNewUserWelcome = async (user) => {
                 userEmail: user.email,
                 createdAt: new Date().toISOString(),
                 loginMethod: user.providerAccessToken ? 'oauth-google' : 'email',
-                hasSeenWelcome: false,
+                hasSeenWelcome: false, // Always false for new users
                 isNewUser: true
             }
         );
@@ -181,25 +178,50 @@ export const handleNewUserWelcome = async (user) => {
         // Check if error is due to duplicate entry
         if (e.message && e.message.includes('unique')) {
             console.log("User profile already exists (duplicate key)");
-            return null;
+            return await getUserProfile(user.$id);
         }
-        console.log("Error setting up new user:", e);
+        console.log("Error creating user profile:", e);
+        throw new DatabaseError(`Failed to create user profile: ${e.message}`, e.code);
+    }
+}
+
+// Enhanced function to handle new user welcome and setup
+export const handleNewUserWelcome = async (user, isNewSignup = false) => {
+    try {
+        // Get or create user profile
+        let userProfile = await getUserProfile(user.$id);
+        
+        if (!userProfile) {
+            userProfile = await createUserProfile(user, isNewSignup);
+        } else if (isNewSignup) {
+            // If this is a new signup but profile exists, reset welcome status
+            userProfile = await databases.updateDocument(
+                conf.appwriteDatabaseID,
+                conf.appwriteUserCollectionID,
+                userProfile.$id,
+                {
+                    hasSeenWelcome: false,
+                    isNewUser: true
+                }
+            );
+            console.log("Reset welcome status for new signup");
+        }
+        
+        return userProfile;
+        
+    } catch (e) {
+        console.log("Error in handleNewUserWelcome:", e);
         return null;
     }
 }
 
-
 // Check if user has seen welcome screen
 export const hasSeenWelcome = async(userId) => {
     try {
-        const userProfiles = await databases.listDocuments(
-            conf.appwriteDatabaseID,
-            conf.appwriteUserCollectionID, // Use new collection
-            [Query.equal("userId", userId)]
-        );
+        const userProfile = await getUserProfile(userId);
         
-        if (userProfiles.documents.length > 0) {
-            return userProfiles.documents[0].hasSeenWelcome;
+        if (userProfile) {
+            return userProfile.hasSeenWelcome || false;
         }
         
         return false;
@@ -213,23 +235,17 @@ export const hasSeenWelcome = async(userId) => {
 // Mark welcome as completed
 export const markWelcomeCompleted = async(userId) => {
     try {
-        // Find the user profile
-        const userProfiles = await databases.listDocuments(
-            conf.appwriteDatabaseID,
-            conf.appwriteUserCollectionID,
-            [Query.equal("userId", userId)]
-        );
+        const userProfile = await getUserProfile(userId);
         
-        if (userProfiles.documents.length > 0) {
-            const profileId = userProfiles.documents[0].$id;
-            
+        if (userProfile) {
             // Update the profile to mark welcome as completed
             const updatedProfile = await databases.updateDocument(
                 conf.appwriteDatabaseID,
                 conf.appwriteUserCollectionID,
-                profileId,
+                userProfile.$id,
                 {
-                    hasSeenWelcome: true
+                    hasSeenWelcome: true,
+                    isNewUser: false
                 }
             );
             
