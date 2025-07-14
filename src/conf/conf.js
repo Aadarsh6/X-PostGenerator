@@ -5,6 +5,7 @@ const conf = {
     appwriteCollectionID: String(import.meta.env.VITE_APPWRITE_COLLECTIONID),
     appwriteUserCollectionID: String(import.meta.env.VITE_APPWRITE_USERCOLLECTIONID)
 
+    
 
 }
 

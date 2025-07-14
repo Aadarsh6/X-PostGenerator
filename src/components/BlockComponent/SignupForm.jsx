@@ -9,6 +9,7 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Loader2 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
+import { useAuth } from "@/AppWrite/AuthContext"
 
 function SignUpForm({ className, ...props }) {
     const [name, setName] = useState('')
@@ -20,6 +21,7 @@ function SignUpForm({ className, ...props }) {
     const [oauthLoading, setOauthLoading] = useState(false);
     
     const navigate = useNavigate()
+    const { refreshUser } = useAuth()
 
     const isValidEmail = (email) => /\S+@\S+\.\S+/.test(email);
     
@@ -49,6 +51,10 @@ function SignUpForm({ className, ...props }) {
                 
                 // Set the new signup flag for WelcomeWrapper
                 sessionStorage.setItem('isNewSignup', 'true');
+                sessionStorage.setItem('signupMethod', 'manual');
+                
+                // IMPORTANT: Refresh the AuthContext before navigating
+                await refreshUser();
                 
                 // Navigate to dashboard
                 navigate("/dashboard");
@@ -77,6 +83,7 @@ function SignUpForm({ className, ...props }) {
             
             // Set the new signup flag for OAuth too
             sessionStorage.setItem('isNewSignup', 'true');
+            sessionStorage.setItem('signupMethod', 'oauth');
             
             await oAuth();
             // OAuth will redirect, so this won't execute
@@ -85,6 +92,7 @@ function SignUpForm({ className, ...props }) {
             
             // Clear the flag if OAuth fails
             sessionStorage.removeItem('isNewSignup');
+            sessionStorage.removeItem('signupMethod');
             
             // Handle specific OAuth errors
             if (error.code === 409) {

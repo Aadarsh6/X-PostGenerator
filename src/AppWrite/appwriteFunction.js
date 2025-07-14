@@ -110,7 +110,7 @@ export const oAuth = async() => {
         
         await account.createOAuth2Session(
             OAuthProvider.Google,
-            `${currentUrl}/dashboard`,
+            `${currentUrl}/oauth/callback`, 
             `${currentUrl}/login`
         );
     } catch (e) {
@@ -339,6 +339,7 @@ export const markWelcomeCompleted = async(userId) => {
         if (userProfile) {
             // Update the profile to mark welcome as completed
             const updatedProfile = await databases.updateDocument(
+                
                 conf.appwriteDatabaseID,
                 conf.appwriteUserCollectionID,
                 userProfile.$id,
@@ -347,6 +348,7 @@ export const markWelcomeCompleted = async(userId) => {
                     isNewUser: false
                 }
             );
+            
             
             console.log("Welcome marked as completed");
             return updatedProfile;
