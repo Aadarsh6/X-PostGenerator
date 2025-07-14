@@ -49,7 +49,7 @@ export const HomePage = React.memo(() => {
           variants={itemVariants}
           className="text-neutral-400 max-w-lg mx-auto my-6 text-base md:text-lg"
         >
-          Our AI-powered platform analyzes viral trends and helps you craft engaging posts that capture attention.
+          Our AI-powered tool helps you create high quality X posts tailored to your tone and style.
         </motion.p>
 
         <motion.div variants={itemVariants} className="flex justify-center">
