@@ -39,11 +39,56 @@ export const signUpAndLogin = async (name, email, password) => {
         // Then login with the new credentials
         const session = await account.createEmailPasswordSession(email, password);
         console.log("Account created and logged in successfully");
+        let retries = 3;
+        let user = null;
+        while (retries > 0) {
+            try {
+                user = await account.get();
+                if (user?.$id) break;
+            } catch {
+                await new Promise(res => setTimeout(res, 1000));
+                retries--;
+            }
+        }
+        
+        if (!user) {
+            throw new Error("Login succeeded but session is not yet available.");
+        }
+
+        // Mark this as a new signup
+        sessionStorage.setItem('isNewSignup', 'true');
+        sessionStorage.setItem('signupMethod', 'manual');
         
         return { account: newAccount, session };
     } catch (e) {
         console.log("SignUp and Login failed", e);
         throw new AuthError(`SignUp and Login failed: ${e.message}`, e.code);
+    }
+}
+
+// Updated login function to clear new signup flags
+export const login = async (email, password) => {
+    try {
+        const presentUser = await account.get();
+        if (presentUser) {
+            await account.deleteSession("current");
+        }
+    } catch (e) {
+        console.log("No active session to delete", e?.message || e);
+    }
+    
+    try {
+        const accountLogin = await account.createEmailPasswordSession(email, password)
+        console.log("Login Successful")
+        
+        // Clear any new signup flags for regular login
+        sessionStorage.removeItem('isNewSignup');
+        sessionStorage.setItem('signupMethod', 'manual');
+        
+        return accountLogin
+    } catch (e) {
+        console.log("Login failed", e);
+        throw new AuthError(`Login failed: ${e.message}`, e.code);
     }
 }
 
@@ -96,6 +141,20 @@ export const handleOauthCallback = async() => {
                 name: user.name,
                 email: user.email
             });
+            
+            // Check if this is a truly new user (first time OAuth)
+            const existingProfile = await getUserProfile(user.$id);
+            const isNewOAuthUser = !existingProfile;
+            
+            if (isNewOAuthUser) {
+                console.log("New OAuth user detected - setting up profile");
+                sessionStorage.setItem('isNewSignup', 'true');
+                sessionStorage.setItem('signupMethod', 'oauth');
+            } else {
+                console.log("Existing OAuth user - normal login");
+                sessionStorage.removeItem('isNewSignup');
+                sessionStorage.setItem('signupMethod', 'oauth');
+            }
             
             return user;
         }
@@ -188,23 +247,30 @@ export const createUserProfile = async (user, isNewSignup = false) => {
 // Enhanced function to handle new user welcome and setup
 export const handleNewUserWelcome = async (user, isNewSignup = false) => {
     try {
-        // Get or create user profile
+        // Get existing user profile
         let userProfile = await getUserProfile(user.$id);
         
         if (!userProfile) {
-            userProfile = await createUserProfile(user, isNewSignup);
-        } else if (isNewSignup) {
-            // If this is a new signup but profile exists, reset welcome status
-            userProfile = await databases.updateDocument(
-                conf.appwriteDatabaseID,
-                conf.appwriteUserCollectionID,
-                userProfile.$id,
-                {
-                    hasSeenWelcome: false,
-                    isNewUser: true
-                }
-            );
-            console.log("Reset welcome status for new signup");
+            // No profile exists - this is definitely a new user
+            console.log("No profile found - creating new user profile");
+            userProfile = await createUserProfile(user, true);
+        } else {
+            // Profile exists - check if this is a new signup session
+            if (isNewSignup) {
+                console.log("Profile exists but this is a new signup session - resetting welcome");
+                userProfile = await databases.updateDocument(
+                    conf.appwriteDatabaseID,
+                    conf.appwriteUserCollectionID,
+                    userProfile.$id,
+                    {
+                        hasSeenWelcome: false,
+                        isNewUser: true
+                    }
+                );
+                console.log("Reset welcome status for new signup");
+            } else {
+                console.log("Existing user profile found - normal login");
+            }
         }
         
         return userProfile;
@@ -214,6 +280,33 @@ export const handleNewUserWelcome = async (user, isNewSignup = false) => {
         return null;
     }
 }
+
+
+// Helper function to determine if user should see welcome
+export const shouldShowWelcome = async (userId) => {
+    try {
+        const userProfile = await getUserProfile(userId);
+        const isNewSignup = sessionStorage.getItem('isNewSignup') === 'true';
+        
+        if (!userProfile) {
+            // No profile = new user = show welcome
+            return true;
+        }
+        
+        // Check profile settings
+        const hasSeenWelcome = userProfile.hasSeenWelcome || false;
+        
+        // Show welcome if:
+        // 1. User hasn't seen welcome before, OR
+        // 2. This is marked as a new signup session
+        return !hasSeenWelcome || isNewSignup;
+        
+    } catch (e) {
+        console.log("Error checking welcome status:", e);
+        return false;
+    }
+}
+
 
 // Check if user has seen welcome screen
 export const hasSeenWelcome = async(userId) => {
@@ -262,25 +355,25 @@ export const markWelcomeCompleted = async(userId) => {
 }
 
 //To login user with their credentials
-export const login = async (email, password) => {
-    try {
-        const presentUser = await account.get();
-        if (presentUser) {
-            await account.deleteSession("current");
-        }
-    } catch (e) {
-        console.log("No active session to delete", e?.message || e);
-    }
+// export const login = async (email, password) => {
+//     try {
+//         const presentUser = await account.get();
+//         if (presentUser) {
+//             await account.deleteSession("current");
+//         }
+//     } catch (e) {
+//         console.log("No active session to delete", e?.message || e);
+//     }
     
-    try {
-        const accountLogin = await account.createEmailPasswordSession(email, password)
-        console.log("Login Successful")
-        return accountLogin
-    } catch (e) {
-        console.log("Login failed", e);
-        throw new AuthError(`Login failed: ${e.message}`, e.code);
-    }
-}
+//     try {
+//         const accountLogin = await account.createEmailPasswordSession(email, password)
+//         console.log("Login Successful")
+//         return accountLogin
+//     } catch (e) {
+//         console.log("Login failed", e);
+//         throw new AuthError(`Login failed: ${e.message}`, e.code);
+//     }
+// }
 
 //To get the user info
 export const getCurrentAccount = async () => {

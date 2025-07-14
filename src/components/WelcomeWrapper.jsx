@@ -3,9 +3,8 @@ import WelcomePage from '@/Pages/WelcomePage';
 import { 
     getCurrentAccount, 
     handleNewUserWelcome, 
-    hasSeenWelcome, 
     markWelcomeCompleted,
-    getUserProfile
+    shouldShowWelcome
 } from '@/AppWrite/appwriteFunction';
 import { useAuth } from '@/AppWrite/AuthContext';
 
@@ -27,73 +26,78 @@ const WelcomeWrapper = ({ children }) => {
     }, [authLoading, contextUser]);
 
     const checkUserStatus = async () => {
-        if (isProcessingRef.current) return;
+    if (isProcessingRef.current) return;
+    
+    try {
+        setIsLoading(true);
+        isProcessingRef.current = true;
         
-        try {
-            setIsLoading(true);
-            isProcessingRef.current = true;
-            
-            let currentUser = contextUser;
-            if (!currentUser) {
-                try {
-                    currentUser = await getCurrentAccount();
-                } catch (e) {
-                    console.log('No authenticated user found', e);
-                    setIsLoading(false);
-                    return;
-                }
+        let currentUser = contextUser;
+        if (!currentUser) {
+            try {
+                currentUser = await getCurrentAccount();
+            } catch (e) {
+                console.log('No authenticated user found', e);
+                setIsLoading(false);
+                return;
             }
-
-            if (currentUser) {
-                // Check if we've already processed this user in this session
-                if (processedUsersRef.current.has(currentUser.$id)) {
-                    console.log('User already processed in this session, skipping...');
-                    setUser(currentUser);
-                    setIsLoading(false);
-                    return;
-                }
-
-                setUser(currentUser);
-                
-                // Check if this is a new signup
-                const isNewSignup = sessionStorage.getItem('isNewSignup') === 'true';
-                
-                // Ensure user profile exists in database
-                await handleNewUserWelcome(currentUser, isNewSignup);
-                
-                // Clear the new signup flag
-                if (isNewSignup) {
-                    sessionStorage.removeItem('isNewSignup');
-                }
-                
-                // Check if user has seen welcome screen
-                const seenWelcome = await hasSeenWelcome(currentUser.$id);
-                
-                console.log("Welcome status check:", {
-                    userId: currentUser.$id,
-                    hasSeenWelcome: seenWelcome,
-                    isNewSignup,
-                    shouldShowWelcome: !seenWelcome || isNewSignup
-                });
-                
-                if (!seenWelcome || isNewSignup) {
-                    console.log("User needs to see welcome - showing welcome screen");
-                    setShowWelcome(true);
-                } else {
-                    console.log("User has already seen welcome - proceeding to main app");
-                    setShowWelcome(false);
-                }
-                
-                // Mark user as processed in this session
-                processedUsersRef.current.add(currentUser.$id);
-            }
-        } catch (error) {
-            console.error('Error checking user status:', error);
-        } finally {
-            setIsLoading(false);
-            isProcessingRef.current = false;
         }
-    };
+
+        if (currentUser) {
+            // Check if we've already processed this user in this session
+            if (processedUsersRef.current.has(currentUser.$id)) {
+                console.log('User already processed in this session, skipping...');
+                setUser(currentUser);
+                setIsLoading(false);
+                return;
+            }
+
+            setUser(currentUser);
+            
+            // Check if this is a new signup
+            const isNewSignup = sessionStorage.getItem('isNewSignup') === 'true';
+            const signupMethod = sessionStorage.getItem('signupMethod') || 'unknown';
+            
+            console.log("Processing user:", {
+                userId: currentUser.$id,
+                isNewSignup,
+                signupMethod,
+                userEmail: currentUser.email
+            });
+            
+            // Ensure user profile exists in database
+            await handleNewUserWelcome(currentUser, isNewSignup);
+            
+            // Use the new helper function to determine welcome status
+            const shouldShow = await shouldShowWelcome(currentUser.$id);
+            
+            console.log("Welcome status check:", {
+                userId: currentUser.$id,
+                shouldShowWelcome: shouldShow,
+                isNewSignup,
+                signupMethod
+            });
+            
+            if (shouldShow) {
+                console.log("User needs to see welcome - showing welcome screen");
+                setShowWelcome(true);
+            } else {
+                console.log("User has already seen welcome - proceeding to main app");
+                setShowWelcome(false);
+                // Clear the new signup flag after processing
+                sessionStorage.removeItem('isNewSignup');
+            }
+            
+            // Mark user as processed in this session
+            processedUsersRef.current.add(currentUser.$id);
+        }
+    } catch (error) {
+        console.error('Error checking user status:', error);
+    } finally {
+        setIsLoading(false);
+        isProcessingRef.current = false;
+    }
+};
 
     const handleWelcomeComplete = async () => {
         try {
@@ -103,6 +107,10 @@ const WelcomeWrapper = ({ children }) => {
                 await markWelcomeCompleted(user.$id);
                 console.log("Welcome marked as completed for user:", user.$id);
             }
+            
+            // Clear the new signup flag when welcome is completed
+            sessionStorage.removeItem('isNewSignup');
+            sessionStorage.removeItem('signupMethod');
             
             setShowWelcome(false);
         } catch (error) {
