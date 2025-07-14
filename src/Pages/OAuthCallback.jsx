@@ -5,23 +5,17 @@ import { useAuth } from '@/AppWrite/AuthContext';
 
 const OAuthCallback = () => {
     const navigate = useNavigate();
-    const { refreshUser } = useAuth();
+    const { refreshUser } = useAuth(); // Keep this for potential error recovery
 
     useEffect(() => {
         const processOAuthCallback = async () => {
             try {
                 console.log('Processing OAuth callback...');
                 
-                // Handle the OAuth callback and get user data
                 const user = await handleOauthCallback();
                 
                 if (user) {
-                    console.log('OAuth callback successful, user:', user);
-                    
-                    // Refresh the AuthContext to ensure it has the latest user data
-                    await refreshUser();
-                    
-                    // Navigate to dashboard
+                    console.log('OAuth callback successful, user:', user);                    
                     navigate('/dashboard');
                 } else {
                     console.error('OAuth callback failed - no user returned');
@@ -34,7 +28,7 @@ const OAuthCallback = () => {
         };
 
         processOAuthCallback();
-    }, [navigate, refreshUser]);
+    }, [navigate]); 
 
     return (
         <div className='w-full min-h-screen bg-[#191a1a] flex flex-col justify-center items-center'>

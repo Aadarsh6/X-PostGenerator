@@ -16,7 +16,7 @@ import ContactPage from './Pages/Contact'
 import { ComingSoon } from './Pages/ComingSoon'
 import WelcomePage from './Pages/WelcomePage'
 import WelcomeWrapper from './components/WelcomeWrapper'
-import OAuthCallback from './AppWrite/OAuthCallback'
+import OAuthCallback from './Pages/OAuthCallback'
 
 const router = createBrowserRouter([
   {path: "/signIn", element: <App/>},
