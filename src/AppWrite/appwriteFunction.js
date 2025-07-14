@@ -34,6 +34,12 @@ export const createAccount = async (name, email, password) => {
 export const signUpAndLogin = async (name, email, password) => {
     try {
         // First create the account
+        try {
+            await account.deleteSession("current");
+            console.log("Old session deleted before signup.");
+        } catch (e) {
+            console.log("No session to delete before signup:", e.message);
+        }
         const newAccount = await createAccount(name, email, password);
         
         // Then login with the new credentials
