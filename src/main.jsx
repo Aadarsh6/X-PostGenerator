@@ -17,7 +17,9 @@ import { ComingSoon } from './Pages/ComingSoon'
 import WelcomePage from './Pages/WelcomePage'
 import WelcomeWrapper from './components/WelcomeWrapper'
 import OAuthCallback from './Pages/OAuthCallback'
-
+import { inject } from '@vercel/analytics';
+ 
+inject();
 const router = createBrowserRouter([
   {path: "/signIn", element: <App/>},
   {path: "/signup", element: <SignupPage/>},
