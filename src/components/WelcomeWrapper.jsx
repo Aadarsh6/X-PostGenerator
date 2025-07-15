@@ -56,14 +56,14 @@ const WelcomeWrapper = ({ children }) => {
             
             // Check if this is a new signup
             const isNewSignup = sessionStorage.getItem('isNewSignup') === 'true';
-            const signupMethod = sessionStorage.getItem('signupMethod') || 'unknown';
+            // const signupMethod = sessionStorage.getItem('signupMethod') || 'unknown';
             
-            console.log("Processing user:", {
-                userId: currentUser.$id,
-                isNewSignup,
-                signupMethod,
-                userEmail: currentUser.email
-            });
+            // console.log("Processing user:", {
+            //     userId: currentUser.$id,
+            //     isNewSignup,
+            //     signupMethod,
+            //     userEmail: currentUser.email
+            // });
             
             // Ensure user profile exists in database
             await handleNewUserWelcome(currentUser, isNewSignup);
@@ -71,12 +71,12 @@ const WelcomeWrapper = ({ children }) => {
             // Use the new helper function to determine welcome status
             const shouldShow = await shouldShowWelcome(currentUser.$id);
             
-            console.log("Welcome status check:", {
-                userId: currentUser.$id,
-                shouldShowWelcome: shouldShow,
-                isNewSignup,
-                signupMethod
-            });
+            // console.log("Welcome status check:", {
+            //     userId: currentUser.$id,
+            //     shouldShowWelcome: shouldShow,
+            //     isNewSignup,
+            //     signupMethod
+            // });
             
             if (shouldShow) {
                 console.log("User needs to see welcome - showing welcome screen");
@@ -105,7 +105,7 @@ const WelcomeWrapper = ({ children }) => {
             
             if (user) {
                 await markWelcomeCompleted(user.$id);
-                console.log("Welcome marked as completed for user:", user.$id);
+                // console.log("Welcome marked as completed for user:", user.$id);
             }
             
             // Clear the new signup flag when welcome is completed

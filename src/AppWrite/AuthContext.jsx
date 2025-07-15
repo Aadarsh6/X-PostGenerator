@@ -20,7 +20,7 @@ export const AuthProvider = ({children}) => {
             
             const userData = await account.get();
             setUser(userData);
-            console.log("User fetched successfully:", userData);
+            // console.log("User fetched successfully:", userData);
             return userData;
         } catch (error) {
             if (error.code !== 401) {

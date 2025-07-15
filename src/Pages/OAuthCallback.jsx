@@ -15,7 +15,7 @@ const OAuthCallback = () => {
                 const user = await handleOauthCallback();
                 
                 if (user) {
-                    console.log('OAuth callback successful, user:', user);                    
+                    // console.log('OAuth callback successful, user:', user);                    
                     navigate('/dashboard');
                 } else {
                     console.error('OAuth callback failed - no user returned');
