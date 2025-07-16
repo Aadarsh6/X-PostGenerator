@@ -89,7 +89,7 @@ export const NavBar = React.memo(() => {
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out",
           scrolled || mobileMenuOpen
-            ? "bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/10 shadow-lg"
+            ? "bg-[#0a0a0a]/90 backdrop-blur-xl shadow-lg"
             : "bg-transparent"
         )}
         role="navigation"
