@@ -201,14 +201,21 @@ export const NavBar = React.memo(() => {
 
           {/* Mobile menu content */}
           <div className="flex-1 flex flex-col gap-2 p-4">
+            <Link
+            to="/login"
+            >
             <button
               className="flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-gray-300 transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-[#0a0a0a] w-full text-left"
               onClick={closeMobileMenu}
             >
               <LogIn className="h-5 w-5" />
-              <span>Login</span>
+              <div>Login</div>
             </button>
+              </Link>
             
+            <Link
+            to="/signup"
+            >
             <button
               className="flex items-center gap-3 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-4 py-3 text-base font-semibold text-white transition-all duration-200 hover:shadow-lg hover:shadow-orange-500/25 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-[#0a0a0a] w-full text-left"
               onClick={closeMobileMenu}
@@ -216,6 +223,7 @@ export const NavBar = React.memo(() => {
               <ArrowRight className="h-5 w-5" />
               <span>Sign Up Free</span>
             </button>
+              </Link>
           </div>
         </div>
       </div>

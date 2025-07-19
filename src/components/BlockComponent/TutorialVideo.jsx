@@ -10,10 +10,10 @@ export const TutorialVideo = React.memo(() => {
   }, []);
 
   return (
-    <section className="w-full py-16 px-4"> {/* Added section wrapper with proper spacing */}
+     <section className="w-full py-8 md:py-16 px-4">  {/* Added section wrapper with proper spacing */}
       <div className="max-w-5xl mx-auto">
         {/* Header Section */}
-        <div className="text-center mb-16"> {/* Increased bottom margin for better spacing */}
+         <div className="text-center mb-8 md:mb-16"> {/* Increased bottom margin for better spacing */}
           <h2 className="text-3xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
             See It In Action
           </h2>
