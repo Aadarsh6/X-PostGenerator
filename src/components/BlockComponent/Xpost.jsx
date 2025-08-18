@@ -272,20 +272,20 @@ export const Xpost = () => {
     }
   };
 
-  const testConnection = async () => {
-    setError("");
-    try {
-      const result = await apiService.testApiKey();
-      if (result.success) {
-        setError(""); // Clear any previous errors
-        alert("✅ Backend connection successful!");
-      } else {
-        setError(`Connection test failed: ${result.error}`);
-      }
-    } catch (error) {
-      setError(`Connection test failed: ${error.message}`);
-    }
-  };
+  // const testConnection = async () => {
+  //   setError("");
+  //   try {
+  //     const result = await apiService.testApiKey();
+  //     if (result.success) {
+  //       setError(""); // Clear any previous errors
+  //       alert("✅ Backend connection successful!");
+  //     } else {
+  //       setError(`Connection test failed: ${result.error}`);
+  //     }
+  //   } catch (error) {
+  //     setError(`Connection test failed: ${error.message}`);
+  //   }
+  // };
 
   //Select post to save
 
@@ -474,14 +474,14 @@ const handlePostSingleToTwitter = (postContent) => {
                   <div className="mb-4 p-3 bg-red-900/20 border border-red-500/50 rounded-lg flex items-center gap-2">
                     <AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" />
                     <span className="text-red-400 text-sm">{error}</span>
-                    <Button
+                    {/* <Button
                       onClick={testConnection}
                       size="sm"
                       variant="outline"
                       className="ml-auto border-red-500/50 text-red-400 hover:bg-red-500/10"
                     >
                       Test Connection
-                    </Button>
+                    </Button> */}
                   </div>
                 )}
 

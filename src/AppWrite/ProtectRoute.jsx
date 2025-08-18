@@ -15,11 +15,11 @@ const ProtectRoute = ({children}) => {
             // Check if this is an OAuth callback
             const isOauthCallback = location.pathname === "/dashboard" && 
                 (location.search.includes('code=') || 
-                 location.search.includes('state=') || 
-                 location.search.includes('session=') ||
-                 location.hash.includes('access_token=') ||
-                 document.referrer.includes('appwrite.io') ||
-                 document.referrer.includes('accounts.google.com'));
+                location.search.includes('state=') || 
+                location.search.includes('session=') ||
+                location.hash.includes('access_token=') ||
+                document.referrer.includes('appwrite.io') ||
+                document.referrer.includes('accounts.google.com'));
             
             // Don't process if already processed, already have user, or not an OAuth callback
             if (oauthProcessed || user || !isOauthCallback) {
