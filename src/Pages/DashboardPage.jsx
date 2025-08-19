@@ -4,7 +4,7 @@ import { Xpost } from '../components/BlockComponent/Xpost'
 export const DashboardPage = () => {
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex relative">
-      {/* Sidebar - Fixed on desktop, overlay on mobile */}
+      {/* Sidebar */}
       <Sidebar />
       
       {/* Main Content Area */}

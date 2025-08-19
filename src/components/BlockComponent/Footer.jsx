@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"; // Your classname utility
 import { Link } from 'react-router-dom';
 
 export const Footer = React.memo(() => {
-  // A simplified list of essential links for a compact footer
+  
   const essentialLinks = [
     { label: 'Features', href: '/' },
     { label: 'Pricing', href: '#' },

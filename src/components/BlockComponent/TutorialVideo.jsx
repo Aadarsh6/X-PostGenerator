@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Play } from "lucide-react"; // Added missing import
+import { Play } from "lucide-react"; 
 import React from "react";
 
 export const TutorialVideo = React.memo(() => {
