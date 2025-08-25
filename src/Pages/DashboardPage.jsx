@@ -16,7 +16,6 @@ export const DashboardPage = () => {
           </div>
         </div>
         
-        {/* Xpost Component Container */}
         <div className="w-full min-h-[calc(100vh-4rem)] lg:min-h-screen overflow-auto">
           <Xpost />
         </div>
