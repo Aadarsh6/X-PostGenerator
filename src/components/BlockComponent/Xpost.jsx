@@ -22,11 +22,11 @@ import {
   Twitter, 
   Share
 } from "lucide-react";
-import { savePost } from "@/AppWrite/appwriteFunction";
-import { ID } from "appwrite";
+// import { savePost } from "@/AppWrite/appwriteFunction";
+// import { ID } from "appwrite";
 import { toast, Toaster } from "sonner";
 import { BorderBeam } from "../magicui/border-beam";
-import { copyThreadToClipboard, postThreadToTwitterSequentially } from "@/AppWrite/XpostFunction";
+// import { copyThreadToClipboard, postThreadToTwitterSequentially } from "@/AppWrite/XpostFunction";
 
 // Twitter posting functions
 export const postToTwitter = (content) => {
@@ -49,12 +49,12 @@ export const postThreadToTwitter = (posts) => {
 };
 
 // API configuration for Vite
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  "https://x-postgenerator-backend-production.up.railway.app".replace(
-    /\/$/,
-    ""
-  );
+const API_BASE_URL = "http://localhost:3001"
+  // import.meta.env.VITE_API_BASE_URL ||
+  // "https://x-postgenerator-backend-production.up.railway.app".replace(
+  //   /\/$/,
+  //   ""
+  // );
 
 // API service functions
 const apiService = {
@@ -109,13 +109,13 @@ export const Xpost = () => {
   const [postType, setPostType] = useState("long-thread");
   const [tone, setTone] = useState("educational");
   const [generating, setGenerating] = useState(false); // For post generation
-  const [savingAll, setSavingAll] = useState(false); // For saving all posts
+  const [savingAll] = useState(false); // For saving all posts
   const [regenerating, setRegenerating] = useState(false);
   const [generatedPost, setGeneratedPost] = useState([]);
   const [error, setError] = useState("");
   const [copiedId, setCopiedId] = useState(null);
   const [backendStatus, setBackendStatus] = useState(null);
-  const [savedId, setSavedId] = useState(null);
+  const [savedId] = useState(null);
   const [editingPostId, setEditingPostId] = useState(null);
   const [editingContent, setEditingContent] = useState("");
 
@@ -291,20 +291,20 @@ export const Xpost = () => {
 
   //save all post
 
-  const handleSaveAll = async () => {
-    setSavingAll(true);
-    const threadID = ID.unique();
-    for (const post of generatedPost) {
-      await savePost(post.content, threadID);
-    }
-    // alert("All post saved");
-    toast.success("All posts saved!", {
-      description: "You can find them in your dashboard.",
-    });
+  // const handleSaveAll = async () => {
+  //   setSavingAll(true);
+  //   const threadID = ID.unique();
+  //   for (const post of generatedPost) {
+  //     await savePost(post.content, threadID);
+  //   }
+  //   // alert("All post saved");
+  //   toast.success("All posts saved!", {
+  //     description: "You can find them in your dashboard.",
+  //   });
 
-    console.log("All post saved");
-    setSavingAll(false);
-  };
+  //   console.log("All post saved");
+  //   setSavingAll(false);
+  // };
 
   const createThreadContent = (posts) => {
   if (posts.length === 1) {
@@ -351,36 +351,36 @@ const handlePostToTwitter = async () => {
   }
 };
 
-const handleTwitterModalPost = async (option) => {
-  const postsToShare = generatedPost.map(post => ({ content: post.content }));
+// const handleTwitterModalPost = async (option) => {
+//   const postsToShare = generatedPost.map(post => ({ content: post.content }));
   
-  try {
-    if (option === 'sequential') {
-      // Sequential posting with proper thread numbering
-      postThreadToTwitterSequentially(postsToShare);
-      toast.success("Opening Twitter windows!", {
-        description: `${postsToShare.length} Twitter compose windows will open sequentially.`
-      });
-    } else if (option === 'copy') {
-      // Copy to clipboard
-      const copied = await copyThreadToClipboard(postsToShare);
-      if (copied) {
-        toast.success("Thread copied to clipboard!", {
-          description: "You can now paste it into Twitter manually."
-        });
-      } else {
-        toast.error("Failed to copy thread", {
-          description: "Please try again."
-        });
-      }
-    }
-  } catch (e) {
-    console.error('Twitter posting error:', e);
-    toast.error("Failed to post to Twitter", {
-      description: "Please try again."
-    });
-  }
-};
+//   try {
+//     if (option === 'sequential') {
+//       // Sequential posting with proper thread numbering
+//       postThreadToTwitterSequentially(postsToShare);
+//       toast.success("Opening Twitter windows!", {
+//         description: `${postsToShare.length} Twitter compose windows will open sequentially.`
+//       });
+//     } else if (option === 'copy') {
+//       // Copy to clipboard
+//       const copied = await copyThreadToClipboard(postsToShare);
+//       if (copied) {
+//         toast.success("Thread copied to clipboard!", {
+//           description: "You can now paste it into Twitter manually."
+//         });
+//       } else {
+//         toast.error("Failed to copy thread", {
+//           description: "Please try again."
+//         });
+//       }
+//     }
+//   } catch (e) {
+//     console.error('Twitter posting error:', e);
+//     toast.error("Failed to post to Twitter", {
+//       description: "Please try again."
+//     });
+//   }
+// };
 
 
 
@@ -630,7 +630,7 @@ const handlePostSingleToTwitter = (postContent) => {
               />
 <div className="flex gap-3 flex-wrap">
   <Button
-    onClick={handleSaveAll}
+    // onClick={handleSaveAll}
     className="bg-orange-600 hover:bg-orange-700 text-[#e6e8e5] font-semibold"
   >
     {savingAll ? (
@@ -767,13 +767,14 @@ className="bg-[#2d2d2d] hover:bg-[#3d3d3d] text-white font-semibold"
                         <Button
                           size="sm"
                           variant="secondary"
-                          onClick={async () => {
-                            await savePost(post.content);
-                            setSavedId(post.id);
-                            toast.success("Post saved!", {
-                              description: "You can find it in your dashboard.",
-                            });
-                          }}
+                          // onClick={async () => {
+                          //   await savePost(post.content);
+                          //   setSavedId(post.id);
+                          //   toast.success("Post saved!", {
+                          //     description: "You can find it in your dashboard.",
+                          //   }
+                          // );
+                          // }}
                           disabled={savedId === post.id}
                           className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333] transition-all duration-200"
                         >

@@ -1,7 +1,7 @@
 import { Menu, Home, Settings, User, Bookmark, X } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { UserAvatar } from './UserAvatar'
+// import { UserAvatar } from './UserAvatar'
 
 export const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false)
@@ -199,7 +199,7 @@ export const Sidebar = () => {
         </nav>
 
         <div className="border-t border-[#222323]" />
-        <UserAvatar collapsed={collapsed && !isMobile} />
+        {/* <UserAvatar collapsed={collapsed && !isMobile} /> */}
       </div>
     </>
   )

@@ -4,12 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { BorderBeam } from "@/components/magicui/border-beam";
-import { signUpAndLogin, oAuth } from "../../AppWrite/appwriteFunction"
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Loader2 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
-import { useAuth } from "@/AppWrite/AuthContext"
+import { useAuthStore } from "@/store/authStore"
+import { api } from "@/services/api"
 
 function SignUpForm({ className, ...props }) {
     const [name, setName] = useState('')
@@ -18,94 +18,74 @@ function SignUpForm({ className, ...props }) {
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
     const [success, setSuccess] = useState('')
-    const [oauthLoading, setOauthLoading] = useState(false);
     
     const navigate = useNavigate()
-    const { refreshUser } = useAuth()
+    const { setAuth } = useAuthStore()
 
     const isValidEmail = (email) => /\S+@\S+\.\S+/.test(email);
     
-    const handleSubmit = async(e) => {
-        e.preventDefault()
-        setLoading(true)
-        setError("")
-        setSuccess("")
+    const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setError("")
+    setSuccess("")
 
-        const trimmedEmail = email.trim()
-        
-        if (!isValidEmail(trimmedEmail)) {
-            setError("Please enter a valid email address.");
-            setLoading(false);
-            return;
-        }
-
-        try {
-            console.log("Creating account with:", { name, email: trimmedEmail });
-            
-            // Use the new signUpAndLogin function
-            const result = await signUpAndLogin(name, trimmedEmail, password);
-            
-            if (result && result.account) {
-                console.log("Account created and logged in successfully");
-                setSuccess("🎉 Account Created successfully");
-                
-                // Set the new signup flag for WelcomeWrapper
-                sessionStorage.setItem('isNewSignup', 'true');
-                sessionStorage.setItem('signupMethod', 'manual');
-                
-                // IMPORTANT: Refresh the AuthContext before navigating
-                await refreshUser();
-                
-                // Navigate to dashboard
-                navigate("/dashboard");
-            }
-        } catch (err) {
-            console.log("Can't Sign Up", err);
-            
-            // Handle specific error cases
-            if (err.code === 409) {
-                setError("An account with this email already exists. Please try logging in instead.");
-            } else if (err.message.includes('password')) {
-                setError("Password must be at least 8 characters long.");
-            } else {
-                setError(err.message || "Can't Sign Up. Please try again.");
-            }
-        } finally {
-            setLoading(false)
-        }
+    const trimmedEmail = email.trim()
+    if (!isValidEmail(trimmedEmail)) {
+        setError("Please enter a valid email address.")
+        setLoading(false)
+        return
     }
 
-    const handleOAuth = async () => {
-        setOauthLoading(true);
-        setError('');
-        try {
-            console.log('Starting OAuth flow...');
-            
-            // Set the new signup flag for OAuth too
-            sessionStorage.setItem('isNewSignup', 'true');
-            sessionStorage.setItem('signupMethod', 'oauth');
-            
-            await oAuth();
-            // OAuth will redirect, so this won't execute
-        } catch (error) {
-            console.error("OAuth failed:", error);
-            
-            // Clear the flag if OAuth fails
-            sessionStorage.removeItem('isNewSignup');
-            sessionStorage.removeItem('signupMethod');
-            
-            // Handle specific OAuth errors
-            if (error.code === 409) {
-                setError("An account with this email already exists. Please use email/password login.");
-            } else if (error.message.includes('unauthorized')) {
-                setError("OAuth not properly configured. Please contact support.");
-            } else {
-                setError("Google login failed. Please try again.");
-            }
-        } finally {
-            setOauthLoading(false);
+    try {
+        const result = await api.signup(name, trimmedEmail, password)
+        setAuth(result.token, { id: result.id, name: result.name, email: result.email })
+        setSuccess("🎉 Account created successfully")
+        navigate("/dashboard")
+    } catch (err) {
+        if (err.message.includes('already exist')) {
+            setError("An account with this email already exists.")
+        } else if (err.message.includes('password')) {
+            setError("Password must be at least 6 characters.")
+        } else {
+            setError(err.message || "Can't sign up. Please try again.")
         }
-    };
+    } finally {
+        setLoading(false)
+    }
+}
+
+    // const handleOAuth = async () => {
+    //     setOauthLoading(true);
+    //     setError('');
+    //     try {
+    //         console.log('Starting OAuth flow...');
+            
+    //         // Set the new signup flag for OAuth too
+    //         sessionStorage.setItem('isNewSignup', 'true');
+    //         sessionStorage.setItem('signupMethod', 'oauth');
+            
+    //         await oAuth();
+    //         // OAuth will redirect, so this won't execute
+    //     } catch (error) {
+    //         console.error("OAuth failed:", error);
+            
+    //         // Clear the flag if OAuth fails
+    //         sessionStorage.removeItem('isNewSignup');
+    //         sessionStorage.removeItem('signupMethod');
+            
+    //         // Handle specific OAuth errors
+    //         if (error.code === 409) {
+    //             setError("An account with this email already exists. Please use email/password login.");
+    //         } else if (error.message.includes('unauthorized')) {
+    //             setError("OAuth not properly configured. Please contact support.");
+    //         } else {
+    //             setError("Google login failed. Please try again.");
+    //         }
+    //     } finally {
+    //         setOauthLoading(false);
+    //     }
+    // };
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
@@ -219,14 +199,14 @@ function SignUpForm({ className, ...props }) {
                                 <div className="absolute inset-0 flex items-center">
                                     <span className="w-full border-t border-neutral-700" />
                                 </div>
-                                <div className="relative flex justify-center text-xs uppercase">
+                                {/* <div className="relative flex justify-center text-xs uppercase">
                                     <span className="bg-neutral-900/60 px-2 text-gray-400 backdrop-blur-sm">
                                         Or continue with
                                     </span>
-                                </div>
+                                </div> */}
                             </div>
 
-                            <Button
+                            {/* <Button
                                 variant="outline"
                                 className="w-full border-neutral-700 text-gray-300 bg-transparent hover:bg-neutral-800 hover:text-white transition-all"
                                 type="button"
@@ -241,7 +221,7 @@ function SignUpForm({ className, ...props }) {
                                 ) : (
                                     "Signup with Google"
                                 )}
-                            </Button>
+                            </Button> */}
 
                             <div className="text-center text-sm text-gray-400">
                                 Already have an account?{" "}

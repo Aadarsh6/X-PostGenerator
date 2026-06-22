@@ -4,12 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { BorderBeam } from "@/components/magicui/border-beam";
-import { login, oAuth } from "../../AppWrite/appwriteFunction"
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Loader2 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
-import { useAuth } from "@/AppWrite/AuthContext"
+import { api } from "@/services/api"
+import { useAuthStore } from "@/store/authStore"
 
 function LoginForm({ className, ...props }) {
     const [email, setEmail] = useState('')
@@ -17,102 +17,62 @@ function LoginForm({ className, ...props }) {
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
     const [success, setSuccess] = useState('')
-    const [oauthLoading, setOauthLoading] = useState(false);
     
     const navigate = useNavigate()
-    const { refreshUser } = useAuth()
+    const { setAuth } = useAuthStore()
 
     const isValidEmail = (email) => /\S+@\S+\.\S+/.test(email);
     
-    const handleSubmit = async(e) => {
-        e.preventDefault()
-        setLoading(true)
-        setError("")
-        setSuccess("")
+    const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setError("")
+    setSuccess("")
 
-        const trimmedEmail = email.trim()
-        
-        if (!isValidEmail(trimmedEmail)) {
-            setError("Please enter a valid email address.");
-            setLoading(false);
-            return;
-        }
-
-        try {
-            console.log("Logging in with:", { email: trimmedEmail });
-            
-            const result = await login(trimmedEmail, password);
-            
-            if (result) {
-                console.log("Login successful");
-                setSuccess("🎉 Login successful");
-                
-                // Clear any signup flags for regular login
-                sessionStorage.removeItem('isNewSignup');
-                sessionStorage.setItem('signupMethod', 'manual');
-                
-                // IMPORTANT: Refresh the AuthContext before navigating
-                await refreshUser();
-                
-                // Navigate to dashboard
-                navigate("/dashboard");
-            }
-        } catch (err) {
-            console.log("Can't Login", err);
-            
-            // Handle specific error cases
-            if (err.code === 401) {
-                setError("Invalid email or password. Please try again.");
-            } else if (err.message.includes('password')) {
-                setError("Password is required.");
-            } else {
-                setError(err.message || "Login failed. Please try again.");
-            }
-        } finally {
-            setLoading(false)
-        }
+    const trimmedEmail = email.trim()
+    if (!isValidEmail(trimmedEmail)) {
+        setError("Please enter a valid email address.")
+        setLoading(false)
+        return
     }
 
-    const handleOAuth = async () => {
-        setOauthLoading(true);
-        setError('');
-        try {
-            console.log('Starting OAuth flow...');
-            
-            // For OAuth login, we don't set isNewSignup flag
-            // The OAuth callback handler will determine if it's a new user
-            sessionStorage.setItem('signupMethod', 'oauth');
-            
-            await oAuth();
-            // OAuth will redirect, so this won't execute
-        } catch (error) {
-            console.error("OAuth failed:", error);
-            
-            // Clear the flag if OAuth fails
-            sessionStorage.removeItem('signupMethod');
-            
-            // Handle specific OAuth errors
-            if (error.code === 409) {
-                setError("An account with this email already exists. Please use email/password login.");
-            } else if (error.message.includes('unauthorized')) {
-                setError("OAuth not properly configured. Please contact support.");
-            } else {
-                setError("Google login failed. Please try again.");
-            }
-        } finally {
-            setOauthLoading(false);
+    try {
+        const result = await api.login(trimmedEmail, password)
+        setAuth(result.token, { id: result.id, name: result.name, email: result.email })
+        setSuccess("🎉 Login successful")
+        navigate("/dashboard")
+    } catch (err) {
+        if (err.message.includes('Invalid') || err.message.includes('credentials')) {
+            setError("Invalid email or password.")
+        } else {
+            setError(err.message || "Login failed. Please try again.")
         }
-    };
+    } finally {
+        setLoading(false)
+    }
+}
+
+    // const handleOAuth = async () => {
+    //     setOauthLoading(true);
+    //     setError('');
+    //     try {
+    //         console.log('Starting OAuth flow...');
+    //         sessionStorage.setItem('signupMethod', 'oauth');
+    //         const oauthUrl = `${conf.apiBaseUrl}/api/oauth/google`;
+    //         window.location.href = oauthUrl;
+    //     } catch (error) {
+    //         console.error("OAuth failed:", error);
+    //         sessionStorage.removeItem('signupMethod');
+    //         setError("Google login failed. Please try again.");
+    //         setOauthLoading(false);
+    //     }
+    // };
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-            {/* Dark Base Background */}
             <div className="absolute inset-0 bg-[#0d0d0d] z-0" />
-
-            {/* Dotted Background */}
             <div className="absolute inset-0 bg-[radial-gradient(white_1px,transparent_1px)] [background-size:16px_16px] opacity-20 z-0" />
 
-            {/* Login Card with BorderBeam */}
             <Card
                 className={cn(
                     "w-full max-w-md relative z-10 bg-neutral-900/60 backdrop-blur-xl border border-neutral-800 shadow-2xl shadow-orange-500/10 overflow-hidden group",
@@ -201,14 +161,14 @@ function LoginForm({ className, ...props }) {
                                 <div className="absolute inset-0 flex items-center">
                                     <span className="w-full border-t border-neutral-700" />
                                 </div>
-                                <div className="relative flex justify-center text-xs uppercase">
+                                {/* <div className="relative flex justify-center text-xs uppercase">
                                     <span className="bg-neutral-900/60 px-2 text-gray-400 backdrop-blur-sm">
                                         Or continue with
                                     </span>
-                                </div>
+                                </div> */}
                             </div>
 
-                            <Button
+                            {/* <Button
                                 variant="outline"
                                 className="w-full border-neutral-700 text-gray-300 bg-transparent hover:bg-neutral-800 hover:text-white transition-all"
                                 type="button"
@@ -223,7 +183,7 @@ function LoginForm({ className, ...props }) {
                                 ) : (
                                     "Sign in with Google"
                                 )}
-                            </Button>
+                            </Button> */}
 
                             <div className="text-center text-sm text-gray-400">
                                 Don't have an account?{" "}
@@ -238,18 +198,17 @@ function LoginForm({ className, ...props }) {
                     </CardContent>
                 </div>
 
-                {/* BorderBeam Effects */}
                 <BorderBeam
-                  duration={8}
-                  size={400}
-                  className="from-transparent via-[#f97316] to-transparent"
+                    duration={8}
+                    size={400}
+                    className="from-transparent via-[#f97316] to-transparent"
                 />
                 <BorderBeam
-                  duration={8}
-                  delay={4}
-                  size={400}
-                  borderWidth={2}
-                  className="from-transparent via-[#ea580c] to-transparent"
+                    duration={8}
+                    delay={4}
+                    size={400}
+                    borderWidth={2}
+                    className="from-transparent via-[#ea580c] to-transparent"
                 />
             </Card>
         </div>

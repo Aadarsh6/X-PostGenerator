@@ -1,11 +1,11 @@
 // import LoginForm from "./components/BlockComponent/LoginForm"
-import SignupForm from "./components/BlockComponent/SignupForm"
+// import SignupForm from "./components/BlockComponent/SignupForm"
 
 function App(){
   return (
     <div>
 {/* <LoginForm/> */}
-<SignupForm/>
+{/* <SignupForm/> */}
     </div>
   )
 }
