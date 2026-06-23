@@ -292,7 +292,7 @@ export const Xpost = () => {
 
   {savedThreadId && (
     <button
-      onClick={() => navigate("/save-post")}
+      onClick={() => navigate("/save")}
       className="text-sm text-orange-400 hover:text-orange-300 underline underline-offset-4 transition-colors"
     >
       View saved posts →
