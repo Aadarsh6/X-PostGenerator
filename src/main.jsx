@@ -1,60 +1,48 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-0import './index.css'
-// import App from './App.jsx'
+import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-// import { SignupPage } from './Pages/SignupPage.jsx'
-// import { LogInPage } from './Pages/LogInPage.jsx'
-import { DashboardPage } from './Pages/DashboardPage.jsx'
-import { AvatarProvider } from './components/BlockComponent/Context/avatarContext'
-// import SavePostPage from './Pages/SavePostPage'
-// import { SavePage } from './Pages/SavePage'
+import { DashboardPage } from './Pages/DashboardPage'
 import { LandingPage } from './Pages/LandingPage'
 import ContactPage from './Pages/Contact'
 import { ComingSoon } from './Pages/ComingSoon'
-// import WelcomeWrapper from './components/WelcomeWrapper'
-import { inject } from '@vercel/analytics';
- 
+import { SignupPage } from './Pages/SignupPage'
+import { LogInPage } from './Pages/LogInPage'
+import ProtectRoute from './components/ProtectRoute'
+import { inject } from '@vercel/analytics'
+import { AvatarProvider } from './components/BlockComponent/Context/avatarContext'
+import { SavePage } from './Pages/SavePage'
+
 inject();
+
 const router = createBrowserRouter([
-  // {path: "/signIn", element: <App/>},
-  // {path: "/signup", element: <SignupPage/>},
-  // {path: "/login", element: <LogInPage/>},
-  // {path: "/save", element: <SavePage/>},
-  {path: "/", element: <LandingPage/>},
-  {path: "/contact", element: <ContactPage/>},
-  {path: "/soon", element: <ComingSoon/>},
+  { path: "/", element: <LandingPage /> },
+  { path: "/contact", element: <ContactPage /> },
+  { path: "/soon", element: <ComingSoon /> },
+  { path: "/signup", element: <SignupPage /> },
+  { path: "/login", element: <LogInPage /> },
   {
-  // path: "/oauth/callback", 
-  // element: <OAuthCallback />
+  path: "/save",
+  element: (
+    <ProtectRoute>
+      <SavePage />
+    </ProtectRoute>
+  )
 },
   {
-    path: "/dashboard", 
+    path: "/dashboard",
     element: (
-      // <ProtectRoute> 
-        // <WelcomeWrapper> 
-          <DashboardPage/> 
-        /* </WelcomeWrapper>  */
-      // </ProtectRoute>
+      <ProtectRoute>
+        <DashboardPage />
+      </ProtectRoute>
     )
   },
- 
-  // {
-  //   path: "/save-post", 
-  //   element: (
-  //     // <ProtectRoute> 
-  //       // <WelcomeWrapper> 
-  //         <SavePostPage/> 
-  //       /* </WelcomeWrapper>  */
-  //     // </ProtectRoute>
-  //   )
-  // }
 ])
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-      <AvatarProvider>
-        <RouterProvider router={router} />
-      </AvatarProvider>
-  </StrictMode>,
+    <AvatarProvider>
+    <RouterProvider router={router} />
+    </AvatarProvider>
+  </StrictMode>
 )

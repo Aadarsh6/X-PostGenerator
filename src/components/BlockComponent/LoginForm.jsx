@@ -156,17 +156,17 @@ function LoginForm({ className, ...props }) {
                                     "Sign In"
                                 )}
                             </Button>
-
+{/* 
                             <div className="relative">
                                 <div className="absolute inset-0 flex items-center">
                                     <span className="w-full border-t border-neutral-700" />
-                                </div>
+                                </div> */}
                                 {/* <div className="relative flex justify-center text-xs uppercase">
                                     <span className="bg-neutral-900/60 px-2 text-gray-400 backdrop-blur-sm">
                                         Or continue with
                                     </span>
                                 </div> */}
-                            </div>
+                            {/* </div> */}
 
                             {/* <Button
                                 variant="outline"

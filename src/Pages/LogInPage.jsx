@@ -1,10 +1,10 @@
-// import React from 'react'
-// import LoginForm from '../components/BlockComponent/LoginForm'
+import React from 'react'
+import LoginForm from '../components/BlockComponent/LoginForm'
 
-// export const LogInPage = () => {
+export const LogInPage = () => {
   
-//   return (
-//     <div ><LoginForm/></div>
-//   )
-// }
+  return (
+    <div ><LoginForm/></div>
+  )
+}
 

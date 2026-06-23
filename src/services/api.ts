@@ -61,6 +61,16 @@ export const api = {
     if (!res.ok) throw new Error(data.error || `Error ${res.status}`)
     return data
   },
+  
+async deleteThread(threadId: string) {
+  const res = await fetch(`${conf.apiBaseUrl}/api/posts/thread/${threadId}`, {
+    method: 'DELETE',
+    headers: getHeaders(),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error || `Error ${res.status}`)
+  return data
+},
 
   async checkHealth() {
     try {

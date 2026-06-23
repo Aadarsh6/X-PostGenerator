@@ -1,16 +1,19 @@
-import { createContext, useContext, useState } from "react";
-const avatar1 = "/new.png"
+import { useAuthStore } from "@/store/authStore";
+import { createContext, useContext } from "react";
 
+const AvatarContext = createContext({
+  avatar: `https://api.dicebear.com/7.x/initials/svg?seed=User`
+});
 
-const AvatarContext = createContext();
+export const useAvatar = () => useContext(AvatarContext);
 
-export const AvatarProvider = ({children}) => {
-    const [avatar, setAvatar] = useState(avatar1);
-    return (
-        <AvatarContext.Provider value={{avatar, setAvatar}}>
-            {children}
-        </AvatarContext.Provider>
-    )
-}
+export const AvatarProvider = ({ children }) => {
+  const { user } = useAuthStore();
+  const avatar = `https://api.dicebear.com/7.x/initials/svg?seed=${user?.name || 'User'}`;
 
-export const useAvatar = () => useContext(AvatarContext)
+  return (
+    <AvatarContext.Provider value={{ avatar }}>
+      {children}
+    </AvatarContext.Provider>
+  );
+};
