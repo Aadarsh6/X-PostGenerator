@@ -40,6 +40,7 @@ export const Xpost = () => {
   const [editingPostId, setEditingPostId] = useState(null);
   const [editingContent, setEditingContent] = useState("");
   const [postingToTwitter, setPostingToTwitter] = useState(false);
+  const [savedThreadId, setSavedThreadId] = useState(null)
 
   const textareaRef = useRef(null);
   const resultsRef = useRef(null);
@@ -53,6 +54,7 @@ export const Xpost = () => {
   const generateXpost = async (isRegenerate = false) => {
     setGenerating(true);
     if (isRegenerate) setRegenerating(true);
+    setSavedThreadId(null);
     setError("");
     try {
       const response = await api.generatePost(prompt.trim(), tone, postType);
@@ -269,14 +271,38 @@ export const Xpost = () => {
               duration: 3500,
             }} />
 
-            <div className="flex gap-3 flex-wrap">
-              <Button onClick={() => navigate("/save")} className="bg-orange-600 hover:bg-orange-700 text-[#e6e8e5] font-semibold">
-                <Save className="w-4 h-4 mr-2" />View Saved Posts
-              </Button>
-              <Button onClick={handlePostToTwitter} disabled={postingToTwitter} className="bg-[#2d2d2d] hover:bg-[#3d3d3d] text-white font-semibold">
-                {postingToTwitter ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Opening...</> : <><Twitter className="w-4 h-4 mr-2" />Post to X</>}
-              </Button>
-            </div>
+      <div className="flex gap-3 flex-wrap items-center">
+  <Button
+    onClick={async () => {
+      try {
+        await api.saveThread(generatedPost, postType, tone);
+        setSavedThreadId(true);
+        toast.success("Thread saved!", { description: "Find it in your saved posts." });
+      } catch (err) {
+        console.log(err);
+        toast.error("Failed to save. Please try again.");
+      }
+    }}
+    disabled={!!savedThreadId}
+    className="bg-orange-600 hover:bg-orange-700 text-[#e6e8e5] font-semibold disabled:opacity-50"
+  >
+    <Save className="w-4 h-4 mr-2" />
+    {savedThreadId ? "Saved ✓" : "Save Thread"}
+  </Button>
+
+  {savedThreadId && (
+    <button
+      onClick={() => navigate("/save-post")}
+      className="text-sm text-orange-400 hover:text-orange-300 underline underline-offset-4 transition-colors"
+    >
+      View saved posts →
+    </button>
+  )}
+
+  <Button onClick={handlePostToTwitter} disabled={postingToTwitter} className="bg-[#2d2d2d] hover:bg-[#3d3d3d] text-white font-semibold">
+    {postingToTwitter ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Opening...</> : <><Twitter className="w-4 h-4 mr-2" />Post to X</>}
+  </Button>
+</div>
 
             <div className="space-y-4">
               {generatedPost.map((post, index) => (

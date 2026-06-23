@@ -43,14 +43,26 @@ export const api = {
     return data
   },
 
-  async getPosts() {
-    const res = await fetch(`${conf.apiBaseUrl}/api/posts`, {
-      headers: getHeaders(),
-    })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.error || `Error ${res.status}`)
+  
+  async saveThread(posts: any[], PostType: string, tone: string) {
+  const res = await fetch(`${conf.apiBaseUrl}/api/posts/save`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ posts, PostType, tone }),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error || `Error ${res.status}`)
     return data
-  },
+},
+
+async getPosts() {
+  const res = await fetch(`${conf.apiBaseUrl}/api/posts`, {
+    headers: getHeaders(),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error || `Error ${res.status}`)
+  return data
+},
 
   async deletePost(id:string) {
     const res = await fetch(`${conf.apiBaseUrl}/api/posts/${id}`, {
