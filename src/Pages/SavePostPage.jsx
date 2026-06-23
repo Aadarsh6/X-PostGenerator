@@ -250,15 +250,18 @@ const handleDelete = async (threadID) => {
   if (!threadToDelete) return;
 
   setDeletingThreads(prev => new Set([...prev, threadID]));
-
-  // optimistic update
   setSavedPost(prev => prev.filter(t => t.threadID !== threadID));
 
   try {
-    await api.deleteThread(threadID);
+    const isSingle = threadToDelete.posts.length === 1 && !threadToDelete.posts[0].threadId;
+
+    if (isSingle) {
+      await api.deletePost(threadToDelete.posts[0].id);
+    } else {
+      await api.deleteThread(threadID);
+    }
   } catch (error) {
     console.error('Error deleting post:', error);
-    // rollback on failure
     setSavedPost(prev => [...prev, threadToDelete]
       .sort((a, b) => new Date(b.posts[0].createdAt) - new Date(a.posts[0].createdAt))
     );
