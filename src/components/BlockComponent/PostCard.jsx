@@ -13,6 +13,7 @@ export const PostCard = ({
   copiedId,
   onCopy,
   onEdit,
+  onSave,
   onSaveEdit,
   onCancelEdit,
   onKeyEdit,
@@ -73,9 +74,15 @@ export const PostCard = ({
             <Button size="sm" variant="secondary" onClick={() => onEdit(post.id, post.content)} className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333]">
               <Edit className="h-4 w-4 mr-2" />Edit
             </Button>
-            <Button size="sm" variant="secondary" disabled className="bg-[#222323] text-green-400 border border-[#333333]">
+
+
+                                {/* SINGLE POST SAVE BUTTON */}
+
+            {/* <Button size="sm" onChange={()=>}  variant="secondary" className="bg-[#222323] text-green-400 border border-[#333333]">
               <Check className="h-4 w-4 mr-2" />Saved
-            </Button>
+            </Button> */}
+
+
             <Button size="sm" onClick={() => onPostToTwitter(post.content)} className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333]">
               <Twitter className="h-4 w-4 mr-2" />Post to X
             </Button>

@@ -59,8 +59,8 @@ export const Xpost = () => {
     try {
       const response = await api.generatePost(prompt.trim(), tone, postType);
       if (response.success && response.posts) {
-        setGeneratedPost(response.posts.map((post) => ({
-          id: post.id,
+        setGeneratedPost(response.posts.map((post, index) => ({
+          id: post.id || `temp-${index}-${Date.now()}`,
           content: post.content,
           characterCount: post.characterCount,
           withinLimit: post.withinLimit,
@@ -318,6 +318,7 @@ export const Xpost = () => {
                   onCopy={copyToClipboard}
                   onEdit={handleEdit}
                   onSaveEdit={saveEditPost}
+                  onSave={savedThreadId}
                   onCancelEdit={cancelEdit}
                   onKeyEdit={handleKeyEdit}
                   onPostToTwitter={(content) => {
