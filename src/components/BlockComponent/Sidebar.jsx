@@ -209,8 +209,35 @@ export const Sidebar = () => {
               </div>
             )
           })}
-<div className='bg-red-500 p-10'>
-                  <button onClick={handleLogout}>Logout</button>
+<div>
+                  {/* <button onClick={handleLogout}>Logout</button> */}
+          <button
+  onClick={handleLogout}
+  className={`relative group w-full flex items-center transition-all duration-200
+    text-red-400 hover:text-white hover:bg-red-500 rounded-lg mt-2
+    ${(collapsed && !isMobile)
+      ? 'justify-center px-2 py-3'
+      : 'justify-start gap-3 px-3 py-3'
+    }`}
+>
+  <X size={20} className="flex-shrink-0" />
+
+  <span
+    className={`font-medium overflow-hidden transition-all duration-300
+      ${(collapsed && !isMobile)
+        ? 'opacity-0 w-0'
+        : 'opacity-100 w-auto'
+      }`}
+  >
+    Logout
+  </span>
+
+  {(collapsed && !isMobile) && (
+    <span className="absolute left-full ml-3 top-1/2 -translate-y-1/2 rounded-md bg-black px-2 py-1 text-xs text-white opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity duration-200 z-50 shadow-lg">
+      Logout
+    </span>
+  )}
+</button>
 </div>
 
         </nav>
