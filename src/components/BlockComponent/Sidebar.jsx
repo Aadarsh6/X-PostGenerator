@@ -1,12 +1,17 @@
+import { useAuthStore } from '@/store/authStore'
 import { Menu, Home, Settings, User, Bookmark, X } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom' 
 // import { UserAvatar } from './UserAvatar'
 
 export const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+
+  const navigate = useNavigate()
+  const logout = useAuthStore((state) => state.logout);
 
   const handleResize = useCallback(() => {
     const mobile = window.innerWidth < 1024
@@ -64,6 +69,14 @@ export const Sidebar = () => {
     { icon: User, label: 'Profile', id: 'profile', to: "/soon"},
     { icon: Settings, label: 'Settings', id: 'settings', to: "/soon"},
   ]
+
+
+  const handleLogout = ()=>{
+    logout()
+    navigate("/login", {replace: true})
+  }
+
+
 
   return (
     <>
@@ -196,10 +209,14 @@ export const Sidebar = () => {
               </div>
             )
           })}
+<div className='bg-red-500 p-10'>
+                  <button onClick={handleLogout}>Logout</button>
+</div>
+
         </nav>
 
         <div className="border-t border-[#222323]" />
-        {/* <UserAvatar collapsed={collapsed && !isMobile} /> */}
+        {/* <UserAvatar collapsed={collapsed && !isMobile}/>        */}
       </div>
     </>
   )
