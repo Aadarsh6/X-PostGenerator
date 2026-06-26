@@ -11,7 +11,7 @@ export const CTASection = React.memo(() => {
           Ready to Elevate Your Content?
         </h2>
         <p className="mt-4 text-lg text-neutral-400 max-w-2xl mx-auto">
-          Stop guessing and start growing. Join hundreds of creators who are building their audience faster with Xc Craft.
+          Stop guessing and start growing. "Built for founders, developers, and creators who have something worth saying.
         </p>
         <div className="mt-10 flex justify-center">
             <Link

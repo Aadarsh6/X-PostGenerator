@@ -46,15 +46,17 @@ const TweetCard = ({ tweet, featured = false, delay = 0 }) => (
     className={`group relative flex flex-col gap-3 bg-[#111111] border border-neutral-800/60 rounded-2xl p-5 hover:border-orange-500/30 transition-all duration-300 overflow-hidden ${featured ? "md:row-span-2" : ""}`}
   >
     {/* Orange accent bar — featured only */}
-    {featured && (
+    {/* {featured && (
       <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-orange-500 to-orange-600" />
-    )}
+    )} */}
 
     {/* Header */}
     <div className="flex items-center gap-2.5">
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">
-        A
-      </div>
+        <img
+            src="https://pbs.twimg.com/profile_images/2036681672163479552/DDZInte0_400x400.jpg"
+            alt="Adarsh"
+            className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+/>
       <div>
         <div className="text-white font-medium text-sm leading-none mb-0.5">Adarsh</div>
         <div className="text-neutral-600 text-xs">@adarshx_23</div>
