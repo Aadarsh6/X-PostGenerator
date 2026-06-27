@@ -33,7 +33,7 @@ export default function ContactPage() {
                 <div className="text-white font-medium group-hover:text-orange-400 transition-colors">
                   Twitter / X
                 </div>
-                <div className="text-neutral-500 text-sm">@adarshx_23</div>
+                <div className="text-neutral-500 text-sm">@aadarshmX</div>
               </div>
             </a>
 
