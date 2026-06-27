@@ -8,7 +8,7 @@ export const Footer = React.memo(() => {
   const essentialLinks = [
     { label: 'Features', href: '/' },
     { label: 'Pricing', href: '#' },
-    { label: 'Contact', href: '#' },
+    { label: 'Contact', href: '/contact' },
     { label: 'Privacy', href: '#' },
   ];
 

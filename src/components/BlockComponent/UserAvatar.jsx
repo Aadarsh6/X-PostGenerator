@@ -1,13 +1,12 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar'
-import { useAvatar } from './Context/avatarContext'
 import { useAuthStore } from '@/store/authStore'
 import { useNavigate } from 'react-router-dom'
 import { LogOut, Bookmark } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useAvatar } from './Context/avatarContext'
 
-export const UserAvatar = ({ collapsed = false }) => {
-  const { avatar } = useAvatar()
+export const UserAvatar = ({ collapsed = false, dropdownDirection = 'up' }) => {
+  const { initial } = useAvatar()
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
@@ -38,12 +37,9 @@ export const UserAvatar = ({ collapsed = false }) => {
           ${collapsed ? 'justify-center p-3 m-2' : 'justify-between p-3 m-2 hover:bg-[#252525] rounded-3xl cursor-pointer'}`}
       >
         <div className='flex items-center min-w-0 gap-3'>
-          <Avatar className="w-9 h-9 rounded-full flex-shrink-0">
-            <AvatarImage src={avatar} alt="User Avatar" className="object-cover rounded-full" />
-            <AvatarFallback className='text-white bg-orange-600 rounded-full w-9 h-9 flex items-center justify-center text-sm font-semibold'>
-              {user?.name?.[0]?.toUpperCase() || 'U'}
-            </AvatarFallback>
-          </Avatar>
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0 ring-2 ring-orange-500/20">
+            {initial}
+          </div>
 
           {!collapsed && (
             <div className="overflow-hidden min-w-0 flex-1 text-left">
@@ -61,7 +57,7 @@ export const UserAvatar = ({ collapsed = false }) => {
 
       {/* Dropdown */}
       {open && !collapsed && (
-        <div className="absolute bottom-full left-2 right-2 mb-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl overflow-hidden shadow-xl z-50">
+        <div className={`absolute ${dropdownDirection === 'down' ? 'top-full mt-2' : 'bottom-full mb-2'} left-2 right-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl overflow-hidden shadow-xl z-50`}>
           {/* User info header */}
           <div className="px-4 py-3 border-b border-[#2a2a2a]">
             <p className="text-sm font-medium text-white truncate">{user?.name}</p>

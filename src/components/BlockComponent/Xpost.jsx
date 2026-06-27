@@ -44,7 +44,7 @@ export const Xpost = () => {
 
   const textareaRef = useRef(null);
   const resultsRef = useRef(null);
-  const { avatar } = useAvatar();
+  const { initial } = useAvatar();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -167,8 +167,9 @@ export const Xpost = () => {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-center space-x-3 mb-6">
                   <div className="w-10 h-10 flex-shrink-0">
-                    <img src={avatar} alt="User" className="rounded-full object-cover w-full h-full shadow-lg" />
-                  </div>
+<div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center text-white font-semibold flex-shrink-0">
+  {initial}
+</div>                  </div>
                   <div className="text-[#e6e8ec] font-medium text-lg">What post do you want to create?</div>
                 </div>
 
