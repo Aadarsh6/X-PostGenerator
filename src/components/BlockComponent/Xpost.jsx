@@ -298,7 +298,7 @@ export const Xpost = () => {
         setSaving(false)
       }
     }}
-    disabled={!!savedThreadId}
+    disabled={!!savedThreadId || generating}
     className="bg-orange-600 hover:bg-orange-700 text-[#e6e8e5] font-semibold disabled:opacity-50"
   >
 
@@ -310,22 +310,22 @@ export const Xpost = () => {
     </>) : (
       <>
       <Save className="w-4 h-4 mr-2" />
-      {savedThreadId? "Saved ✓" : "Save Thread"}
+      {savedThreadId? "Saved ✓" : postType === 'single'? "Save Post" : "Save Thread"}
       </>
     )}
 
   </Button>
-
+{/* 
   {savedThreadId && (
     <button
       onClick={() => navigate("/save")}
-      className="text-sm text-orange-400 hover:text-orange-300 underline underline-offset-4 transition-colors"
+      className="text-sm text-orange-400 ml-1 mr-2 hover:text-orange-300 underline underline-offset-4 transition-colors"
     >
-      View saved posts →
+      View saved posts 
     </button>
-  )}
+  )} */}
 
-  <Button onClick={handlePostToTwitter} disabled={postingToTwitter} className="bg-[#2d2d2d] hover:bg-[#3d3d3d] text-white font-semibold">
+  <Button onClick={handlePostToTwitter} disabled={postingToTwitter || generating} className="bg-[#2d2d2d] hover:bg-[#3d3d3d] text-white font-semibold">
     {postingToTwitter ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Opening...</> : <><Twitter className="w-4 h-4 mr-2" />Post to X</>}
   </Button>
 </div>
