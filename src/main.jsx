@@ -12,6 +12,7 @@ import ProtectRoute from './components/ProtectRoute'
 import { inject } from '@vercel/analytics'
 import { AvatarProvider } from './components/BlockComponent/Context/avatarContext'
 import { SavePage } from './Pages/SavePage'
+import ProfilePage from './Pages/profile'
 
 inject();
 
@@ -19,6 +20,7 @@ const router = createBrowserRouter([
   { path: "/", element: <LandingPage /> },
   { path: "/contact", element: <ContactPage /> },
   { path: "/soon", element: <ComingSoon /> },
+  { path: "/profile", element: <ProfilePage /> },
   { path: "/signup", element: <SignupPage /> },
   { path: "/login", element: <LogInPage /> },
   {
