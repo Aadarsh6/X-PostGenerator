@@ -39,7 +39,7 @@ function SignUpForm({ className, ...props }) {
 
     try {
         const result = await api.signup(name, trimmedEmail, password)
-        setAuth(result.token, { id: result.id, name: result.name, email: result.email })
+        setAuth(result.token, { id: result.id, name: result.name, email: result.email,  createdAt: result.createdAt })
         setSuccess("🎉 Account created successfully")
         navigate("/dashboard")
     } catch (err) {

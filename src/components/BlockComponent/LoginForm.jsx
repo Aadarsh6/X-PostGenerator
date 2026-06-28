@@ -38,9 +38,11 @@ function LoginForm({ className, ...props }) {
 
     try {
         const result = await api.login(trimmedEmail, password)
-        setAuth(result.token, { id: result.id, name: result.name, email: result.email })
+        console.log("LOGIN RESULT:", result)
+        setAuth(result.token, { id: result.id, name: result.name, email: result.email,  createdAt: result.createdAt, })
         setSuccess("🎉 Login successful")
         navigate("/dashboard")
+        console.log("LOGIN RESULT:", result) 
     } catch (err) {
         if (err.message.includes('Invalid') || err.message.includes('credentials')) {
             setError("Invalid email or password.")

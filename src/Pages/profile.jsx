@@ -31,6 +31,11 @@ export default function ProfilePage() {
     },[])
 
 
+    useEffect(() => {
+  console.log(user);
+}, [user]);
+
+
   const handleLogout = () => {
     logout();
     navigate("/login", { replace: true });
@@ -70,10 +75,21 @@ export default function ProfilePage() {
                   <p className="mt-1 text-neutral-400 truncate">
                     {user?.email || "user@email.com"}
                   </p>
+
                   <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-green-500/20 bg-green-500/10 px-3 py-1 text-xs text-green-400">
                     <span className="w-2 h-2 rounded-full bg-green-500" />
                     Online
                   </div>
+                                      {user?.createdAt && (
+  <p className="mt-2 text-xs text-neutral-600">
+    Member since {new Date(user.createdAt).toLocaleDateString('en-US', {
+        day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })}
+  </p>
+)}
+
                 </div>
               </div>
 

@@ -13,7 +13,9 @@ export const api = {
     async signup(name:string, email:string, password:string){
         const res = await fetch(`${conf.apiBaseUrl}/auth/signup`,{
             method: "POST",
-            headers: {'Content-Type': 'application/json'},
+            headers: {
+                'Content-Type': 'application/json'
+                },
             body: JSON.stringify({ name, email, password })
         })
         const data = await res.json()
