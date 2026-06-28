@@ -41,6 +41,7 @@ export const Xpost = () => {
   const [editingContent, setEditingContent] = useState("");
   const [postingToTwitter, setPostingToTwitter] = useState(false);
   const [savedThreadId, setSavedThreadId] = useState(null)
+  const [saving, setSaving] = useState(false);
 
   const textareaRef = useRef(null);
   const resultsRef = useRef(null);
@@ -261,7 +262,7 @@ export const Xpost = () => {
               </Button>
             </div>
 
-            <Toaster position="top-right" richColors theme="dark" toastOptions={{
+            <Toaster position="bottom-right" richColors theme="dark" toastOptions={{
               classNames: {
                 toast: "bg-[#171717]/95 backdrop-blur-sm text-zinc-50 border border-zinc-800 shadow-lg rounded-xl",
                 title: "text-zinc-50 text-[15px] font-medium",
@@ -276,19 +277,33 @@ export const Xpost = () => {
   <Button
     onClick={async () => {
       try {
+        setSaving(true)
         await api.saveThread(generatedPost, postType, tone);
         setSavedThreadId(true);
         toast.success("Thread saved!", { description: "Find it in your saved posts." });
       } catch (err) {
         console.log(err);
         toast.error("Failed to save. Please try again.");
+      }finally{
+        setSaving(false)
       }
     }}
     disabled={!!savedThreadId}
     className="bg-orange-600 hover:bg-orange-700 text-[#e6e8e5] font-semibold disabled:opacity-50"
   >
-    <Save className="w-4 h-4 mr-2" />
-    {savedThreadId ? "Saved ✓" : "Save Thread"}
+
+    
+    {saving ? ( 
+      <>
+      <Loader2 className="animate-spin"/>
+      Saving...
+    </>) : (
+      <>
+      <Save className="w-4 h-4 mr-2" />
+      {savedThreadId? "Saved ✓" : "Save Thread"}
+      </>
+    )}
+
   </Button>
 
   {savedThreadId && (

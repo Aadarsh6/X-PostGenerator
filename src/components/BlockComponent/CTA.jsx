@@ -1,9 +1,12 @@
+import { useAuthStore } from '@/store/authStore';
 import { ShimmerButton } from '../magicui/shimmer-button';
 import { ArrowRight } from 'lucide-react';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
 export const CTASection = React.memo(() => {
+  const {token} = useAuthStore()
+
   return (
     <section className="bg-neutral-950/60 py-20 sm:py-24">
       <div className="max-w-4xl mx-auto px-4 text-center">
@@ -15,7 +18,7 @@ export const CTASection = React.memo(() => {
         </p>
         <div className="mt-10 flex justify-center">
             <Link
-            to="/signup"
+            to={token ? "/dashboard": "/signup"}
             >
           <ShimmerButton
             background="linear-gradient(to right, #f97316, #ea580c)"
