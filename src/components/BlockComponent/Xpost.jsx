@@ -262,16 +262,26 @@ export const Xpost = () => {
               </Button>
             </div>
 
-            <Toaster position="bottom-right" richColors theme="dark" toastOptions={{
-              classNames: {
-                toast: "bg-[#171717]/95 backdrop-blur-sm text-zinc-50 border border-zinc-800 shadow-lg rounded-xl",
-                title: "text-zinc-50 text-[15px] font-medium",
-                description: "text-zinc-400 text-sm",
-                success: "!border-green-500/40",
-                error: "!border-red-500/40",
-              },
-              duration: 3500,
-            }} />
+<Toaster
+  position="bottom-right"
+  richColors
+  theme="dark"
+  toastOptions={{
+    classNames: {
+      toast:
+        "bg-[#111111]/95 backdrop-blur-md text-zinc-100 border border-[#262626] shadow-[0_10px_30px_rgba(0,0,0,0.45)] rounded-2xl",
+      title: "text-zinc-100 text-[15px] font-medium",
+      description: "text-zinc-400 text-sm",
+      success: "!border-orange-500/35 !text-orange-100",
+      error: "!border-red-500/30 !text-red-100",
+      actionButton:
+        "bg-[#f97316] text-white hover:bg-[#ea580c] rounded-lg",
+      cancelButton:
+        "bg-[#1a1a1a] text-zinc-300 hover:bg-[#252525] rounded-lg",
+    },
+    duration: 3500,
+  }}
+/>
 
       <div className="flex gap-3 flex-wrap items-center">
   <Button
