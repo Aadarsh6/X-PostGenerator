@@ -25,9 +25,10 @@ import { Footer } from "@/components/BlockComponent/Footer";
 import { HomePage } from "@/components/BlockComponent/Home";
 import { NavBar } from "@/components/BlockComponent/NavBar";
 import { CTASection } from "@/components/BlockComponent/CTA";
-import { SocialProof } from "@/components/BlockComponent/SocialProof";
+// import { SocialProof } from "@/components/BlockComponent/SocialProof";
 import { HowItWorks } from "@/components/BlockComponent/HowItWorks";
 import { TutorialVideo } from "@/components/BlockComponent/TutorialVideo";
+import { SocialProof } from "@/components/BlockComponent/SocialProof";
 
 export const LandingPage = () => {
   return (
