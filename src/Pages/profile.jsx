@@ -12,6 +12,7 @@ export default function ProfilePage() {
     const { initial } = useAvatar();
     const navigate = useNavigate();
     const [stats, setStats] = useState({saved: 0, threads:0, singles:0})
+    const [statsLoading, setStatsLoading] = useState(true);
 
     useEffect(()=>{
         api.getPosts().then((data)=>{
@@ -26,7 +27,7 @@ export default function ProfilePage() {
                     singles: singlePost,
                 })
             }
-        }).catch(()=>{})
+        }).catch(()=>{}).finally(()=> setStatsLoading(false))
     },[])
 
 
@@ -77,18 +78,29 @@ export default function ProfilePage() {
               </div>
 
               <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="rounded-2xl border border-neutral-800 bg-[#0f0f0f] p-4">
+                <div className="rounded-2xl border border-neutral-900 bg-[#0f0f0f] p-4">
                   <div className="text-xs text-neutral-500">Saved Posts</div>
-                  <div className="mt-2 text-2xl font-semibold text-white">{stats.saved}</div>
+                  <div className="mt-2 text-2xl font-semibold text-white">
+                          {statsLoading ? (
+                            <div className="h-7 w-8 bg-neutral-800 rounded animate-pulse" />
+                          ) : stats.saved}
+                    </div>
                 </div>
                 <div className="rounded-2xl border border-neutral-800 bg-[#0f0f0f] p-4">
                   <div className="text-xs text-neutral-500">Threads</div>
-                  <div className="mt-2 text-2xl font-semibold text-white">{stats.threads}</div>
+                  <div className="mt-2 text-2xl font-semibold text-white">
+                          {statsLoading ? (
+                            <div className="h-7 w-8 bg-neutral-900 rounded animate-pulse" />
+                          ) : stats.threads}
+                    </div>
                 </div>
                 <div className="rounded-2xl border border-neutral-800 bg-[#0f0f0f] p-4">
                   <div className="text-xs text-neutral-500">Posts</div>
-                  <div className="mt-2 text-2xl font-semibold text-white">{stats.singles}</div>
-                </div>
+                    <div className="mt-2 text-2xl font-semibold text-white">
+                      {statsLoading ? (
+                        <div className="h-7 w-8 bg-neutral-900 rounded animate-pulse" />
+                      ) : stats.singles}
+                    </div>                </div>
                 <div className="rounded-2xl border border-neutral-800 bg-[#0f0f0f] p-4">
                   <div className="text-xs text-neutral-500">Status</div>
                   <div className="mt-2 text-2xl font-semibold text-orange-400">Free</div>
