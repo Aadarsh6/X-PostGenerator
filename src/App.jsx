@@ -1,13 +1,10 @@
-// import LoginForm from "./components/BlockComponent/LoginForm"
-// import SignupForm from "./components/BlockComponent/SignupForm"
+import { RouterProvider } from "react-router-dom";
+import useLenis from "./utils/lenis";
 
-function App(){
-  return (
-    <div>
-{/* <LoginForm/> */}
-{/* <SignupForm/> */}
-    </div>
-  )
+function App({ router }) {
+  useLenis();
+
+  return <RouterProvider router={router} />;
 }
 
-export default App
+export default App;

@@ -13,6 +13,7 @@ import { inject } from '@vercel/analytics'
 import { AvatarProvider } from './components/BlockComponent/Context/avatarContext'
 import { SavePage } from './Pages/SavePage'
 import ProfilePage from './Pages/profile'
+import App from './App'
 
 inject();
 
@@ -50,7 +51,7 @@ const router = createBrowserRouter([
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AvatarProvider>
-    <RouterProvider router={router} />
+    <App router={router} />
     </AvatarProvider>
   </StrictMode>
 )
