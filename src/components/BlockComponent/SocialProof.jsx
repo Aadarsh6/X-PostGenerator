@@ -36,7 +36,7 @@ const tweets = [
 
 const TweetCard = ({ tweet, featured = false, delay = 0 }) => (
   <motion.a
-    href={`https://twitter.com/aadarshmX/status/${tweet.id}`}
+    href={`https://twitter.com/status/${tweet.id}`}
     target="_blank"
     rel="noopener noreferrer"
     initial={{ opacity: 0, y: 20 }}
