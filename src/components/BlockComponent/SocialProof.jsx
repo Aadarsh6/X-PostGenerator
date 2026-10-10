@@ -47,7 +47,8 @@ const TweetCard = ({ tweet, featured = false, delay = 0 }) => (
   >
     {/* Orange accent bar — featured only */}
     {/* {featured && (
-      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-orange-500 to-orange-600" />
+      <div className="absol
+      ute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-orange-500 to-orange-600" />
     )} */}
 
     {/* Header */}
