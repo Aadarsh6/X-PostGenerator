@@ -1,324 +1,399 @@
-// src/pages/SavePostPage.jsx
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
+import {
+  AlertTriangle, Bookmark, CalendarDays, Check, Copy, Loader2, Trash2, X,
+} from 'lucide-react'
+import { toast, Toaster } from 'sonner'
+import { AppLayout } from '@/components/BlockComponent/AppLayout'
+import { useAvatar } from '@/components/BlockComponent/Context/avatarContext'
+import { useAuthStore } from '@/store/authStore'
+import { api } from '@/services/api'
 
-import { useEffect, useState, useCallback } from "react";
-import { Link } from "react-router-dom";
-import { Bookmark, MessageSquare, CalendarDays, AlertTriangle, X, MoveDownIcon, Trash2, Newspaper } from 'lucide-react';
-import { api } from "@/services/api";
+/* --------------------------------- modal ---------------------------------- */
 
-/**
- * A sleek modal to display the full content of a saved thread.
- * It provides a focused reading experience without leaving the page.
- */
 const ThreadModal = ({ thread, onClose }) => {
-  // Effect to handle closing the modal with the 'Escape' key
+  const { initial } = useAvatar()
+  const { user } = useAuthStore()
+  const closeRef = useRef(null)
+  const [copied, setCopied] = useState(false)
+
+  const name = user?.name || user?.username || user?.email?.split('@')[0] || 'You'
+  const isThread = thread.posts.length > 1
+
   useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+    closeRef.current?.focus()
+    document.body.style.overflow = 'hidden'
+    const onKey = (e) => e.key === 'Escape' && onClose()
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = ''
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [onClose])
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(thread.posts.map((p) => p.content).join('\n\n'))
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      toast.error('Failed to copy')
+    }
+  }
+
+  const savedDate = new Date(thread.posts[0].createdAt).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
 
   return (
-    <div 
-      className="fixed inset-0 backdrop-blur-sm flex justify-center items-center z-50 p-4"
-      onClick={onClose} // Close modal on backdrop click
-    >
-      <div 
-        className="bg-[#1c1c1c] rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col border border-neutral-700 shadow-2xl animate-scale-in"
-        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div
+        className="animate-fade-in absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={isThread ? 'Saved thread' : 'Saved post'}
+        className="animate-pop-in relative flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-[#2c2c2c] bg-[#141414] shadow-[0_32px_90px_-12px_rgba(0,0,0,0.9)]"
       >
-        {/* Modal Header */}
-        <header className="flex justify-between items-center p-4 border-b border-neutral-800 flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <MessageSquare className="w-6 h-6 text-[#ff6900]" />
-            <h2 className="text-xl font-bold text-white">Thread Details</h2>
+        {/* Header */}
+        <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[#222323] px-5 py-4">
+          <div className="min-w-0">
+            <h2 className="text-[15px] font-semibold tracking-tight text-white">
+              {isThread ? 'Saved thread' : 'Saved post'}
+            </h2>
+            <p className="mt-0.5 text-xs text-gray-500">
+              {thread.posts.length} {thread.posts.length > 1 ? 'posts' : 'post'} · saved {savedDate}
+            </p>
           </div>
-          <button onClick={onClose} className="text-neutral-500 hover:text-white transition-colors">
-            <X size={24} />
-          </button>
+
+          <div className="flex shrink-0 items-center gap-1">
+            <button
+              onClick={handleCopy}
+              className={`flex h-9 items-center gap-2 rounded-lg px-3 text-[13px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#ea580c]/60 ${
+                copied ? 'text-emerald-400' : 'text-gray-400 hover:bg-white/5 hover:text-white'
+              }`}
+            >
+              {copied ? <Check size={15} /> : <Copy size={15} />}
+              <span className="hidden sm:inline">{copied ? 'Copied' : 'Copy'}</span>
+            </button>
+            <button
+              ref={closeRef}
+              onClick={onClose}
+              className="rounded-lg p-2 text-gray-500 outline-none transition-colors hover:bg-white/5 hover:text-white"
+              aria-label="Close"
+            >
+              <X size={18} />
+            </button>
+          </div>
         </header>
 
-        {/* Scrollable Post Content */}
-        <div className="p-6 space-y-5 overflow-y-auto scrollbar-hide">
-          {thread.posts.map((post, index) => (
-            <div key={index} className="bg-[#111] p-4 rounded-lg border border-neutral-800 text-neutral-300 leading-relaxed animate-fade-in-up" style={{animationDelay: `${index * 50}ms`}}>
-              <p>{post.content}</p>
-              <div className="text-xs text-neutral-500 mt-3 pt-3 border-t border-neutral-700/50 flex items-center gap-2">
-                <CalendarDays size={14} />
-                <span>Posted on {new Date(post.createdAt).toLocaleString()}</span>
+        {/* Posts — styled like the generated thread for consistency */}
+        <div className="overflow-y-auto p-5">
+          <div className="space-y-4">
+            {thread.posts.map((post, index) => (
+              <div
+                key={post.id ?? index}
+                className="animate-fade-up flex gap-3.5"
+                style={{ animationDelay: `${Math.min(index * 60, 300)}ms` }}
+              >
+                <div className="relative shrink-0">
+                  <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#14b8a6] to-[#0f766e] text-xs font-semibold text-white">
+                    {initial || 'U'}
+                  </div>
+                  {isThread && index < thread.posts.length - 1 && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute left-1/2 top-9 bottom-[-16px] w-px -translate-x-1/2 bg-[#262626]"
+                    />
+                  )}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[14px] font-semibold text-white">{name}</span>
+                    {isThread && (
+                      <span className="ml-auto rounded-full border border-[#242424] bg-[#141414] px-2 py-0.5 text-[10px] font-semibold tabular-nums text-gray-500">
+                        {index + 1}/{thread.posts.length}
+                      </span>
+                    )}
+                  </div>
+
+                  <p className="mt-1 whitespace-pre-wrap break-words text-[15px] leading-relaxed text-gray-200">
+                    {post.content}
+                  </p>
+
+                  <p className="mt-2 flex items-center gap-1.5 text-[11px] text-gray-600">
+                    <CalendarDays size={12} />
+                    {new Date(post.createdAt).toLocaleString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                    })}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
-          
-        </div>
-
-        {/* Modal Footer */}
-        <footer className="p-4 text-center text-xs text-neutral-400 border-t border-neutral-800 flex-shrink-0">
-          {thread.posts.length > 1 && (
-            <span className="flex justify-center items-center gap-1 mb-2 text-neutral-500 text-sm">
-              Scroll to view more
-              <MoveDownIcon className="font-bold animate-bounce-slow" size={10} />
-            </span>
-          )}
-          Saved on {new Date(thread.posts[0].createdAt).toLocaleDateString()}
-        </footer>
-      </div>
-    </div>
-  );
-};
-
-/**
- * Displays a single saved thread as a clickable card.
- * Now acts as a teaser that opens the ThreadModal on click.
- */
-const ThreadCard = ({ thread, onClick, onDelete, isDeleting }) => {
-  const firstPost = thread.posts[0];
-  const postSnippet = firstPost.content.substring(0, 100) + (firstPost.content.length > 100 ? '...' : '');
-  
-  // Calculate thread count string
-  const threadCount = `${thread.posts.length} post${thread.posts.length > 1 ? "s" : ""} in this thread`;
-
-  return (
-    <div
-      onClick={isDeleting ? undefined : onClick}
-      className="group bg-[#171717] rounded-xl p-6 border border-neutral-800 
-                cursor-pointer transition-all duration-300 
-                hover:border-[#ff6900]/60 hover:shadow-xl hover:-translate-y-1"
-    >
-      <div className="flex flex-col h-full">
-        <div className="flex items-center justify-between gap-4 mb-4">
-          <div className="flex items-center gap-4">
-            <div className="bg-[#ff6900]/10 p-2 rounded-lg">
-              <MessageSquare className="w-4 h-4 text-[#ff6900]" />
-            </div>
-            
-            <p className="text-sm text-neutral-400 font-medium">
-              {threadCount}
-            </p>
+            ))}
           </div>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              if(!isDeleting){
-              onDelete(thread.threadID);
-              }
-            }}
-            disabled={isDeleting}
-            className="p-2 rounded-full hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500 transition"
-          >
-            {isDeleting ? (
-              <div className="w-5 h-5 border-2 border-neutral-400 border-t-transparent rounded-full animate-spin" />
-            ):(  
-            <Trash2 className="w-5 h-5 text-[#ffffff] hover:text-red-800 transition"/>
-            )}
-          </button>
-        </div>
-
-        <p className="text-neutral-300 mb-6 flex-grow">
-          {postSnippet}
-        </p>
-        
-        <div className="text-xs text-neutral-500 mt-auto pt-4 border-t border-neutral-800/70 flex items-center justify-between">
-          <span>Saved: {new Date(firstPost.createdAt).toLocaleDateString()}</span>
-          <span className="text-[#ff6900]/80 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-            {thread.posts.length > 1 ? "View thread" : "view post"} &rarr;
-          </span>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-/**
- * Provides a visually appealing loading state that mimics the new card layout.
- */
-const SkeletonLoader = () => {
-  const SkeletonCard = () => (
-    <div className="bg-[#171717] rounded-xl p-6 border border-neutral-800">
-      <div className="animate-pulse flex flex-col h-full">
-        <div className="flex items-start gap-4 mb-4">
-          <div className="h-10 w-10 bg-neutral-700 rounded-lg"></div>
-          <div className="h-6 bg-neutral-700 rounded w-1/3 mt-2"></div>
-        </div>
-        <div className="h-4 bg-neutral-700 rounded w-full mb-2"></div>
-        <div className="h-4 bg-neutral-700 rounded w-5/6 mb-6"></div>
-        <div className="mt-auto pt-4 border-t border-neutral-800">
-          <div className="h-3 bg-neutral-700 rounded w-1/2"></div>
-        </div>
-      </div>
-    </div>
-  );
+/* --------------------------------- cards ---------------------------------- */
+
+const ThreadCard = ({ thread, index, onClick, onDelete, isDeleting }) => {
+  const firstPost = thread.posts[0]
+  const postCount = thread.posts.length
+  const isThread = postCount > 1
+  const snippet = firstPost.content.slice(0, 140) + (firstPost.content.length > 140 ? '…' : '')
+  const savedDate = new Date(firstPost.createdAt).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
 
   return (
-    <div className="bg-[#0a0a0a] min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="mb-12 animate-pulse text-center md:text-left">
-          <div className="h-12 bg-neutral-800 rounded w-1/3 mx-auto md:mx-0 mb-4"></div>
-          <div className="h-6 bg-neutral-800 rounded w-1/2 mx-auto md:mx-0"></div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {Array.from({ length: 6 }).map((_, index) => <SkeletonCard key={index} />)}
-        </div>
+    <article
+      role="button"
+      tabIndex={0}
+      aria-label={`Open saved ${isThread ? 'thread' : 'post'}`}
+      onClick={isDeleting ? undefined : onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' && !isDeleting) onClick()
+      }}
+      style={{ animationDelay: `${Math.min(index * 60, 360)}ms` }}
+      className="card animate-fade-up group cursor-pointer p-4 outline-none transition-all duration-200 hover:border-[#2c2c2c] focus-visible:ring-2 focus-visible:ring-[#ea580c]/60"
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span className="rounded-full border border-[#242424] bg-[#141414] px-2.5 py-1 text-[11px] font-medium text-gray-400">
+          {isThread ? `Thread · ${postCount} posts` : 'Single post'}
+        </span>
+
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            if (!isDeleting) onDelete(thread.threadID)
+          }}
+          disabled={isDeleting}
+          title="Delete"
+          aria-label="Delete"
+          className="rounded-lg p-1.5 text-gray-600 outline-none transition-colors hover:bg-red-500/10 hover:text-red-400 focus-visible:ring-2 focus-visible:ring-red-500/40 disabled:opacity-40"
+        >
+          {isDeleting ? <Loader2 size={15} className="animate-spin" /> : <Trash2 size={15} />}
+        </button>
       </div>
-    </div>
-  );
-};
 
-/**
- * Guides the user with a clear CTA when no posts are saved.
- */
+      <p className="mt-3 text-sm leading-relaxed text-gray-300">{snippet}</p>
+
+      <div className="mt-4 flex items-center justify-between border-t border-[#1c1d1d] pt-3 text-[11px] text-gray-600">
+        <span>Saved {savedDate}</span>
+        <span className="font-semibold text-[#f97316] opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+          Open →
+        </span>
+      </div>
+    </article>
+  )
+}
+
+/* --------------------------------- states --------------------------------- */
+
+const SavedSkeleton = () => (
+  <>
+    <div className="animate-fade-up">
+      <div className="h-3 w-24 animate-pulse rounded bg-[#1c1c1c]" />
+      <div className="mt-3 h-8 w-56 animate-pulse rounded bg-[#1c1c1c]" />
+    </div>
+
+    <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="card animate-fade-up p-4" style={{ animationDelay: `${i * 70}ms` }}>
+          <div className="h-6 w-28 animate-pulse rounded-full bg-[#1c1c1c]" />
+          <div className="mt-4 h-3.5 w-full animate-pulse rounded bg-[#1c1c1c]" />
+          <div className="mt-2.5 h-3.5 w-5/6 animate-pulse rounded bg-[#1c1c1c]" />
+          <div className="mt-2.5 h-3.5 w-2/3 animate-pulse rounded bg-[#1c1c1c]" />
+          <div className="mt-5 h-3 w-24 animate-pulse rounded bg-[#1c1c1c]" />
+        </div>
+      ))}
+    </div>
+  </>
+)
+
 const EmptyState = () => (
-  <div className="bg-[#0a0a0a] min-h-screen flex flex-col justify-center items-center text-center p-4">
-    <div className="bg-[#171717] p-10 md:p-16 rounded-2xl border border-neutral-800 shadow-2xl transform transition-transform hover:scale-105 duration-300">
-      <Bookmark className="mx-auto h-16 w-16 text-[#ff6900] mb-6" />
-      <h2 className="text-3xl font-bold text-white mb-2">No Saved Posts Yet</h2>
-      <p className="text-neutral-400 mb-8 max-w-sm">
-        It looks like your saved list is empty. Start exploring and save the posts you love!
-      </p>
-      <Link
-          to="/dashboard"
-        className="bg-[#ff6900] text-white font-bold py-3 px-8 rounded-lg 
-                   transition-transform duration-300 hover:scale-105 shadow-lg hover:shadow-[#ff6900]/30"
-      >
-        Create Posts
-      </Link>
-    </div>
+  <div className="card animate-fade-up mx-auto mt-16 max-w-md p-8 text-center sm:p-10">
+    <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-[#ea580c]/20 bg-[#ea580c]/10 text-[#f97316]">
+      <Bookmark size={20} />
+    </span>
+    <h2 className="mt-4 text-lg font-semibold tracking-tight text-white">Nothing saved yet</h2>
+    <p className="mt-2 text-sm leading-relaxed text-gray-500">
+      Generate a post and hit Save — everything you keep lives here.
+    </p>
+    <Link
+      to="/dashboard"
+      className="btn-primary mt-6 inline-flex h-10 items-center rounded-xl px-5 text-sm font-semibold text-white outline-none focus-visible:ring-2 focus-visible:ring-[#ea580c]/60"
+    >
+      Create your first post
+    </Link>
   </div>
-);
+)
 
-/**
- * Provides a user-friendly error message with a retry option.
- */
 const ErrorState = ({ message, onRetry }) => (
-  <div className="bg-[#0a0a0a] min-h-screen flex flex-col justify-center items-center text-center p-4">
-    <div className="bg-[#171717] p-10 md:p-16 rounded-2xl border border-neutral-800 shadow-2xl">
-      <AlertTriangle className="mx-auto h-16 w-16 text-red-500 mb-6" />
-      <h2 className="text-3xl font-bold text-white mb-2">Oops! Something Went Wrong</h2>
-      <p className="text-neutral-400 mb-8 max-w-sm">{message}</p>
-      <button
-        onClick={onRetry}
-        className="bg-[#ff6900] text-white font-bold py-3 px-8 rounded-lg 
-                   transition-transform duration-300 hover:scale-105 shadow-lg hover:shadow-[#ff6900]/30"
-      >
-        Try Again
-      </button>
-    </div>
+  <div className="card animate-fade-up mx-auto mt-16 max-w-md p-8 text-center sm:p-10">
+    <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-red-500/20 bg-red-500/10 text-red-400">
+      <AlertTriangle size={20} />
+    </span>
+    <h2 className="mt-4 text-lg font-semibold tracking-tight text-white">Couldn't load your library</h2>
+    <p className="mt-2 text-sm text-gray-500">{message}</p>
+    <button
+      onClick={onRetry}
+      className="mt-6 inline-flex h-10 items-center rounded-xl border border-[#ea580c]/40 bg-[#ea580c]/10 px-5 text-sm font-semibold text-[#f97316] outline-none transition-colors hover:bg-[#ea580c]/20 focus-visible:ring-2 focus-visible:ring-[#ea580c]/60"
+    >
+      Try again
+    </button>
   </div>
-);
+)
 
-// =================================================================================
-// 2. Main Page Component
-// =================================================================================
+/* ---------------------------------- page ---------------------------------- */
 
 const SavePostPage = () => {
-  const [savedPost, setSavedPost] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [deletingThreads, setDeletingThreads] = useState(new Set());
+  const [savedPost, setSavedPost] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
+  const [deletingThreads, setDeletingThreads] = useState(new Set())
+  const [selectedThread, setSelectedThread] = useState(null)
 
-  // State to manage the currently selected thread for the modal
-  const [selectedThread, setSelectedThread] = useState(null);
-
-const getSavedPost = useCallback(async () => {
-  setLoading(true);
-  setError('');
-  try {
-    const result = await api.getPosts();
-    // normalize to shape the UI expects: { threadID, posts: [] }
-    const normalized = result.threads.map((posts) => ({
-      threadID: posts[0].threadId ?? posts[0].id,
-      posts: posts,
-    }));
-    setSavedPost(normalized);
-  } catch (e) {
-    console.error('Cannot get saved posts:', e);
-    setError('Failed to load saved posts. Please try again.');
-  } finally {
-    setLoading(false);
-  }
-}, []);
+  const getSavedPost = useCallback(async () => {
+    setLoading(true)
+    setLoadError('')
+    try {
+      const result = await api.getPosts()
+      const threads = Array.isArray(result?.threads) ? result.threads : []
+      const normalized = threads
+        .map((posts) => ({
+          threadID: posts[0]?.threadId ?? posts[0]?.id,
+          posts,
+        }))
+        .filter((t) => t.threadID && t.posts?.length)
+        .sort((a, b) => new Date(b.posts[0].createdAt) - new Date(a.posts[0].createdAt))
+      setSavedPost(normalized)
+    } catch (e) {
+      console.error('Cannot get saved posts:', e)
+      setLoadError('Failed to load saved posts. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
-    getSavedPost();
-  }, [getSavedPost]);
+    getSavedPost()
+  }, [getSavedPost])
 
-const handleDelete = async (threadID) => {
-  const threadToDelete = savedPost.find(t => t.threadID === threadID);
-  if (!threadToDelete) return;
+  /* Optimistic delete — restored + toast on failure */
+  const handleDelete = async (threadID) => {
+    const threadToDelete = savedPost.find((t) => t.threadID === threadID)
+    if (!threadToDelete) return
 
-  setDeletingThreads(prev => new Set([...prev, threadID]));
-  setSavedPost(prev => prev.filter(t => t.threadID !== threadID));
+    setDeletingThreads((prev) => new Set([...prev, threadID]))
+    setSavedPost((prev) => prev.filter((t) => t.threadID !== threadID))
+    if (selectedThread?.threadID === threadID) setSelectedThread(null)
 
-  try {
-    const isSingle = threadToDelete.posts.length === 1 && !threadToDelete.posts[0].threadId;
-
-    if (isSingle) {
-      await api.deletePost(threadToDelete.posts[0].id);
-    } else {
-      await api.deleteThread(threadID);
+    try {
+      const isSingle = threadToDelete.posts.length === 1 && !threadToDelete.posts[0].threadId
+      if (isSingle) {
+        await api.deletePost(threadToDelete.posts[0].id)
+      } else {
+        await api.deleteThread(threadID)
+      }
+      toast.success('Deleted', { description: 'Removed from your saved posts.' })
+    } catch (error) {
+      console.error('Error deleting post:', error)
+      setSavedPost((prev) =>
+        [...prev, threadToDelete].sort(
+          (a, b) => new Date(b.posts[0].createdAt) - new Date(a.posts[0].createdAt),
+        ),
+      )
+      toast.error('Failed to delete', { description: 'Please try again.' })
+    } finally {
+      setDeletingThreads((prev) => {
+        const next = new Set(prev)
+        next.delete(threadID)
+        return next
+      })
     }
-  } catch (error) {
-    console.error('Error deleting post:', error);
-    setSavedPost(prev => [...prev, threadToDelete]
-      .sort((a, b) => new Date(b.posts[0].createdAt) - new Date(a.posts[0].createdAt))
-    );
-    setError('Failed to delete. Please try again.');
-    setTimeout(() => setError(''), 3000);
-  } finally {
-    setDeletingThreads(prev => {
-      const next = new Set(prev);
-      next.delete(threadID);
-      return next;
-    });
   }
-};
 
-  // --- Handlers for Modal ---
-  const handleOpenModal = (thread) => setSelectedThread(thread);
-  const handleCloseModal = () => setSelectedThread(null);
-
-  // --- Conditional Rendering Logic ---
-  if (loading) return <SkeletonLoader />;
-  if (error) return <ErrorState message={error} onRetry={getSavedPost} />;
-  if (savedPost.length === 0) return <EmptyState />;
-
-  // --- Success State ---
   return (
-    <>
-      <div className="bg-[#0a0a0a] min-h-screen text-neutral-200 font-sans mt-5">
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <header className="text-center md:text-left mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-neutral-200 to-neutral-500">
-              Your Saved Posts
-            </h1>
-            <p className="text-neutral-400 mt-3 text-lg">
-              Revisit the threads and ideas you found inspiring.
-            </p>
-          </header>
+    <AppLayout crumb="Saved" wide>
+      {/* ⚠️ Keep exactly ONE <Toaster> in the whole app (ideally in App.jsx).
+          Delete this one once you've moved it there, or toasts will double up. */}
+      <Toaster
+        position="bottom-right"
+        richColors
+        theme="dark"
+        toastOptions={{
+          classNames: {
+            toast:
+              'bg-[#111111]/95 backdrop-blur-md text-zinc-100 border border-[#262626] shadow-[0_10px_30px_rgba(0,0,0,0.45)] rounded-2xl',
+            title: 'text-zinc-100 text-[15px] font-medium',
+            description: 'text-zinc-400 text-sm',
+            success: '!border-orange-500/35 !text-orange-100',
+            error: '!border-red-500/30 !text-red-100',
+          },
+          duration: 3500,
+        }}
+      />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {savedPost.map((thread) => (
-              <ThreadCard 
-                key={thread.threadID} 
-                thread={thread} 
-                onClick={() => handleOpenModal(thread)} 
+      {loading ? (
+        <SavedSkeleton />
+      ) : loadError ? (
+        <ErrorState message={loadError} onRetry={getSavedPost} />
+      ) : savedPost.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <>
+          <div className="animate-fade-up flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-600">
+                Library
+              </p>
+              <h1 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-white sm:text-[28px]">
+                Saved posts
+              </h1>
+              <p className="mt-2 text-sm text-gray-500">Threads and posts you've kept for later.</p>
+            </div>
+            <p className="pb-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-600">
+              {savedPost.length} {savedPost.length === 1 ? 'item' : 'items'}
+            </p>
+          </div>
+
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {savedPost.map((thread, index) => (
+              <ThreadCard
+                key={thread.threadID}
+                thread={thread}
+                index={index}
+                onClick={() => setSelectedThread(thread)}
                 onDelete={handleDelete}
                 isDeleting={deletingThreads.has(thread.threadID)}
               />
             ))}
           </div>
-        </main>
-      </div>
-      
-      {/* Render the modal if a thread is selected */}
-      {selectedThread && (
-        <ThreadModal thread={selectedThread} onClose={handleCloseModal} />
+        </>
       )}
-    </>
-  );
-};
 
-export default SavePostPage;
+      {selectedThread && (
+        <ThreadModal thread={selectedThread} onClose={() => setSelectedThread(null)} />
+      )}
+    </AppLayout>
+  )
+}
+
+export default SavePostPage
