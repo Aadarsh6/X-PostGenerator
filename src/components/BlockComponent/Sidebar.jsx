@@ -321,9 +321,9 @@ export const Sidebar = ({
             }`}
           >
             <span className="relative shrink-0">
-              <span className="grid h-9 w-9 place-items-center rounded-full border border-[#ea580c]/25 bg-[#ea580c]/15 text-xs font-semibold text-[#ea580c]">
-                {initials}
-              </span>
+              <span className="grid h-9 w-9 place-items-center rounded-full border border-[#2dd4bf]/25 bg-[#14b8a6]/15 text-xs font-semibold text-[#2dd4bf]">
+  {initials}
+</span>
               {/* Online status */}
               <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />

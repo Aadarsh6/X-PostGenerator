@@ -1,202 +1,151 @@
-import { useAvatar } from "@/components/BlockComponent/Context/avatarContext";
-import { NavBar } from "@/components/BlockComponent/NavBar";
-import { api } from "@/services/api";
-import { useAuthStore } from "@/store/authStore";
-import { motion } from "framer-motion";
-import { Mail, Bookmark, Settings, LogOut, ChevronRight, User } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { Bookmark, ChevronRight, Layers, MessageSquare, Settings } from 'lucide-react'
+import { AppLayout } from '@/components/BlockComponent/AppLayout'
+import { useAvatar } from '@/components/BlockComponent/Context/avatarContext'
+import { useAuthStore } from '@/store/authStore'
+import { api } from '@/services/api'
 
 export default function ProfilePage() {
-    const { user, logout } = useAuthStore();
-    const { initial } = useAvatar();
-    const navigate = useNavigate();
-    const [stats, setStats] = useState({saved: 0, threads:0, singles:0})
-    const [statsLoading, setStatsLoading] = useState(true);
+  const { user } = useAuthStore()
+  const { initial } = useAvatar()
+  const [stats, setStats] = useState({ saved: 0, threads: 0, singles: 0 })
+  const [statsLoading, setStatsLoading] = useState(true)
 
-    useEffect(()=>{
-        api.getPosts().then((data)=>{
-            if(data.success){
-                const threads = data.threads;
-                const totalPost = threads.reduce((sum, t)=>sum+t.length, 0);
-                const threadCount = threads.filter(t => t.length>1).length;
-                const singlePost = threads.filter(t => t.length === 1).length;
-                setStats({
-                    saved: totalPost,
-                    threads: threadCount,
-                    singles: singlePost,
-                })
-            }
-        }).catch(()=>{}).finally(()=> setStatsLoading(false))
-    },[])
+  useEffect(() => {
+    let mounted = true
+    api
+      .getPosts()
+      .then((data) => {
+        if (!mounted || !data?.success) return
+        const threads = Array.isArray(data.threads) ? data.threads : []
+        setStats({
+          saved: threads.reduce((sum, t) => sum + t.length, 0),
+          threads: threads.filter((t) => t.length > 1).length,
+          singles: threads.filter((t) => t.length === 1).length,
+        })
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (mounted) setStatsLoading(false)
+      })
+    return () => {
+      mounted = false
+    }
+  }, [])
 
-
-    useEffect(() => {
-  console.log(user);
-}, [user]);
-
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login", { replace: true });
-  };
+  const memberSince = user?.createdAt
+    ? new Date(user.createdAt).toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      })
+    : null
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
-      <NavBar />
-
-      <div className="max-w-5xl mx-auto px-4 pt-28 pb-16">
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="space-y-6"
-        >
-          <div>
-            <h1 className="text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400">
-              Profile
-            </h1>
-            <p className="mt-3 text-neutral-400 text-base md:text-lg">
-              Manage your account, view your activity, and update your details.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 rounded-3xl border border-neutral-800 bg-[#111111] p-6 md:p-8">
-              <div className="flex flex-col md:flex-row md:items-center gap-5">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center text-white text-3xl font-bold ring-4 ring-orange-500/20">
-                  {initial}
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <h2 className="text-2xl font-semibold text-white truncate">
-                    {user?.name || "User"}
-                  </h2>
-                  <p className="mt-1 text-neutral-400 truncate">
-                    {user?.email || "user@email.com"}
-                  </p>
-
-                  <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-green-500/20 bg-green-500/10 px-3 py-1 text-xs text-green-400">
-                    <span className="w-2 h-2 rounded-full bg-green-500" />
-                    Online
-                  </div>
-                                      {user?.createdAt && (
-  <p className="mt-2 text-xs text-neutral-600">
-    Member since {new Date(user.createdAt).toLocaleDateString('en-US', {
-        day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    })}
-  </p>
-)}
-
-                </div>
-              </div>
-
-              <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="rounded-2xl border border-neutral-900 bg-[#0f0f0f] p-4">
-                  <div className="text-xs text-neutral-500">Saved Posts</div>
-                  <div className="mt-2 text-2xl font-semibold text-white">
-                          {statsLoading ? (
-                            <div className="h-7 w-8 bg-neutral-800 rounded animate-pulse" />
-                          ) : stats.saved}
-                    </div>
-                </div>
-                <div className="rounded-2xl border border-neutral-800 bg-[#0f0f0f] p-4">
-                  <div className="text-xs text-neutral-500">Threads</div>
-                  <div className="mt-2 text-2xl font-semibold text-white">
-                          {statsLoading ? (
-                            <div className="h-7 w-8 bg-neutral-900 rounded animate-pulse" />
-                          ) : stats.threads}
-                    </div>
-                </div>
-                <div className="rounded-2xl border border-neutral-800 bg-[#0f0f0f] p-4">
-                  <div className="text-xs text-neutral-500">Posts</div>
-                    <div className="mt-2 text-2xl font-semibold text-white">
-                      {statsLoading ? (
-                        <div className="h-7 w-8 bg-neutral-900 rounded animate-pulse" />
-                      ) : stats.singles}
-                    </div>                </div>
-                <div className="rounded-2xl border border-neutral-800 bg-[#0f0f0f] p-4">
-                  <div className="text-xs text-neutral-500">Status</div>
-                  <div className="mt-2 text-2xl font-semibold text-orange-400">Free</div>
-                </div>
-              </div>
-
-              <div className="mt-8 space-y-3">
-                <Link
-                  to="/save"
-                  className="flex items-center justify-between rounded-2xl border border-neutral-800 bg-[#111111] px-4 py-4 hover:border-orange-500/40 hover:bg-[#171717] transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
-                      <Bookmark className="w-5 h-5 text-orange-400" />
-                    </div>
-                    <div>
-                      <div className="font-medium text-white">Saved Posts</div>
-                      <div className="text-sm text-neutral-500">View all your saved content</div>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-neutral-500" />
-                </Link>
-
-                <Link
-                  to="/soon"
-                  className="flex items-center justify-between rounded-2xl border border-neutral-800 bg-[#111111] px-4 py-4 hover:border-orange-500/40 hover:bg-[#171717] transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
-                      <Settings className="w-5 h-5 text-orange-400" />
-                    </div>
-                    <div>
-                      <div className="font-medium text-white">Account Settings</div>
-                      <div className="text-sm text-neutral-500">Update profile and preferences</div>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-neutral-500" />
-                </Link>
-              </div>
-            </div>
-
-            <div className="rounded-3xl border border-neutral-800 bg-[#111111] p-6">
-              <h3 className="text-lg font-semibold text-white">Quick Actions</h3>
-
-              <div className="mt-5 space-y-3">
-                <Link
-                  to="/dashboard"
-                  className="flex items-center gap-3 rounded-2xl px-4 py-3 bg-[#0f0f0f] border border-neutral-800 hover:border-orange-500/40 transition-colors"
-                >
-                  <User className="w-4 h-4 text-orange-400" />
-                  <span className="text-sm text-neutral-300">Go to Dashboard</span>
-                </Link>
-
-                <Link
-                  to="/contact"
-                  className="flex items-center gap-3 rounded-2xl px-4 py-3 bg-[#0f0f0f] border border-neutral-800 hover:border-orange-500/40 transition-colors"
-                >
-                  <Mail className="w-4 h-4 text-orange-400" />
-                  <span className="text-sm text-neutral-300">Contact Support</span>
-                </Link>
-
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-3 w-full rounded-2xl px-4 py-3 bg-red-500/10 border border-red-500/20 hover:bg-red-500 hover:text-white transition-colors"
-                >
-                  <LogOut className="w-4 h-4 text-red-400" />
-                  <span className="text-sm text-red-400">Logout</span>
-                </button>
-              </div>
-
-              <div className="mt-6 rounded-2xl border border-neutral-800 bg-[#0f0f0f] p-4">
-                <div className="text-xs text-neutral-500">Account note</div>
-                <p className="mt-2 text-sm text-neutral-400 leading-6">
-                  This is your personal space for profile details, saved work, and account actions.
-                </p>
-              </div>
-            </div>
-          </div>
-        </motion.div>
+    <AppLayout crumb="Profile" wide>
+      {/* Header */}
+      <div className="animate-fade-up">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-600">Account</p>
+        <h1 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-white sm:text-[28px]">
+          Profile
+        </h1>
+        <p className="mt-2 text-sm text-gray-500">Your identity, activity, and account settings.</p>
       </div>
-    </div>
-  );
-}
+
+      {/* Identity — teal = "who you are" */}
+      <div className="card animate-fade-up mt-6 p-5 sm:p-6" style={{ animationDelay: '80ms' }}>
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+          <div className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#14b8a6] to-[#0f766e] text-xl font-semibold text-white shadow-lg shadow-[#14b8a6]/25 sm:h-20 sm:w-20 sm:text-2xl">
+            {initial || 'U'}
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h2 className="truncate text-xl font-semibold tracking-tight text-white">
+                {user?.name || 'User'}
+              </h2>
+              {/* ⚠️ wire to real plan data when you have billing */}
+              <span className="rounded-full border border-[#2dd4bf]/25 bg-[#14b8a6]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#2dd4bf]">
+                Free plan
+              </span>
+            </div>
+            <p className="mt-1 truncate text-sm text-gray-500">{user?.email || '—'}</p>
+            {memberSince && <p className="mt-2 text-xs text-gray-600">Member since {memberSince}</p>}
+          </div>
+        </div>
+      </div>
+
+      {/* Stats — real data from your API */}
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        {[
+          { label: 'Saved posts', value: stats.saved, icon: Bookmark },
+          { label: 'Threads', value: stats.threads, icon: Layers },
+          { label: 'Single posts', value: stats.singles, icon: MessageSquare },
+        ].map((stat, i) => (
+          <div
+            key={stat.label}
+            className="card animate-fade-up p-4 sm:p-5"
+            style={{ animationDelay: `${140 + i * 70}ms` }}
+          >
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-600">
+                {stat.label}
+              </p>
+              <stat.icon size={14} className="text-[#2dd4bf]/70" />
+            </div>
+            <div className="mt-3">
+              {statsLoading ? (
+                <div className="h-7 w-10 animate-pulse rounded bg-[#1e1e1e]" />
+              ) : (
+                <span className="tnum text-2xl font-semibold tracking-tight text-white">
+                  {stat.value}
+                </span>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Links — orange = "things you can do" */}
+      <div
+        className="card animate-fade-up mt-4 divide-y divide-[#1c1d1d] overflow-hidden"
+        style={{ animationDelay: '360ms' }}
+      >
+        <Link
+          to="/save"
+          className="group flex items-center gap-4 p-4 transition-colors hover:bg-white/[0.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#ea580c]/60 sm:p-5"
+        >
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[#ea580c]/20 bg-[#ea580c]/10 text-[#f97316]">
+            <Bookmark size={16} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-medium text-white">Saved posts</span>
+            <span className="block text-xs text-gray-500">Everything you've kept for later</span>
+          </span>
+          <ChevronRight
+            size={16}
+            className="shrink-0 text-gray-600 transition-all group-hover:translate-x-0.5 group-hover:text-gray-400"
+          />
+        </Link>
+
+        <Link
+          to="/soon"
+          className="group flex items-center gap-4 p-4 transition-colors hover:bg-white/[0.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#ea580c]/60 sm:p-5"
+        >
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[#ea580c]/20 bg-[#ea580c]/10 text-[#f97316]">
+            <Settings size={16} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-medium text-white">Account settings</span>
+            <span className="block text-xs text-gray-500">Update profile and preferences</span>
+          </span>
+          <ChevronRight
+            size={16}
+            className="shrink-0 text-gray-600 transition-all group-hover:translate-x-0.5 group-hover:text-gray-400"
+          />
+        </Link>
+      </div>
+    </AppLayout>
+  )
+} 

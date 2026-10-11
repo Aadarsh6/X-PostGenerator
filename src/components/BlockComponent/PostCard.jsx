@@ -40,9 +40,9 @@ export const PostCard = ({
       <div className="flex gap-3.5">
         {/* Avatar + thread connector */}
         <div className="relative shrink-0">
-          <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#f06414] to-[#c2410c] text-xs font-semibold text-white shadow-md shadow-[#ea580c]/20">
-            {initial || 'U'}
-          </div>
+          <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#14b8a6] to-[#0f766e] text-xs font-semibold text-white shadow-md shadow-[#14b8a6]/20">
+  {initial || 'U'}
+</div>
           {isThread && !isLast && (
             <span
               aria-hidden="true"
