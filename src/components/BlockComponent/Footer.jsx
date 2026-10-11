@@ -1,75 +1,83 @@
-import React from 'react';
-import { Twitter, Linkedin, Github } from 'lucide-react';
-import { cn } from "@/lib/utils"; // Your classname utility
-import { Link } from 'react-router-dom';
+import React from 'react'
+import { Github, Twitter } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Logo } from './Brand'
+
+const scrollToId = (e, id) => {
+  e.preventDefault()
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+}
+
+const NAV_LINKS = [
+  { label: 'How it works', id: 'how-it-works' },
+  { label: 'Results', id: 'results' },
+  { label: 'Demo', id: 'demo' },
+]
+
+const SOCIALS = [
+  { icon: Twitter, href: 'https://x.com/Aadarsh_MM', label: 'X (Twitter)' },
+  { icon: Github, href: 'https://github.com/Aadarsh6', label: 'GitHub' },
+]
 
 export const Footer = React.memo(() => {
-  
-  const essentialLinks = [
-    { label: 'Features', href: '/' },
-    { label: 'Pricing', href: '#' },
-    { label: 'Contact', href: '/contact' },
-    { label: 'Privacy', href: '#' },
-  ];
-
-  const socialLinks = [
-    { icon: <Twitter size={18} />, href: 'https://github.com/Aadarsh6', label: 'Twitter' },
-    { icon: <Linkedin size={18} />, href: '#https://github.com/Aadarsh6', label: 'LinkedIn' },
-    { icon: <Github size={18} />, href: 'https://github.com/Aadarsh6#', label: 'GitHub' },
-  ];
-
   return (
-    <footer className="bg-[#0a0a0a] border-t border-neutral-800/60 py-2">
-      <div className="max-w-7xl mx-auto px-4 text-center">
-        {/* Logo */}
-        <a href="#" className="inline-block">
-          <span className="text-xl font-semibold text-white flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-orange-500">Xc</span>
-            <span>Craft</span>
-          </span>
-        </a>
+    <footer className="border-t border-[#1c1c1c] bg-[#0a0a0a]">
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+        <div className="flex flex-col items-center gap-8 sm:flex-row sm:items-center sm:justify-between">
+          <Logo size="sm" to="/" ariaLabel="XCrafter home" />
 
-        {/* Description & Contact */}
-        <p className="mt-4 text-sm text-neutral-400 max-w-sm mx-auto">
-          The AI-powered platform to supercharge your content. Have questions? 
-          <Link to="/contact" className="text-orange-400 hover:text-orange-300 transition-colors"> Get in touch</Link>.
-        </p>
-
-        {/* Essential Links */}
-        <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2">
-          {essentialLinks.map((link) => (
-            <a 
-              key={link.label} 
-              href={link.href} 
-              className="text-sm text-neutral-300 hover:text-orange-400 transition-colors"
-            >
-              {link.label}
-            </a>
-          ))}
-        </div>
-
-        {/* Social Icons & Copyright */}
-        <div className="mt-10 flex flex-col items-center gap-6">
-          <div className="flex items-center gap-6">
-            {socialLinks.map((social) => (
-              <a 
-                key={social.label} 
-                href={social.href} 
-                aria-label={social.label}
-                target='_blank'
-                className="text-neutral-500 hover:text-orange-400 transition-colors"
+          <nav className="flex flex-wrap justify-center gap-x-7 gap-y-3">
+            {NAV_LINKS.map((link) => (
+              <a
+                key={link.id}
+                href={`#${link.id}`}
+                onClick={(e) => scrollToId(e, link.id)}
+                className="text-sm font-medium text-gray-500 outline-none transition-colors hover:text-white focus-visible:ring-2 focus-visible:ring-[#ea580c]/60"
               >
-                {social.icon}
+                {link.label}
               </a>
             ))}
-          </div>
-          <p className="text-xs text-neutral-500">
-            &copy; {new Date().getFullYear()} Xc Craft. All rights reserved.
+            <Link
+              to="/contact"
+              className="text-sm font-medium text-gray-500 outline-none transition-colors hover:text-white focus-visible:ring-2 focus-visible:ring-[#ea580c]/60"
+            >
+              Contact
+            </Link>
+          </nav>
+        </div>
+
+        <div className="mt-10 flex flex-col items-center gap-5 border-t border-[#141414] pt-6 sm:flex-row sm:justify-between">
+          <p className="text-xs text-gray-700">
+            © {new Date().getFullYear()} XCrafter. All rights reserved.
           </p>
+
+          <div className="flex items-center gap-5">
+            {SOCIALS.map((social) => (
+              <a
+                key={social.label}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={social.label}
+                className="text-gray-600 transition-colors hover:text-white"
+              >
+                <social.icon size={16} />
+              </a>
+            ))}
+            <span className="hidden h-4 w-px bg-[#1f1f1f] sm:block" />
+            <a
+              href="https://x.com/Aadarsh_MM"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-gray-600 transition-colors hover:text-[#f97316]"
+            >
+              Crafted by <span className="font-serif-accent text-[1.15em]">Aadarsh</span>
+            </a>
+          </div>
         </div>
       </div>
     </footer>
-  );
-});
+  )
+})
 
-Footer.displayName = "Footer";
+Footer.displayName = 'Footer'
