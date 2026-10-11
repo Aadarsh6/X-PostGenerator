@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Textarea } from '../ui/textarea'
 import {
-  AlertCircle, Check, Copy, Loader2, PenLine, Plus, RefreshCw, Save, Sparkles, Twitter,
+  AlertCircle, Check, Copy, Loader2, PenLine, Plus, RefreshCw, Save, Twitter,
 } from 'lucide-react'
 import { toast, Toaster } from 'sonner'
 import { BorderBeam } from '../magicui/border-beam'
@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom'
 import { api } from '@/services/api'
 import { postToTwitter, createThreadContent } from '@/utils/twitterUtils'
 import { PostCard } from './PostCard'
+import { LogoMark } from './Brand'
 
 const isMac =
   typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.userAgent)
@@ -358,7 +359,7 @@ export const Xpost = () => {
               {generating ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <Sparkles className="h-4 w-4" />
+                <PenLine size={16} strokeWidth={2.25} />
               )}
               {generating
                 ? 'Generating…'
@@ -372,12 +373,12 @@ export const Xpost = () => {
         </div>
       </div>
 
-      {/* Shimmer while working */}
+      {/* Shimmer while working — the brand mark appears at the moment of value */}
       {generating && (
         <div className="mt-4" aria-live="polite" aria-busy="true">
           <div className="card animate-fade-up p-5">
             <div className="flex items-center gap-3">
-              <Loader2 className="h-4 w-4 animate-spin text-[#f97316]" />
+              <LogoMark size="sm" className="animate-pulse" />
               <p className="text-sm font-medium text-gray-400">
                 Crafting your {isThread ? 'thread' : 'post'}…
               </p>
@@ -400,7 +401,7 @@ export const Xpost = () => {
             <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[#1f2020] bg-[#0e0e0e]/90 px-3 py-2.5 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)] backdrop-blur-xl sm:px-4">
               <div className="mr-auto flex items-center gap-2.5">
                 <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-[#ea580c]/20 bg-[#ea580c]/10 text-[#f97316]">
-                  <Sparkles size={14} />
+                  <PenLine size={14} strokeWidth={2} />
                 </span>
                 <div className="min-w-0">
                   <p className="text-[13px] font-semibold tracking-tight text-white">
