@@ -5,6 +5,7 @@ import { ShimmerButton } from '../magicui/shimmer-button'
 import { useAuthStore } from '@/store/authStore'
 import { useAvatar } from './Context/avatarContext'
 import { cn } from '@/lib/utils'
+import { Logo } from './Brand'
 
 export const NavBar = React.memo(() => {
   const [scrolled, setScrolled] = useState(false)
@@ -76,11 +77,7 @@ export const NavBar = React.memo(() => {
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo — unified with the app's branding */}
           <Link to="/" className="group flex items-center gap-2.5" aria-label="XCrafter home">
-            <span className="grid font-bold h-7 w-7 place-items-center rounded-lg transition-transform duration-200 group-hover:scale-105">
-              {/* <Zap size={14} strokeWidth={2.5} className="text-white" />
-               */}
-               Xc
-            </span>
+           <Logo size="sm" to="/" ariaLabel="XCrafter home" />
             <span className="text-[17px] font-semibold tracking-[-0.02em] text-white">XCrafter</span>
           </Link>
 

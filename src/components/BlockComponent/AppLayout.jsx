@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
-  Bell, Bookmark, Home, LogOut, Menu, PanelLeft, PenLine, Search, Settings, User, Zap,
+  Bell, Bookmark, Home, LogOut, Menu, PanelLeft, PenLine, Search, Settings, User
 } from 'lucide-react'
 import { Sidebar, useIsMobile } from './Sidebar'
 import { CommandPalette } from './CommandPalette'
 import { useAuthStore } from '@/store/authStore'
+import { Logo } from './Brand'
 
 const COLLAPSED_KEY = 'xcrafter:sidebar-collapsed'
 
@@ -146,13 +147,7 @@ export const AppLayout = ({ children, crumb = 'Dashboard', wide = false }) => {
             <Menu size={22} />
           </button>
 
-          <Link to="/dashboard" className="flex items-center gap-2.5 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-[#ea580c]/60">
-            <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#ea580c] shadow-md shadow-[#ea580c]/25">
-              <Zap size={14} strokeWidth={2.5} className="text-white" />
-            </span>
-            <span className="text-[17px] font-semibold tracking-[-0.02em] text-white">XCrafter</span>
-          </Link>
-
+          <Logo size="sm" to="/" ariaLabel="XCrafter home" />
           <div className="ml-auto flex items-center gap-2">
             <button
               onClick={() => setPaletteOpen(true)}

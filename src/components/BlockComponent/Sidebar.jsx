@@ -5,6 +5,7 @@ import {
   PenLine, Search, Settings, User, X
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
+import { Logo } from './Brand'
 
 /* ---------------------------------- hooks --------------------------------- */
 
@@ -231,17 +232,7 @@ export const Sidebar = ({
         {/* ------------------------- CTA + search trigger ------------------------ */}
         <div className={`shrink-0 pt-4 ${isCollapsed ? 'px-2' : 'px-4'}`}>
           {/* Primary CTA — ⚠️ point this at your composer route */}
-          <Link
-            to="/dashboard"
-            onClick={isMobile ? onMobileClose : undefined}
-            className={`btn-primary group relative flex h-11 items-center justify-center gap-2 rounded-xl text-sm font-semibold text-white outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#ea580c]/60 ${
-              isCollapsed ? 'w-11' : 'w-full'
-            }`}
-          >
-            <PenLine size={17} strokeWidth={2.25} className="shrink-0" />
-            {!isCollapsed && <span className="tracking-tight">New Post</span>}
-            {isCollapsed && <Tooltip>New Post</Tooltip>}
-          </Link>
+          <Logo size="md" showText={!isCollapsed} onClick={isMobile ? onMobileClose : undefined} />
 
           {/* Search trigger → command palette */}
           <button
