@@ -370,4 +370,4 @@ export const Xpost = () => {
   );
 };
 
-export default Xpost;
+export default Xpost
