@@ -229,27 +229,26 @@ export const Sidebar = ({
           {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
 
-{/* ------------------------- CTA + search trigger ------------------------ */}
-<div className={`shrink-0 pt-4 ${isCollapsed ? 'px-2' : 'px-4'}`}>
-  {/* Primary CTA — ⚠️ point this at your composer route */}
-  <Link
-    to="/dashboard"
-    onClick={isMobile ? onMobileClose : undefined}
-    className={`btn-primary group relative flex h-11 items-center justify-center gap-2 rounded-xl text-sm font-semibold text-white outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#ea580c]/60 ${
-      isCollapsed ? 'w-11' : 'w-full'
-    }`}
-  >
-    <PenLine size={17} strokeWidth={2.25} className="shrink-0" />
-    {!isCollapsed && <span className="tracking-tight">New Post</span>}
-    {isCollapsed && <Tooltip>New Post</Tooltip>}
-  </Link>
+        {/* ------------------------- CTA + search trigger ------------------------ */}
+        <div className={`shrink-0 pt-4 ${isCollapsed ? 'px-2' : 'px-4'}`}>
+          {/* Primary CTA — ⚠️ point this at your composer route */}
+          <Link
+            to="/dashboard"
+            onClick={isMobile ? onMobileClose : undefined}
+            className={`btn-primary group relative flex h-11 items-center justify-center gap-2 rounded-xl text-sm font-semibold text-white outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#ea580c]/60 ${
+              isCollapsed ? 'mx-auto w-11' : 'w-full'
+            }`}
+          >
+            <PenLine size={17} strokeWidth={2.25} className="shrink-0" />
+            {!isCollapsed && <span className="tracking-tight">New Post</span>}
+            {isCollapsed && <Tooltip>New Post</Tooltip>}
+          </Link>
 
-  {/* Search trigger → command palette (unchanged) */}
-  <button
-    onClick={onOpenCommandPalette}
-
+          {/* Search trigger → command palette */}
+          <button
+            onClick={onOpenCommandPalette}
             className={`group relative mt-3 flex h-10 items-center rounded-xl border border-[#242424] bg-[#111111] outline-none transition-all duration-200 hover:border-[#333333] hover:bg-[#151515] focus-visible:ring-2 focus-visible:ring-[#ea580c]/60 ${
-              isCollapsed ? 'w-11 justify-center' : 'w-full gap-3 px-3'
+              isCollapsed ? 'mx-auto w-11 justify-center' : 'w-full gap-3 px-3'
             }`}
             aria-label="Open command palette"
           >
@@ -311,8 +310,8 @@ export const Sidebar = ({
           >
             <span className="relative shrink-0">
               <span className="grid h-9 w-9 place-items-center rounded-full border border-[#2dd4bf]/25 bg-[#14b8a6]/15 text-xs font-semibold text-[#2dd4bf]">
-  {initials}
-</span>
+                {initials}
+              </span>
               {/* Online status */}
               <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
@@ -373,107 +372,3 @@ export const Sidebar = ({
     </>
   )
 }
-
-/*                              DOCS
-
-
-?Consistency & Spacing:
-
-Uniform padding: Used consistent //!px-3 py-3 for navigation items
-Consistent gaps: Standardized gap-3 and margins throughout
-Balanced header: Adjusted header padding to px-4 py-3
-
-?Visual Hierarchy:
-
-Icon sizing: Reduced to size={20} for better proportion and consistency
-Typography: Improved font weights and sizes for better readability
-Color harmony: Used consistent hover color #252525 throughout
-
-?Enhanced UX:
-
-Smoother transitions: Reduced duration to 200ms for snappier feel
-Better focus states: Improved focus ring with blue accent
-Status indicator: Added "Online" status under username
-Gradient avatar fallback: More visually appealing fallback
-Proper truncation: Username truncates properly in narrow spaces
-
-?Tooltip Improvements:
-
-Better positioning: Increased ml-3 for proper spacing
-Enhanced styling: Added border and shadow for better visibility
-Consistent background: Used bg-gray-900 with border
-
-?Footer Enhancements:
-
-Conditional hover: Only applies hover when expanded
-Better user info: Added status indicator and proper layout
-Improved avatar: Better sizing and object-cover for images
-
-?Accessibility:
-
-Better focus indicators: Enhanced focus rings
-Proper ARIA labels: Maintained all accessibility features
-Keyboard navigation: All interactive elements remain keyboard accessible
-
-The design now feels more polished and consistent while maintaining your dark theme aesthetic and all existing functionality.
-*/
-
-
-
-
-
-
-
-
-
-
-/*                              DOCS
-
-
-?Consistency & Spacing:
-
-Uniform padding: Used consistent //!px-3 py-3 for navigation items
-Consistent gaps: Standardized gap-3 and margins throughout
-Balanced header: Adjusted header padding to px-4 py-3
-
-?Visual Hierarchy:
-
-Icon sizing: Reduced to size={20} for better proportion and consistency
-Typography: Improved font weights and sizes for better readability
-Color harmony: Used consistent hover color #252525 throughout
-
-?Enhanced UX:
-
-Smoother transitions: Reduced duration to 200ms for snappier feel
-Better focus states: Improved focus ring with blue accent
-Status indicator: Added "Online" status under username
-Gradient avatar fallback: More visually appealing fallback
-Proper truncation: Username truncates properly in narrow spaces
-
-?Tooltip Improvements:
-
-Better positioning: Increased ml-3 for proper spacing
-Enhanced styling: Added border and shadow for better visibility
-Consistent background: Used bg-gray-900 with border
-
-?Footer Enhancements:
-
-Conditional hover: Only applies hover when expanded
-Better user info: Added status indicator and proper layout
-Improved avatar: Better sizing and object-cover for images
-
-?Accessibility:
-
-Better focus indicators: Enhanced focus rings
-Proper ARIA labels: Maintained all accessibility features
-Keyboard navigation: All interactive elements remain keyboard accessible
-
-The design now feels more polished and consistent while maintaining your dark theme aesthetic and all existing functionality.
-*/
-
-
-
-
-
-
-
