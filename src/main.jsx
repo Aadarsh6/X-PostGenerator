@@ -5,7 +5,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { DashboardPage } from './Pages/DashboardPage'
 import { LandingPage } from './Pages/LandingPage'
 import ContactPage from './Pages/Contact'
-import { ComingSoon } from './Pages/ComingSoon'
+// import { ComingSoon } from './Pages/ComingSoon'
 import { SignupPage } from './Pages/SignupPage'
 import { LogInPage } from './Pages/LogInPage'
 import ProtectRoute from './components/ProtectRoute'
@@ -14,13 +14,14 @@ import { AvatarProvider } from './components/BlockComponent/Context/avatarContex
 import { SavePage } from './Pages/SavePage'
 import ProfilePage from './Pages/profile'
 import App from './App'
+import SettingsPage from './Pages/SettingsPage'
 
 inject();
 
 const router = createBrowserRouter([
   { path: "/", element: <LandingPage /> },
   { path: "/contact", element: <ContactPage /> },
-  { path: "/soon", element: <ComingSoon /> },
+  { path: "/setting", element: <SettingsPage /> },
   { path: "/signup", element: <SignupPage /> },
   { path: "/login", element: <LogInPage /> },
 
