@@ -6,9 +6,9 @@ import { motion } from 'framer-motion'
 const CHANNELS = [
   {
     icon: Twitter,
-    href: 'https://twitter.com/aadarshmX',
+    href: 'https://twitter.com/Aadarsh_MM',
     title: 'X (Twitter)',
-    value: '@aadarshmX',
+    value: '@Aadarsh_MM',
     hint: 'Fastest — DMs are open',
     external: true,
   },
