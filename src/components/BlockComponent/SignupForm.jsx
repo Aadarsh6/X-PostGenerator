@@ -1,257 +1,178 @@
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { BorderBeam } from "@/components/magicui/border-beam";
-import { useState } from "react"
-import { Link } from "react-router-dom"
-import { Loader2 } from "lucide-react"
-import { useNavigate } from "react-router-dom"
-import { useAuthStore } from "@/store/authStore"
-import { api } from "@/services/api"
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { AlertCircle, ArrowRight, Check, Eye, EyeOff, Loader2, Lock, Mail, User } from 'lucide-react'
+import { useAuthStore } from '@/store/authStore'
+import { api } from '@/services/api'
+import { AuthLayout, AuthField } from './AuthLayout'
 
-function SignUpForm({ className, ...props }) {
-    const [name, setName] = useState('')
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [error, setError] = useState('')
-    const [loading, setLoading] = useState(false)
-    const [success, setSuccess] = useState('')
-    
-    const navigate = useNavigate()
-    const { setAuth } = useAuthStore()
+function SignUpForm() {
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
 
-    const isValidEmail = (email) => /\S+@\S+\.\S+/.test(email);
-    
-    const handleSubmit = async (e) => {
+  const navigate = useNavigate()
+  const { setAuth } = useAuthStore()
+
+  const isValidEmail = (email) => /\S+@\S+\.\S+/.test(email)
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
-    setError("")
-    setSuccess("")
+    setError('')
+    setSuccess('')
 
     const trimmedEmail = email.trim()
     if (!isValidEmail(trimmedEmail)) {
-        setError("Please enter a valid email address.")
-        setLoading(false)
-        return
+      setError('Please enter a valid email address.')
+      setLoading(false)
+      return
     }
 
     try {
-        const result = await api.signup(name, trimmedEmail, password)
-        setAuth(result.token, { id: result.id, name: result.name, email: result.email,  createdAt: result.createdAt })
-        setSuccess("🎉 Account created successfully")
-        navigate("/dashboard")
+      const result = await api.signup(name, trimmedEmail, password)
+      setAuth(result.token, {
+        id: result.id,
+        name: result.name,
+        email: result.email,
+        createdAt: result.createdAt,
+      })
+      setSuccess('Account created')
+      navigate('/dashboard')
     } catch (err) {
-        if (err.message.includes('already exist')) {
-            setError("An account with this email already exists.")
-        } else if (err.message.includes('password')) {
-            setError("Password must be at least 6 characters.")
-        } else {
-            setError(err.message || "Can't sign up. Please try again.")
-        }
+      if (err.message.includes('already exist')) {
+        setError('An account with this email already exists.')
+      } else if (err.message.includes('password')) {
+        setError('Password must be at least 6 characters.')
+      } else {
+        setError(err.message || "Can't sign up. Please try again.")
+      }
     } finally {
-        setLoading(false)
+      setLoading(false)
     }
-}
+  }
 
-    // const handleOAuth = async () => {
-    //     setOauthLoading(true);
-    //     setError('');
-    //     try {
-    //         console.log('Starting OAuth flow...');
-            
-    //         // Set the new signup flag for OAuth too
-    //         sessionStorage.setItem('isNewSignup', 'true');
-    //         sessionStorage.setItem('signupMethod', 'oauth');
-            
-    //         await oAuth();
-    //         // OAuth will redirect, so this won't execute
-    //     } catch (error) {
-    //         console.error("OAuth failed:", error);
-            
-    //         // Clear the flag if OAuth fails
-    //         sessionStorage.removeItem('isNewSignup');
-    //         sessionStorage.removeItem('signupMethod');
-            
-    //         // Handle specific OAuth errors
-    //         if (error.code === 409) {
-    //             setError("An account with this email already exists. Please use email/password login.");
-    //         } else if (error.message.includes('unauthorized')) {
-    //             setError("OAuth not properly configured. Please contact support.");
-    //         } else {
-    //             setError("Google login failed. Please try again.");
-    //         }
-    //     } finally {
-    //         setOauthLoading(false);
-    //     }
-    // };
+  return (
+    <AuthLayout>
+      <div className="animate-fade-up">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-600">
+          Get started
+        </p>
+        <h1 className="mt-2.5 text-[28px] font-semibold leading-[1.15] tracking-[-0.03em] text-white">
+          Start <span className="font-serif-accent text-[1.08em] text-[#f97316]">crafting</span>.
+        </h1>
+        <p className="mt-2 text-sm leading-relaxed text-gray-500">
+          Create your free account — no credit card needed.
+        </p>
 
-    return (
-        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-            {/* Dark Base Background */}
-            <div className="absolute inset-0 bg-[#0d0d0d] z-0" />
+        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+          <AuthField
+            id="name"
+            label="Full name"
+            icon={User}
+            type="text"
+            placeholder="Your name"
+            autoComplete="name"
+            autoFocus
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
 
-            {/* Dotted Background */}
-            <div className="absolute inset-0 bg-[radial-gradient(white_1px,transparent_1px)] [background-size:16px_16px] opacity-20 z-0" />
+          <AuthField
+            id="email"
+            label="Email"
+            icon={Mail}
+            type="email"
+            placeholder="you@example.com"
+            autoComplete="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-            {/* Sign Up Card with BorderBeam */}
-            <Card
-                className={cn(
-                    "w-full max-w-md relative z-10 bg-neutral-900/60 backdrop-blur-xl border border-neutral-800 shadow-2xl shadow-orange-500/10 overflow-hidden group",
-                    className
-                )}
-                {...props}
+          <AuthField
+            id="password"
+            label="Password"
+            icon={Lock}
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Create a password"
+            autoComplete="new-password"
+            minLength={6}
+            hint="Must be at least 6 characters."
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            endAdornment={
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-gray-600 outline-none transition-colors hover:text-gray-300 focus-visible:ring-2 focus-visible:ring-[#ea580c]/60"
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            }
+          />
+
+          {error && (
+            <div
+              key={error}
+              role="alert"
+              className="animate-shake flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400"
             >
-                <div className="relative z-10">
-                    <CardHeader className="text-center space-y-2 pb-6">
-                        <CardTitle className="text-3xl font-extrabold text-gray-200">
-                            Create an Account
-                        </CardTitle>
-                        <CardDescription className="text-lg font-semibold text-[#f97316]">
-                            Join Xcraft
-                        </CardDescription>
-                    </CardHeader>
+              <AlertCircle size={16} className="shrink-0" />
+              {error}
+            </div>
+          )}
 
-                    <CardContent className="space-y-6">
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="name" className="text-base text-gray-200">
-                                        Full Name
-                                    </Label>
-                                    <Input
-                                        id="name"
-                                        type="text"
-                                        placeholder="Your Full Name"
-                                        required
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                        className="bg-neutral-800/80 text-white border border-neutral-700 placeholder:text-gray-500 focus:ring-2 focus:ring-[#f97316] focus:border-[#f97316] transition-all"
-                                    />
-                                </div>
+          {success && (
+            <div
+              role="status"
+              className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-sm text-emerald-400"
+            >
+              <Check size={16} className="shrink-0" />
+              {success}
+            </div>
+          )}
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="email" className="text-base text-gray-200">
-                                        Email
-                                    </Label>
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        placeholder="you@example.com"
-                                        required
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        className="bg-neutral-800/80 text-white border border-neutral-700 placeholder:text-gray-500 focus:ring-2 focus:ring-[#f97316] focus:border-[#f97316] transition-all"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="password" className="text-base text-gray-200">
-                                        Password
-                                    </Label>
-                                    <Input
-                                        id="password"
-                                        type="password"
-                                        placeholder="********"
-                                        required
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        className="bg-neutral-800/80 text-white border border-neutral-700 placeholder:text-gray-500 focus:ring-2 focus:ring-[#f97316] focus:border-[#f97316] transition-all"
-                                    />
-                                </div>
-                            </div>
-
-                            {error && (
-                                <div className="p-3 bg-red-900/20 border border-red-500/30 text-red-400 rounded-lg text-sm animate-in fade-in slide-in-from-top">
-                                    <div className="flex items-center">
-                                        <span className="inline-block w-2 h-2 bg-red-500 rounded-full mr-2 flex-shrink-0" />
-                                        <span>{error}</span>
-                                    </div>
-                                </div>
-                            )}
-
-                            {success && (
-                                <div className="p-3 bg-green-900/20 border border-green-500/30 text-green-400 rounded-lg text-sm animate-in fade-in slide-in-from-top">
-                                    <div className="flex items-center">
-                                        <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2 flex-shrink-0 animate-pulse" />
-                                        <span>{success}</span>
-                                    </div>
-                                </div>
-                            )}
-
-                            <Button
-                                type="submit"
-                                className="w-full bg-[#f97316] hover:bg-[#ea580c] text-white font-bold shadow-lg shadow-orange-500/20 transition-all disabled:opacity-50"
-                                disabled={loading}
-                            >
-                                {loading ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Creating...
-                                    </>
-                                ) : (
-                                    "Sign Up"
-                                )}
-                            </Button>
-
-                            <div className="relative">
-                                <div className="absolute inset-0 flex items-center">
-                                    <span className="w-full border-t border-neutral-700" />
-                                </div>
-                                {/* <div className="relative flex justify-center text-xs uppercase">
-                                    <span className="bg-neutral-900/60 px-2 text-gray-400 backdrop-blur-sm">
-                                        Or continue with
-                                    </span>
-                                </div> */}
-                            </div>
-
-                            {/* <Button
-                                variant="outline"
-                                className="w-full border-neutral-700 text-gray-300 bg-transparent hover:bg-neutral-800 hover:text-white transition-all"
-                                type="button"
-                                onClick={handleOAuth}
-                                disabled={oauthLoading}
-                            >
-                                {oauthLoading ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Connecting to Google...
-                                    </>
-                                ) : (
-                                    "Signup with Google"
-                                )}
-                            </Button> */}
-
-                            <div className="text-center text-sm text-gray-400">
-                                Already have an account?{" "}
-                                <Link
-                                    to="/login"
-                                    className="text-[#f97316] hover:text-[#fdba74] underline-offset-4 hover:underline transition-colors"
-                                >
-                                    Login
-                                </Link>
-                            </div>
-                        </form>
-                    </CardContent>
-                </div>
-
-                {/* BorderBeam Effects */}
-                <BorderBeam
-                  duration={8}
-                  size={400}
-                  className="from-transparent via-[#f97316] to-transparent"
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-primary group flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-semibold text-white outline-none transition-all focus-visible:ring-2 focus-visible:ring-[#ea580c]/60 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+          >
+            {loading ? (
+              <>
+                <Loader2 size={16} className="animate-spin" />
+                Creating account…
+              </>
+            ) : (
+              <>
+                Create account
+                <ArrowRight
+                  size={16}
+                  className="transition-transform duration-200 group-hover:translate-x-0.5"
                 />
-                <BorderBeam
-                  duration={8}
-                  delay={4}
-                  size={400}
-                  borderWidth={2}
-                  className="from-transparent via-[#ea580c] to-transparent"
-                />
-            </Card>
+              </>
+            )}
+          </button>
+        </form>
+
+        <div className="mt-8 border-t border-[#1c1d1d] pt-6 text-center text-sm text-gray-500">
+          Already have an account?{' '}
+          <Link
+            to="/login"
+            className="font-medium text-[#f97316] underline-offset-4 transition-colors hover:text-[#fb923c] hover:underline"
+          >
+            Sign in
+          </Link>
         </div>
-    );
+      </div>
+    </AuthLayout>
+  )
 }
 
-export default SignUpForm;
+export default SignUpForm
