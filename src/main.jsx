@@ -11,10 +11,10 @@ import { LogInPage } from './Pages/LogInPage'
 import ProtectRoute from './components/ProtectRoute'
 import { inject } from '@vercel/analytics'
 import { AvatarProvider } from './components/BlockComponent/Context/avatarContext'
-import { SavePage } from './Pages/SavePage'
 import ProfilePage from './Pages/profile'
 import App from './App'
 import SettingsPage from './Pages/SettingsPage'
+import SavePostPage from './Pages/SavePostPage'
 
 inject();
 
@@ -35,7 +35,7 @@ const router = createBrowserRouter([
   path: "/save",
   element: (
     <ProtectRoute>
-      <SavePage />
+      <SavePostPage />
     </ProtectRoute>
   )
 },
