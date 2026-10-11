@@ -1,10 +1,13 @@
+import { Sidebar } from 'lucide-react';
 import React from 'react'
 import { Link } from 'react-router-dom'
 
 export const ComingSoon = () => {
   return (
-    <div className="w-full h-screen flex items-center justify-center bg-gradient-to-b from-[#1f1f1f] via-[#171717] to-[#0f0f0f] px-4">
+    <div className=" h-screen flex items-center justify-center bg-gradient-to-b from-[#1f1f1f] via-[#171717] to-[#0f0f0f] px-4">
+      <Sidebar/>
       {/* Wrapper */}
+
       <div className="flex flex-col items-center text-center">
         <h1 className="animate-pulse text-slate-200 text-4xl sm:text-5xl md:text-7xl font-bold">
           Coming Soon!
