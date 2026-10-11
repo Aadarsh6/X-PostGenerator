@@ -1,11 +1,13 @@
-import { Button } from "../ui/button";
-import { Textarea } from "../ui/textarea";
-import { Card, CardContent } from "../ui/card";
-import { Copy, Edit, Check, Save, Twitter, X, AlertCircle } from "lucide-react";
+import { AlertTriangle, Check, Copy, Pencil, Twitter } from 'lucide-react'
+import { Textarea } from '../ui/textarea'
+import { useAvatar } from './Context/avatarContext'
+import { useAuthStore } from '@/store/authStore'
 
 export const PostCard = ({
   post,
   index,
+  total,
+  isLast,
   postType,
   editingPostId,
   editingContent,
@@ -13,82 +15,145 @@ export const PostCard = ({
   copiedId,
   onCopy,
   onEdit,
-  onSave,
   onSaveEdit,
   onCancelEdit,
   onKeyEdit,
   onPostToTwitter,
 }) => {
-  const isEditing = editingPostId === post.id;
-  const charCount = isEditing ? editingContent.length : post.characterCount;
-  const overLimit = charCount > 280;
+  const { initial } = useAvatar()
+  const user = useAuthStore((state) => state.user)
+
+  const isEditing = editingPostId === post.id
+  const isThread = postType !== 'single'
+  const number = post.postNumber || index + 1
+  const isCopied = copiedId === post.id
+  const overLimit = post.characterCount > 280 || post.withinLimit === false
+
+  const name = user?.name || user?.username || user?.email?.split('@')[0] || 'You'
+  const handle = user?.username ? `@${user.username}` : '@you'
 
   return (
-    <Card className="border-2 bg-[#171717] border-[#222323] shadow-lg hover:border-orange-500/30 transition-all duration-200">
-      <CardContent className="p-6">
-        {/* Header */}
-        <div className="flex justify-between items-start mb-4">
-          <span className="text-sm text-orange-400 font-medium bg-orange-500/10 px-3 py-1 rounded-full">
-            {postType === "single" ? "Post" : `Post ${index + 1}`}
-          </span>
-          <div className="flex items-center gap-2">
-            <span className={`text-sm font-medium ${overLimit ? "text-red-400" : "text-gray-400"}`}>
-              {charCount}/280
-            </span>
-            {overLimit && <AlertCircle className="h-4 w-4 text-red-400" />}
+    <article
+      className="card animate-fade-up p-4 transition-colors duration-200 hover:border-[#2c2c2c]"
+      style={{ animationDelay: `${Math.min(index * 60, 360)}ms` }}
+    >
+      <div className="flex gap-3.5">
+        {/* Avatar + thread connector */}
+        <div className="relative shrink-0">
+          <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#f06414] to-[#c2410c] text-xs font-semibold text-white shadow-md shadow-[#ea580c]/20">
+            {initial || 'U'}
           </div>
+          {isThread && !isLast && (
+            <span
+              aria-hidden="true"
+              className="absolute left-1/2 top-[52px] bottom-[-32px] w-px -translate-x-1/2 bg-[#262626]"
+            />
+          )}
         </div>
 
-        {/* Edit mode */}
-        {isEditing ? (
-          <div className="mb-6">
-            <Textarea
-              value={editingContent}
-              onChange={(e) => setEditingContent(e.target.value)}
-              onKeyDown={(e) => onKeyEdit(e, post.id)}
-              className="w-full min-h-[100px] bg-[#222323] text-[#e6e8ec] border border-[#333333] rounded-lg resize-none focus:ring-2 focus:ring-orange-500/50 text-lg leading-relaxed p-4"
-              placeholder="Edit your post content..."
-            />
-            <div className="flex gap-2 mt-3">
-              <Button size="sm" onClick={() => onSaveEdit(post.id)} className="bg-[#ff6900] hover:bg-[#ff8400] text-white">
-                <Check className="h-4 w-4 mr-2" />Save
-              </Button>
-              <Button size="sm" variant="secondary" onClick={onCancelEdit} className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333]">
-                <X className="h-4 w-4 mr-2" />Cancel
-              </Button>
+        <div className="min-w-0 flex-1">
+          {/* Header */}
+          <div className="flex items-center gap-2">
+            <span className="text-[14px] font-semibold text-white">{name}</span>
+            <span className="text-[13px] text-gray-600">{handle}</span>
+            {isThread && (
+              <span className="ml-auto rounded-full border border-[#242424] bg-[#141414] px-2 py-0.5 text-[10px] font-semibold tabular-nums text-gray-500">
+                {number}/{total}
+              </span>
+            )}
+          </div>
+
+          {/* Content / editing */}
+          {isEditing ? (
+            <div className="mt-2">
+              <Textarea
+                autoFocus
+                value={editingContent}
+                onChange={(e) => setEditingContent(e.target.value)}
+                onKeyDown={(e) => onKeyEdit(e, post.id)}
+                className="min-h-[96px] w-full resize-none rounded-xl border border-[#2c2c2c] bg-[#0f0f0f] p-3 text-[15px] leading-relaxed text-gray-200 focus-visible:ring-2 focus-visible:ring-[#ea580c]/50"
+              />
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <span
+                  className={`text-xs tabular-nums ${
+                    editingContent.length > 280 ? 'text-red-400' : 'text-gray-600'
+                  }`}
+                >
+                  {editingContent.length}/280
+                </span>
+                <span className="hidden text-[11px] text-gray-600 sm:inline">
+                  Ctrl+Enter to save · Esc to cancel
+                </span>
+                <div className="ml-auto flex gap-2">
+                  <button
+                    onClick={onCancelEdit}
+                    className="h-8 rounded-lg px-3 text-[13px] font-medium text-gray-400 outline-none transition-colors hover:bg-white/5 hover:text-white focus-visible:ring-2 focus-visible:ring-[#ea580c]/60"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => onSaveEdit(post.id)}
+                    className="flex h-8 items-center gap-1.5 rounded-lg bg-[#ea580c]/15 px-3 text-[13px] font-semibold text-[#f97316] outline-none transition-colors hover:bg-[#ea580c]/25 focus-visible:ring-2 focus-visible:ring-[#ea580c]/60"
+                  >
+                    <Check size={14} />
+                    Save
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="text-[#e6e8ec] whitespace-pre-wrap text-lg leading-relaxed mb-6 p-4 bg-[#222323] rounded-lg border border-[#333333]">
-            {post.content}
-          </div>
-        )}
+          ) : (
+            <>
+              <p className="mt-1 whitespace-pre-wrap break-words text-[15px] leading-relaxed text-gray-200">
+                {post.content}
+              </p>
+              {overLimit && (
+                <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-red-400">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                  {post.characterCount}/280 — over the limit
+                </p>
+              )}
+            </>
+          )}
 
-        {/* Action buttons */}
-        {!isEditing && (
-          <div className="flex gap-3 flex-wrap">
-            <Button size="sm" variant="secondary" onClick={() => onCopy(post.content, post.id)} className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333]">
-              <Copy className="h-4 w-4 mr-2" />
-              {copiedId === post.id ? "Copied!" : "Copy"}
-            </Button>
-            <Button size="sm" variant="secondary" onClick={() => onEdit(post.id, post.content)} className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333]">
-              <Edit className="h-4 w-4 mr-2" />Edit
-            </Button>
+          {/* Actions */}
+          {!isEditing && (
+            <div className="mt-3 flex items-center gap-1">
+              <button
+                onClick={() => onCopy(post.content, post.id)}
+                title={isCopied ? 'Copied' : 'Copy'}
+                className={`flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#ea580c]/60 ${
+                  isCopied ? 'text-emerald-400' : 'text-gray-600 hover:bg-white/5 hover:text-white'
+                }`}
+              >
+                {isCopied ? <Check size={14} /> : <Copy size={14} />}
+                {isCopied && <span>Copied</span>}
+              </button>
 
+              <button
+                onClick={() => onEdit(post.id, post.content)}
+                title="Edit"
+                className="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-gray-600 outline-none transition-colors hover:bg-white/5 hover:text-white focus-visible:ring-2 focus-visible:ring-[#ea580c]/60"
+              >
+                <Pencil size={14} />
+              </button>
 
-                                {/* SINGLE POST SAVE BUTTON */}
+              <button
+                onClick={() => onPostToTwitter(post.content)}
+                title="Open in X"
+                className="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-gray-600 outline-none transition-colors hover:bg-white/5 hover:text-white focus-visible:ring-2 focus-visible:ring-[#ea580c]/60"
+              >
+                <Twitter size={14} />
+              </button>
 
-            {/* <Button size="sm" onChange={()=>}  variant="secondary" className="bg-[#222323] text-green-400 border border-[#333333]">
-              <Check className="h-4 w-4 mr-2" />Saved
-            </Button> */}
+              <span className="ml-auto text-[11px] tabular-nums text-gray-700">
+                {post.characterCount}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+    </article>
+  )
+}
 
-
-            <Button size="sm" onClick={() => onPostToTwitter(post.content)} className="bg-[#222323] text-[#e6e8ec] hover:bg-[#333333] border border-[#333333]">
-              <Twitter className="h-4 w-4 mr-2" />Post to X
-            </Button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-};
+export default PostCard
