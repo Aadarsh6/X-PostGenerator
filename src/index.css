@@ -156,11 +156,11 @@ body {
 }
 
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
-  overscroll-behavior: none;
+  overflow-x: clip;
 }
 
 
@@ -220,10 +220,6 @@ html, body {
   scrollbar-width: none;     /* Firefox */
 }
 
-/* In your global CSS file (e.g., index.css or App.css) */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 @layer utilities {
   @keyframes scale-in {

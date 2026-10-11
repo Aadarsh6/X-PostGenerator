@@ -290,7 +290,7 @@ export const Xpost = () => {
             }}
             onKeyDown={handleKeyDown}
             placeholder={`What's the idea? e.g. "5 lessons from shipping my first SaaS"`}
-            className="min-h-[110px] w-full resize-none border-none bg-transparent p-0 text-[15px] leading-relaxed text-gray-200 placeholder:text-gray-600 focus-visible:!ring-0"
+            className="min-h-[110px] w-full resize-none border-none bg-transparent p-0 text-[15px] leading-relaxed text-gray-200 placeholder:text-gray-600 focus-visible:ring-0!"
           />
         </div>
 
