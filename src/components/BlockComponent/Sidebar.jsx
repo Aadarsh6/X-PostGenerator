@@ -247,6 +247,7 @@ export const Sidebar = ({
   {/* Search trigger → command palette (unchanged) */}
   <button
     onClick={onOpenCommandPalette}
+
             className={`group relative mt-3 flex h-10 items-center rounded-xl border border-[#242424] bg-[#111111] outline-none transition-all duration-200 hover:border-[#333333] hover:bg-[#151515] focus-visible:ring-2 focus-visible:ring-[#ea580c]/60 ${
               isCollapsed ? 'w-11 justify-center' : 'w-full gap-3 px-3'
             }`}

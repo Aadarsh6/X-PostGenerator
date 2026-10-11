@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, LogIn, Menu, X, Zap } from 'lucide-react'
+import { ArrowRight, LogIn, Menu, X } from 'lucide-react'
 import { ShimmerButton } from '../magicui/shimmer-button'
 import { useAuthStore } from '@/store/authStore'
 import { useAvatar } from './Context/avatarContext'
@@ -75,11 +75,8 @@ export const NavBar = React.memo(() => {
         aria-label="Main navigation"
       >
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          {/* Logo — unified with the app's branding */}
-          <Link to="/" className="group flex items-center gap-2.5" aria-label="XCrafter home">
-           <Logo size="sm" to="/" ariaLabel="XCrafter home" />
-            <span className="text-[17px] font-semibold tracking-[-0.02em] text-white">XCrafter</span>
-          </Link>
+          {/* Logo — the lockup is already a link, no wrapper needed */}
+          <Logo size="sm" to="/" ariaLabel="XCrafter home" />
 
           {/* Desktop */}
           <div className="hidden items-center gap-3 md:flex">
@@ -88,7 +85,7 @@ export const NavBar = React.memo(() => {
                 to="/dashboard"
                 className="group flex items-center gap-2.5 rounded-full py-1 pl-1 pr-3 outline-none transition-colors hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-[#ea580c]/60"
               >
-                {/* ✦ THE FIX: initials fallback when avatar is missing or broken */}
+                {/* Initials fallback when avatar is missing or broken */}
                 {showAvatar ? (
                   <img
                     src={avatar}
@@ -151,7 +148,7 @@ export const NavBar = React.memo(() => {
       >
         <div className="flex h-full flex-col border-l border-[#222323] bg-[#171717]">
           <div className="flex h-16 items-center justify-between border-b border-[#222323] px-4">
-            <span className="text-[17px] font-semibold tracking-tight text-white">XCrafter</span>
+            <Logo size="sm" to="/" ariaLabel="XCrafter home" onClick={() => setMobileMenuOpen(false)} />
             <button
               onClick={() => setMobileMenuOpen(false)}
               className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-white/5 hover:text-white"

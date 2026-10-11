@@ -32,8 +32,8 @@ const POST_TYPES = [
 
 export const Xpost = () => {
   const [prompt, setPrompt] = useState('')
-  const [postType, setPostType] = useState(() => localStorage.getItem('xcrafter:default-type') || 'single')
-  const [tone, setTone] = useState(() => localStorage.getItem('xcrafter:default-tone') || 'educational')  
+  const [postType, setPostType] = useState('single')
+  const [tone, setTone] = useState('educational')
   const [generating, setGenerating] = useState(false)
   const [regenerating, setRegenerating] = useState(false)
   const [generatedPost, setGeneratedPost] = useState([])
