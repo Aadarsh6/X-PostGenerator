@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
   Bookmark, ChevronLeft, ChevronRight, ChevronsUpDown, Home, LogOut,
-  PenLine, Search, Settings, User, X, Zap,
+  PenLine, Search, Settings, User, X
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 
@@ -205,20 +205,7 @@ export const Sidebar = ({
             isCollapsed ? 'justify-center' : 'justify-between px-4'
           }`}
         >
-          <Link
-            to="/dashboard"
-            onClick={isMobile ? onMobileClose : undefined}
-            className="group flex items-center gap-2.5 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-[#ea580c]/60"
-          >
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[#ea580c] shadow-lg shadow-[#ea580c]/25 transition-transform duration-200 group-hover:scale-105">
-              <Zap size={15} strokeWidth={2.5} className="text-white" />
-            </span>
-            {!isCollapsed && (
-              <span className="text-[17px] font-semibold tracking-[-0.02em] text-white">
-                XCrafter
-              </span>
-            )}
-          </Link>
+          <Logo size="md" showText={!isCollapsed} onClick={isMobile ? onMobileClose : undefined} />
 
           {isMobile && (
             <button

@@ -23,6 +23,7 @@ body {
   font-style: italic;
   letter-spacing: 0;
 }
+.font-serif-display { font-family: 'Instrument Serif', ui-serif, Georgia, serif; }
 
 /* Tabular numbers — keeps digits from jittering when values change */
 .tnum { font-variant-numeric: tabular-nums; }
