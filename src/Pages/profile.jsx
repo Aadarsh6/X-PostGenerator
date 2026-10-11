@@ -130,7 +130,7 @@ export default function ProfilePage() {
         </Link>
 
         <Link
-          to="/soon"
+          to="/setting"
           className="group flex items-center gap-4 p-4 transition-colors hover:bg-white/[0.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#ea580c]/60 sm:p-5"
         >
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[#ea580c]/20 bg-[#ea580c]/10 text-[#f97316]">
