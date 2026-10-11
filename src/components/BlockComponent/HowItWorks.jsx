@@ -42,7 +42,7 @@ export const HowItWorks = () => {
         </motion.div>
 
         <div className="relative grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
-          {/* Connector line — only in the 3-column layout */}
+          {/* Connector line — 3-column layout only */}
           <div className="absolute left-[calc(16.66%+1rem)] right-[calc(16.66%+1rem)] top-[44px] hidden h-px bg-gradient-to-r from-transparent via-orange-500/40 to-transparent lg:block" />
 
           {steps.map((step, index) => (
@@ -52,15 +52,18 @@ export const HowItWorks = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.15 }}
-              className={`relative rounded-2xl border border-neutral-800 bg-[#111111] p-6 transition-all duration-300 hover:border-orange-500/30 ${
+              className={`group relative rounded-2xl border border-neutral-800 bg-[#111111] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-orange-500/40 ${
                 index === 2 ? 'md:col-span-2 lg:col-span-1' : ''
               }`}
             >
-              <div className="mb-5 flex items-center justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-orange-500/20 bg-orange-500/10">
+              <div className="mb-5 flex items-start justify-between">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-orange-500/20 bg-orange-500/10 transition-transform duration-300 group-hover:scale-110">
                   <step.icon className="h-5 w-5 text-orange-400" />
                 </div>
-                <span className="text-2xl font-bold text-neutral-700">{step.step}</span>
+                {/* Ghost outlined numeral */}
+                <span className="text-4xl font-bold leading-none text-transparent [-webkit-text-stroke:1px_rgba(255,255,255,0.14)]">
+                  {step.step}
+                </span>
               </div>
 
               <h3 className="mb-2 text-lg font-semibold text-white">{step.title}</h3>
