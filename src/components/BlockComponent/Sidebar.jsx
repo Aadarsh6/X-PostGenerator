@@ -229,14 +229,24 @@ export const Sidebar = ({
           {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
 
-        {/* ------------------------- CTA + search trigger ------------------------ */}
-        <div className={`shrink-0 pt-4 ${isCollapsed ? 'px-2' : 'px-4'}`}>
-          {/* Primary CTA — ⚠️ point this at your composer route */}
-          <Logo size="md" showText={!isCollapsed} onClick={isMobile ? onMobileClose : undefined} />
+{/* ------------------------- CTA + search trigger ------------------------ */}
+<div className={`shrink-0 pt-4 ${isCollapsed ? 'px-2' : 'px-4'}`}>
+  {/* Primary CTA — ⚠️ point this at your composer route */}
+  <Link
+    to="/dashboard"
+    onClick={isMobile ? onMobileClose : undefined}
+    className={`btn-primary group relative flex h-11 items-center justify-center gap-2 rounded-xl text-sm font-semibold text-white outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#ea580c]/60 ${
+      isCollapsed ? 'w-11' : 'w-full'
+    }`}
+  >
+    <PenLine size={17} strokeWidth={2.25} className="shrink-0" />
+    {!isCollapsed && <span className="tracking-tight">New Post</span>}
+    {isCollapsed && <Tooltip>New Post</Tooltip>}
+  </Link>
 
-          {/* Search trigger → command palette */}
-          <button
-            onClick={onOpenCommandPalette}
+  {/* Search trigger → command palette (unchanged) */}
+  <button
+    onClick={onOpenCommandPalette}
             className={`group relative mt-3 flex h-10 items-center rounded-xl border border-[#242424] bg-[#111111] outline-none transition-all duration-200 hover:border-[#333333] hover:bg-[#151515] focus-visible:ring-2 focus-visible:ring-[#ea580c]/60 ${
               isCollapsed ? 'w-11 justify-center' : 'w-full gap-3 px-3'
             }`}
