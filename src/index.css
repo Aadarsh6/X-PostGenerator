@@ -16,6 +16,16 @@ body {
   text-rendering: optimizeLegibility;
   background: #0a0a0a;
 }
+/* ---------- Auth: error shake ---------- */
+@keyframes shake {
+  0% { opacity: 0; transform: translateX(0); }
+  15% { opacity: 1; transform: translateX(-7px); }
+  30% { transform: translateX(6px); }
+  45% { transform: translateX(-4px); }
+  60% { transform: translateX(3px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+.animate-shake { animation: shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
 
 /* Italic serif accent — used for the greeting name (trendy, very "premium editorial") */
 .font-serif-accent {
