@@ -35,7 +35,7 @@ const NAV_ITEMS = [
   { icon: Home, label: 'Dashboard', to: '/dashboard' },
   { icon: Bookmark, label: 'Saved', to: '/save' },
   { icon: User, label: 'Profile', to: '/profile' },
-  { icon: Settings, label: 'Settings', to: '/soon' },
+  { icon: Settings, label: 'Settings', to: '/setting' },
 ]
 
 /* --------------------------------- tooltip -------------------------------- */
