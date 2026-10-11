@@ -1,49 +1,84 @@
-import { useState, useCallback } from "react";
-import { Play } from "lucide-react"; 
-import React from "react";
+import { useState, useCallback } from 'react'
+import { Play } from 'lucide-react'
+import { motion } from 'framer-motion'
+import React from 'react'
 
 export const TutorialVideo = React.memo(() => {
-  const [videoError, setVideoError] = useState(false);
+  const [videoError, setVideoError] = useState(false)
 
   const handleVideoError = useCallback(() => {
-    setVideoError(true);
-  }, []);
+    setVideoError(true)
+  }, [])
 
   return (
-     <section className="w-full py-8 md:py-16 px-4"> 
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-8 md:mb-16"> 
-          <h2 className="text-3xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-            See It In Action
-          </h2>
-          <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            A quick walkthrough of how our platform helps you create viral content.
+    <section id="demo" className="w-full px-4 py-16 md:py-24">
+      <div className="mx-auto max-w-4xl">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mb-10 text-center md:mb-14"
+        >
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#f97316]">
+            See it in action
           </p>
-        </div>
+          <h2 className="text-2xl font-semibold tracking-[-0.03em] text-white sm:text-3xl md:text-4xl">
+            Watch the{' '}
+            <span className="font-serif-accent text-[1.06em] text-[#f97316]">full walkthrough</span>
+          </h2>
+          <p className="mx-auto mt-3 max-w-md text-sm text-gray-500">
+            Two minutes — from blank composer to posted thread.
+          </p>
+        </motion.div>
 
-        {/* Video Container */}
-        <div className="relative group">
-          {/* Glow Effect - Fixed positioning and blur */}
-          <div className="absolute -inset-4 bg-gradient-to-r from-orange-500 to-orange-600 rounded-3xl blur-2xl opacity-30 group-hover:opacity-50 transition-all duration-500" />
-          
-          {/* Video Player Container - Fixed shadow and positioning */}
-          <div className="relative">
-            <div className="aspect-video rounded-2xl overflow-hidden bg-gray-900 border border-white/10 shadow-2xl shadow-orange-500/25">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="relative"
+        >
+          {/* Ambient glow */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -inset-6 rounded-[36px] bg-[radial-gradient(ellipse_at_center,rgba(234,88,12,0.14),transparent_70%)] blur-3xl"
+          />
+
+          {/* Window frame — matches the hero demo */}
+          <div className="card relative overflow-hidden">
+            <div className="flex items-center gap-3 border-b border-[#1f2020] px-4 py-3">
+              <span className="flex gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-full bg-[#262626]" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[#262626]" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[#262626]" />
+              </span>
+              <div className="mx-auto rounded-md border border-[#242424] bg-[#111111] px-2.5 py-1 text-[10px] font-medium text-gray-500">
+                XCrafter — walkthrough
+              </div>
+              <span className="hidden items-center rounded-full border border-[#242424] bg-[#111111] px-2 py-0.5 text-[10px] font-medium text-gray-500 sm:flex">
+                Product tour
+              </span>
+            </div>
+
+            <div className="relative aspect-video bg-[#0d0d0d]">
               {videoError ? (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
-                  <div className="text-center p-8">
-                    <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-orange-500/20 flex items-center justify-center backdrop-blur-sm border border-orange-500/30">
-                      <Play size={40} className="text-orange-400 ml-1" />
-                    </div>
-                    <h3 className="text-2xl font-semibold text-white mb-3">Demo Video</h3>
-                    <p className="text-gray-400 text-lg">Video content coming soon</p>
+                <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(ellipse_at_center,#141414,#0a0a0a)]">
+                  <div className="p-8 text-center">
+                    <span className="mx-auto mb-5 grid h-16 w-16 place-items-center rounded-2xl border border-[#ea580c]/20 bg-[#ea580c]/10 text-[#f97316]">
+                      <Play size={24} className="ml-1" />
+                    </span>
+                    <h3 className="text-lg font-semibold tracking-tight text-white">Demo video</h3>
+                    <p className="mt-1.5 text-sm text-gray-500">
+                      The full walkthrough is coming soon.
+                    </p>
                   </div>
                 </div>
               ) : (
-                <video 
-                  className="w-full h-full object-cover"
+                <video
+                  className="h-full w-full object-cover"
                   controls
-                  preload="metadata" 
+                  preload="metadata"
                   onError={handleVideoError}
                   poster="/img.png"
                 >
@@ -53,10 +88,10 @@ export const TutorialVideo = React.memo(() => {
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
-  );
-});
+  )
+})
 
-TutorialVideo.displayName = "TutorialVideo";
+TutorialVideo.displayName = 'TutorialVideo'
