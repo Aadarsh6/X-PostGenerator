@@ -24,7 +24,7 @@ const steps = [
 
 export const HowItWorks = () => {
   return (
-    <section className="w-full px-4 py-16 md:py-24">
+    <section id="how-it-works" className="w-full px-4 py-16 md:py-24">
       <div className="mx-auto max-w-5xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -33,11 +33,12 @@ export const HowItWorks = () => {
           transition={{ duration: 0.5 }}
           className="mb-12 text-center md:mb-16"
         >
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-orange-500">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#f97316]">
             How it works
           </p>
-          <h2 className="bg-gradient-to-b from-neutral-200 to-neutral-500 bg-clip-text text-2xl font-bold tracking-tight text-transparent sm:text-3xl md:text-4xl lg:text-5xl">
-            From idea to post in 30 seconds
+          <h2 className="text-2xl font-semibold tracking-[-0.03em] text-white sm:text-3xl md:text-4xl lg:text-5xl">
+            From idea to post in{' '}
+            <span className="font-serif-accent text-[1.06em] text-[#f97316]">30 seconds</span>
           </h2>
         </motion.div>
 
@@ -52,7 +53,7 @@ export const HowItWorks = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.15 }}
-              className={`group relative rounded-2xl border border-neutral-800 bg-[#111111] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-orange-500/40 ${
+              className={`group relative rounded-2xl border border-[#1f2020] bg-[#111111] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-orange-500/40 ${
                 index === 2 ? 'md:col-span-2 lg:col-span-1' : ''
               }`}
             >
@@ -60,7 +61,6 @@ export const HowItWorks = () => {
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-orange-500/20 bg-orange-500/10 transition-transform duration-300 group-hover:scale-110">
                   <step.icon className="h-5 w-5 text-orange-400" />
                 </div>
-                {/* Ghost outlined numeral */}
                 <span className="text-4xl font-bold leading-none text-transparent [-webkit-text-stroke:1px_rgba(255,255,255,0.14)]">
                   {step.step}
                 </span>
