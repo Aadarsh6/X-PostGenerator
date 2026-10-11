@@ -54,7 +54,7 @@ const TweetCard = ({ tweet, featured = false, delay = 0 }) => (
     {/* Header */}
     <div className="flex items-center gap-2.5">
         <img
-            src="https://pbs.twimg.com/profile_images/2036681672163479552/DDZInte0_400x400.jpg"
+            src="https://pbs.twimg.com/profile_images/2071521603800985600/0kLXngCU.jpg"
             alt="Adarsh"
             className="w-8 h-8 rounded-full object-cover flex-shrink-0"
 />
